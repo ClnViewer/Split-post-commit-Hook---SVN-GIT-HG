@@ -77,7 +77,9 @@ int pch_stage2(paths_t *dirs)
             break;
         }
 
+#       if defined(__DEBUG__)
         printf("%d) [%s]: %s -> %s\n", __LINE__, __func__, from_s.str, to_s.str);
+#       endif
 
         if (!__BITTST(dirs->bitopt, OPT_FORCE))
         {
@@ -130,10 +132,12 @@ int pch_stage2(paths_t *dirs)
         if (rcode < 0)
             break;
 
+#       if defined(__DEBUG__)
         printf("%d) [%s]: %s -> %s -> %s\n",
                __LINE__, __func__, from_s.str, to_s.str,
                ((to_dir_s.str) ? to_dir_s.str : "- none -")
               );
+#       endif
 
         if ((ret = pch_fcopy(&from_s, &to_s)))
         {
