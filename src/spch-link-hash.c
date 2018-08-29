@@ -28,6 +28,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+// !
+// \todo (ClnViewer#1#08/29/18): remove this define..
+// ! for the makefile, which generate the target file is little bit different, because I use the sub makefile to
+#define __BUILD_HASHMAP______X 1
+
 #if defined(__BUILD_HASHMAP)
 #   include "hashmap-link-hash.h"
 #else
