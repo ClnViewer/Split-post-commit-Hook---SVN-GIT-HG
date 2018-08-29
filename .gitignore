@@ -8,6 +8,8 @@ build/run.sh
 build/svnd.sh
 build/bin
 
+!build/*.cmd
+
 # Prerequisites
 *.d
 
