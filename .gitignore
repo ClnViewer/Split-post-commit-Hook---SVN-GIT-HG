@@ -8,7 +8,8 @@
 /build/svnd.sh
 /build/bin
 
-!/build/*.cmd
+!/build/cmake-build-mingw.cmd
+!/build/cmake-build-msvc.cmd
 
 # Prerequisites
 *.d
