@@ -1,14 +1,14 @@
 
 .svn
 .ignoresvn
-build/Linux
-build/split-LinkedHashMap-repo.list
-build/build.sh
-build/run.sh
-build/svnd.sh
-build/bin
+/build/Linux
+/build/split-LinkedHashMap-repo.list
+/build/build.sh
+/build/run.sh
+/build/svnd.sh
+/build/bin
 
-!build/*.cmd
+!/build/*.cmd
 
 # Prerequisites
 *.d
