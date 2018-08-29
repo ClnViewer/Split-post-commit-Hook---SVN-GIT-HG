@@ -1,0 +1,30 @@
+27 August 2018
+   released version 0.0.2 of Split-post-commit-hook
+
+     Change log:
+        -Added: VCS push
+
+26 August 2018
+   released version 0.0.4 of Split-post-commit-hook
+
+     Change log:
+        -Added: Linux default bin path defined
+
+26 August 2018
+   released version 0.0.2 of Split-post-commit-hook
+
+     Change log:
+        -Cleaned: UID change block
+
+26 August 2018
+   released version 0.0.1 of Split-post-commit-hook
+
+     Change log:
+        -Added: Add getpwnam for -u flag in getopt
+
+26 August 2018
+   released version 0.0.4 of Split-post-commit-hook
+
+     Change log:
+        -Applied: Document anotation to hashList
+
