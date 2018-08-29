@@ -40,7 +40,7 @@
     /usr/bin/spch \
        -u svn \
        -e /usr/bin \
-       -r "${1}" \
+       -r "${2}" \
        -t svn \
        -m /home/user/MyLibRootDirectory \
        -s /home/user/__SplitRepo/MyLibSplitRepoDirectory_split25 \

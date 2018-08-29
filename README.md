@@ -87,7 +87,7 @@
     /usr/bin/spch \
        -u svn \
        -e /usr/bin \
-       -r "${1}" \
+       -r "${2}" \
        -t svn \
        -o /home/svn/repo \
        -m /home/user/MyLibRootRepo \

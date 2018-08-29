@@ -47,7 +47,7 @@
     /usr/bin/spch \
        -u svn \
        -e /usr/bin \
-       -r "${1}" \
+       -r "${2}" \
        -t svn \
        -m /home/user/MyProjRootDirectory \
        -s /home/user/__SplitRepo/MyProjRootDirectory_splitRelease \
