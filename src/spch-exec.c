@@ -6,6 +6,7 @@
 #   include <signal.h>
 #   include <sys/types.h>
 #   include <sys/wait.h>
+#   define __ISLOG ((dirs->fp[1]) ? 1 : 0)
 #endif
 
 #if defined(OS_WIN)
@@ -133,6 +134,11 @@ int pch_exec(paths_t *dirs, const char *const opt[])
     }
     case 0:
     {
+        if (__ISLOG)
+        {
+            (void) dup2(fileno(dirs->fp[1]), 1);
+            (void) dup2(fileno(dirs->fp[1]), 2);
+        }
         (void) alarm(120U);
         (void) execv(opt[0], (char * const*)opt);
         exit((errno == ENOEXEC) ? 126 : 127);
