@@ -127,6 +127,14 @@ static const char * __select_vcs_bin(paths_t *dirs, vcs_bin_e type)
     return (const char*)dirs->bins[type].str;
 }
 
+const char * pch_vcs_type(unsigned long bitopt)
+{
+    return (
+               ((__BITTST(bitopt, OPT_VCS_HQ)) ? vcs_bin[2][0] :
+                ((__BITTST(bitopt, OPT_VCS_GIT)) ? vcs_bin[1][0] : vcs_bin[0][0]
+                )));
+}
+
 int pch_vcs_bincheck(paths_t *dirs)
 {
     string_s chk;

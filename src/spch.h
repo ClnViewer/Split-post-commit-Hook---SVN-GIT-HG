@@ -85,6 +85,7 @@ typedef enum
     FILE_BINDIR,
     FILE_FLOG,
     FILE_UUID,
+    FILE_DEPLOY,
     FILE_RENAME1,
     FILE_RENAME2,
     FILE_NONE_IDX
@@ -103,7 +104,8 @@ typedef enum
     OPT_FCHECK_CTIME,
     OPT_FCHECK_MTIME,
     OPT_FCHECK_SIZE,
-    OPT_FCHECK_ALL
+    OPT_FCHECK_ALL,
+    OPT_DEPLOY
 } setup_opt_e;
 
 typedef enum
@@ -154,6 +156,7 @@ int    pch_stage1(paths_t*);
 int    pch_stage2(paths_t*);
 int    pch_stage3(paths_t*, int);
 
+const char * pch_vcs_type(unsigned long);
 int    pch_vcs_bincheck(paths_t*);
 int    pch_vcs_update(paths_t*);
 int    pch_vcs_commit(paths_t*);

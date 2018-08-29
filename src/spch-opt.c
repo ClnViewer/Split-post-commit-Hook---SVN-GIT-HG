@@ -12,6 +12,7 @@ static char *help[] =
     "journal log path include file name",
     "run as 'user' privilege (Linux only)",
     "rename files, prefix example 'new' or 'old=new'",
+    "run deploy script before commit",
     "VCS type: [svn|git|hq]",
     "file check: [mtime|ctime|size|all]",
     "current VCS revision",
@@ -31,6 +32,7 @@ static struct option options[] =
     { "log",      required_argument,  NULL, 'j' },
     { "suid",     required_argument,  NULL, 'u' },
     { "rename",   required_argument,  NULL, 'x' },
+    { "deploy",   required_argument,  NULL, 'd' },
     { "vcs",      required_argument,  NULL, 't' },
     { "check",    required_argument,  NULL, 'c' },
     { "revision", required_argument,  NULL, 'r' },
@@ -139,7 +141,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     while (1)
     {
         int c;
-        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:t:c:r:fqh", options, &idx)) == -1)
+        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:t:c:r:fqh", options, &idx)) == -1)
             break;
 
         switch (c)
@@ -265,6 +267,20 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
                     dirs->bitopt = __BITSET(dirs->bitopt, OPT_PREFIX);
                 }
             }
+            break;
+        }
+        case 'd':
+        {
+            if (
+                (!optarg) ||
+                (!pch_path_dump(&dirs->setup[FILE_DEPLOY], optarg)) ||
+                (!pch_check_dir(&dirs->setup[FILE_DEPLOY]))
+            )
+            {
+                __param_err(options[FILE_DEPLOY].val, options[FILE_DEPLOY].name, help[FILE_DEPLOY]);
+                return (FILE_DEPLOY + 1);
+            }
+            dirs->bitopt = __BITSET(dirs->bitopt, OPT_DEPLOY);
             break;
         }
         case 't':

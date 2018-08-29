@@ -173,6 +173,33 @@ int pch_stage3(paths_t *dirs, int status)
     {
         pch_log_error(dirs, "add VCS root directory error: %d -> %s", ret, dirs->setup[FILE_SPLIT_REPO].str);
     }
+    if (__BITTST(dirs->bitopt, OPT_DEPLOY))
+    {
+        do
+        {
+            char brev[20] = {0};
+            const char *args[] =
+            {
+                dirs->setup[FILE_DEPLOY].str,
+                dirs->setup[FILE_SPLIT_REPO].str,
+                NULL,
+                NULL,
+                NULL
+            };
+            if (sprintf(brev, "%lu", dirs->rev) <= 0)
+                break;
+
+            args[2] = (const char*)brev;
+            args[3] = pch_vcs_type(dirs->bitopt);
+
+            if ((ret = pch_exec(dirs, args)))
+            {
+                pch_log_error(dirs, "deploy script return error: %d -> %s", ret, dirs->setup[FILE_DEPLOY].str);
+                return -1;
+            }
+        }
+        while (0);
+    }
     if ((ret = pch_vcs_commit(dirs)) != 0)
     {
         pch_log_error(dirs, "commit VCS error: %d", ret);
