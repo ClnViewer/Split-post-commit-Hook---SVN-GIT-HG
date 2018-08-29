@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 project(spch)
 enable_language(C)
 
-#set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/mcmake" CACHE STRING "Modules for CMake" FORCE )
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/mcmake" CACHE STRING "Modules for CMake" FORCE )
 include(mcmake/CheckCCompilerFlag.cmake)
 
 set( CMAKE_COLOR_MAKEFILE ON )

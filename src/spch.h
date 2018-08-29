@@ -158,9 +158,9 @@ int    pch_stage3(paths_t*, int);
 
 const char * pch_vcs_type(unsigned long);
 int    pch_vcs_bincheck(paths_t*);
-int    pch_vcs_update(paths_t*);
+int    pch_vcs_update(paths_t*, string_s*);
 int    pch_vcs_commit(paths_t*);
-int    pch_vcs_aad(paths_t*, string_s*);
+int    pch_vcs_add(paths_t*, string_s*);
 int    pch_vcs_create(paths_t*);
 
 void   startedlog(paths_t*, const char*);

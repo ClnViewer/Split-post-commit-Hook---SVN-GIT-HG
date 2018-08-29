@@ -5,9 +5,10 @@
 /_svn-commit.sh
 /build/Linux
 /build/split-LinkedHashMap-repo.list
+/build/mingw-cross-build.sh
 /build/build.sh
 /build/run.sh
-/build/svnd.sh
+/build/run2.sh
 /build/bin
 
 !/build/cmake-build-mingw.cmd

@@ -153,9 +153,9 @@ int pch_vcs_bincheck(paths_t *dirs)
     return 1;
 }
 
-int pch_vcs_update(paths_t *dirs)
+int pch_vcs_update(paths_t *dirs, string_s *repo)
 {
-    if (_chdir(dirs->setup[FILE_SPLIT_REPO].str) < 0)
+    if (_chdir(repo->str) < 0)
     {
         return -1;
     }
@@ -225,7 +225,7 @@ int pch_vcs_commit(paths_t *dirs)
     return ret;
 }
 
-int pch_vcs_aad(paths_t *dirs, string_s *dir)
+int pch_vcs_add(paths_t *dirs, string_s *dir)
 {
     if (_chdir(dir->str) < 0)
     {

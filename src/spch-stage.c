@@ -10,7 +10,7 @@ static void __stage2_vcs_add(unsigned int cnt, unsigned long hash, char *str, si
     (void) hash;
     (void) sz;
 
-    if ((ret = pch_vcs_aad(dirs, &sdir)) != 0)
+    if ((ret = pch_vcs_add(dirs, &sdir)) != 0)
     {
         pch_log_error(dirs, "add VCS directory error: %d -> %u) %s", ret, cnt, sdir.str);
     }
@@ -19,9 +19,15 @@ static void __stage2_vcs_add(unsigned int cnt, unsigned long hash, char *str, si
 int pch_stage1(paths_t *dirs)
 {
     int ret;
-    if ((ret = pch_vcs_update(dirs)) != 0)
+
+    if ((ret = pch_vcs_update(dirs, &dirs->setup[FILE_MASTER_REPO])) != 0)
     {
-        pch_log_error(dirs, "update VCS error: %d", ret);
+        pch_log_error(dirs, "update VCS master repo error: %d -> %s", ret, dirs->setup[FILE_MASTER_REPO].str);
+        return 0;
+    }
+    if ((ret = pch_vcs_update(dirs, &dirs->setup[FILE_SPLIT_REPO])) != 0)
+    {
+        pch_log_error(dirs, "update VCS split repo error: %d -> %s", ret, dirs->setup[FILE_SPLIT_REPO].str);
         return 0;
     }
     return 1;
@@ -147,7 +153,7 @@ int pch_stage2(paths_t *dirs)
     if ((!rcode) && (stage > 0))
     {
         /* needed to add exist directory before */
-        if (pch_vcs_aad(dirs, &dirs->setup[FILE_SPLIT_REPO]) != 0)
+        if (pch_vcs_add(dirs, &dirs->setup[FILE_SPLIT_REPO]) != 0)
         {
             pch_log_error(dirs, "add VCS root directory error: -> %s", dirs->setup[FILE_SPLIT_REPO].str);
         }
@@ -169,7 +175,7 @@ int pch_stage3(paths_t *dirs, int status)
     if (status <= 0)
         return 0;
 
-    if ((ret = pch_vcs_aad(dirs, &dirs->setup[FILE_SPLIT_REPO])) != 0)
+    if ((ret = pch_vcs_add(dirs, &dirs->setup[FILE_SPLIT_REPO])) != 0)
     {
         pch_log_error(dirs, "add VCS root directory error: %d -> %s", ret, dirs->setup[FILE_SPLIT_REPO].str);
     }
@@ -196,6 +202,13 @@ int pch_stage3(paths_t *dirs, int status)
             {
                 pch_log_error(dirs, "deploy script return error: %d -> %s", ret, dirs->setup[FILE_DEPLOY].str);
                 return -1;
+            }
+            else if (__ISLOG)
+            {
+                const char *scr = strrchr(dirs->setup[FILE_DEPLOY].str, __PSEPC);
+                pch_log_info(dirs, "deploy script [%s] - OK",
+                             ((scr) ? (scr + 1) : dirs->setup[FILE_DEPLOY].str)
+                            );
             }
         }
         while (0);
