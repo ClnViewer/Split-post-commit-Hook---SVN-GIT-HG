@@ -22,8 +22,7 @@ int pch_stage1(paths_t *dirs)
 
     if ((ret = pch_vcs_update(dirs, &dirs->setup[FILE_MASTER_REPO])) != 0)
     {
-        pch_log_error(dirs, "update VCS master repo error: %d -> %s", ret, dirs->setup[FILE_MASTER_REPO].str);
-        return 0;
+        pch_log_info(dirs, "update VCS master repo loop?: %d -> %s", ret, dirs->setup[FILE_MASTER_REPO].str);
     }
     if ((ret = pch_vcs_update(dirs, &dirs->setup[FILE_SPLIT_REPO])) != 0)
     {
