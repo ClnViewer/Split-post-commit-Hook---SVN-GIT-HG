@@ -11,8 +11,8 @@ static char *help[] =
     "binary execute VCS directory",
     "journal log path include file name",
     "run as 'user' privilege (Linux only)",
-    "rename files, prefix example 'new' or 'old=new'",
     "run deploy script before commit",
+    "rename files, prefix example 'new' or 'old=new'",
     "VCS type: [svn|git|hq]",
     "file check: [mtime|ctime|size|all]",
     "current VCS revision",
@@ -31,8 +31,8 @@ static struct option options[] =
     { "execdir",  required_argument,  NULL, 'e' },
     { "log",      required_argument,  NULL, 'j' },
     { "suid",     required_argument,  NULL, 'u' },
-    { "rename",   required_argument,  NULL, 'x' },
     { "deploy",   required_argument,  NULL, 'd' },
+    { "rename",   required_argument,  NULL, 'x' },
     { "vcs",      required_argument,  NULL, 't' },
     { "check",    required_argument,  NULL, 'c' },
     { "revision", required_argument,  NULL, 'r' },
@@ -274,7 +274,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
             if (
                 (!optarg) ||
                 (!pch_path_dump(&dirs->setup[FILE_DEPLOY], optarg)) ||
-                (!pch_check_dir(&dirs->setup[FILE_DEPLOY]))
+                (!pch_check_file(&dirs->setup[FILE_DEPLOY]))
             )
             {
                 __param_err(options[FILE_DEPLOY].val, options[FILE_DEPLOY].name, help[FILE_DEPLOY]);
