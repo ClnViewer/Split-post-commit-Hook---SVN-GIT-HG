@@ -76,7 +76,7 @@
         README.txt
         format
 
-    # вносим изменения:
+    # вносим изменения в hooks/post-commit:
     /usr/bin/spch \
        -u svn \
        -e /usr/bin \
