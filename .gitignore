@@ -6,6 +6,7 @@ build/split-LinkedHashMap-repo.list
 build/build.sh
 build/run.sh
 build/svnd.sh
+build/bin
 
 # Prerequisites
 *.d
