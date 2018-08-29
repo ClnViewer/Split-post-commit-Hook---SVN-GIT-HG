@@ -83,18 +83,14 @@ int pch_compare_file(paths_t *dirs, string_s *fpath1, string_s *fpath2)
 
         if ((__BITTST(dirs->bitopt, OPT_FCHECK_CTIME)) || (__BITTST(dirs->bitopt, OPT_FCHECK_ALL)))
         {
-            ret = ((unsigned long) _dst1.st_ctime > (unsigned long) _dst2.st_ctime);
+            if ((ret = ((unsigned long) _dst1.st_ctime > (unsigned long) _dst2.st_ctime)))
+                break;
         }
-        if (ret)
-            break;
-
         if ((__BITTST(dirs->bitopt, OPT_FCHECK_MTIME)) || (__BITTST(dirs->bitopt, OPT_FCHECK_ALL)))
         {
-            ret = ((unsigned long) _dst1.st_mtime > (unsigned long) _dst2.st_mtime);
+            if ((ret = ((unsigned long) _dst1.st_mtime > (unsigned long) _dst2.st_mtime)))
+                break;
         }
-        if (ret)
-            break;
-
         if ((__BITTST(dirs->bitopt, OPT_FCHECK_SIZE)) || (__BITTST(dirs->bitopt, OPT_FCHECK_ALL)))
         {
             ret = (_dst1.st_size != _dst2.st_size);

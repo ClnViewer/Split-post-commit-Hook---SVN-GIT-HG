@@ -1,6 +1,8 @@
 
 .svn
 .ignoresvn
+/_git-commit.sh
+/_svn-commit.sh
 /build/Linux
 /build/split-LinkedHashMap-repo.list
 /build/build.sh
