@@ -27,7 +27,8 @@
                                 корня master репозитория
          -o, --rootsvn 'val'    корневая директория SVN/GIT/HG
                                 репозиториев, необязательный параметр
-         -e, --execdir 'val'    binary execute VCS directory
+         -e, --execdir 'val'    путь к исполняемым файлам VCS,
+                                для 'POSIX' систем по умолчанию /usr/bin
          -j, --log 'val'        путь и имя файла логирования
          -u, --suid 'val'       установить пользователя для файловых
                                 операций (только Linux)
