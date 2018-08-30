@@ -44,6 +44,8 @@
 					<Add option="-Wl,--print-gc-sections" />
 					<Add option="-fsanitize=leak" />
 					<Add option="-fsanitize=enum" />
+					<Add option="-D__DEBUG__=1" />
+					<Add option="-D__BUILD_SPCH=1" />
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />

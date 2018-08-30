@@ -29,10 +29,10 @@
 #include <string.h>
 
 // \todo (ClnViewer#1#08/29/18): remove this define.
-#if defined(__BUILD_HASHMAP)
-#   include "hashmap-link-hash.h"
-#else
+#if defined(__BUILD_SPCH)
 #   include "spch-link-hash.h"
+#else
+#   include "hashmap-link-hash.h"
 #endif
 
 /* CRC32 the implementation here was originally done by Gary S. Brown.  I have

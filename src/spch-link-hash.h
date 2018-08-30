@@ -24,8 +24,8 @@
     SOFTWARE.
  */
 
-#if !defined(LINK_HASH_H)
-#define LINK_HASH_H
+#if !defined(LINK_HASH_MAP_H)
+#define LINK_HASH_MAP_H
 
 typedef struct __hash_tbl
 {

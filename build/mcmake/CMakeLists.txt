@@ -41,3 +41,5 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections -Wl,--gc-sections")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--print-gc-sections")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__BUILD_SPCH=1" )
+

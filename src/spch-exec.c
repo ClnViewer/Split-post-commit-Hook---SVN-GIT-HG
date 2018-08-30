@@ -130,6 +130,12 @@ int pch_exec(paths_t *dirs, const char *const opt[])
     (void) dirs;
     errno = 0;
 
+    if (__ISLOG)
+    {
+        (void) fflush(dirs->fp[1]);
+        dirs->fpos = ftell(dirs->fp[1]);
+    }
+
     switch((pid = fork()))
     {
     case -1:
@@ -143,8 +149,6 @@ int pch_exec(paths_t *dirs, const char *const opt[])
     {
         if (__ISLOG)
         {
-            (void) fflush(dirs->fp[1]);
-            dirs->fpos = ftell(dirs->fp[1]);
             (void) dup2(fileno(dirs->fp[1]), 1);
             (void) dup2(fileno(dirs->fp[1]), 2);
         }
@@ -163,6 +167,10 @@ int pch_exec(paths_t *dirs, const char *const opt[])
 
             if ((WIFSIGNALED(cstatus)) && (WTERMSIG(cstatus) == SIGALRM))
                 break;
+        }
+        if (__ISLOG)
+        {
+            (void) fflush(dirs->fp[1]);
         }
         if (WIFEXITED(cstatus))
         {

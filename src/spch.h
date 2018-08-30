@@ -62,8 +62,6 @@ int _chdir(const char*);
 #   include <unistd.h>
 #endif
 
-
-
 #define __NELE(a) (sizeof(a) / sizeof(a[0]))
 #define __BITBOOL(x) (!(!(x)))
 #define __BITSET(arg,mask) ((arg) | (1UL << (mask)))
