@@ -53,7 +53,8 @@
          -k, --nonloop          предотвратить одновременный 'commit' и
                                 'update' в мастер репозитории,
                                 демонизирует процесс на время выполнения,
-                                (только Linux)
+                                (только Linux), крайне желательно
+                                использывать опцию записи лога '-j' 
          -q, --quiet            'тихий режм', не выводить ничего на
                                 консоль, работает только после обработки
                                 параметров конфигурации заданных из
@@ -100,6 +101,30 @@
        -l buildDirectory/split-repo.list \
        -j /home/svn/spch_MyLibSplit.log \
        -x mylib=libexport
+
+## Пример файла журнала
+
+
+     [30060/30059][startedlog:102] -> spch v.0.0.9.62() 18.08
+     [30060/30059][startedlog:107] -> started at 08/30/18-06:16PM
+     [30060/30059][main:78] -> stage #0 non-loop mode: Parent 30060 successful exit
+     [30061/1][main:97] -> stage #0 check files mode: all - create, modify time and size
+     [30061/1][pch_stage2:154] -> stage #2 update: /repo/master/spch-link-hash.h -> /repo/split/hashmap-link-hash.h
+     [30061/1][pch_stage2:154] -> stage #2 update: /repo/master/spch-link-hash.c -> /repo/split/hashmap-link-hash.c
+     [30061/1][main:112] -> stage #2 changed repo objects: 2 -> /repo/split
+     [30061/1][pch_stage3:217] -> start deploy test:
+
+        17) Add: [217374]
+        19) Add: [925358]
+        ...
+        54) Dump
+        1)      [139920]
+        2)      [440839]
+        3)      [925358]
+
+     [30061/1][pch_stage3:217] -> deploy script [buildDeploy.sh] - OK
+     [30061/1][main:136] -> stage #3 changed commit success: /repo/split
+     [30061/1][endedlog:119] -> ended at 08/30/18-06:16PM
 
 ## License
 
