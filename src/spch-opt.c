@@ -17,6 +17,7 @@ static char *help[] =
     "file check: [mtime|ctime|size|all]",
     "current VCS revision",
     "force overwrite all destination files",
+    "fork and deionized, no-loop SBC mode (Linux only)",
     "quiet mode, no print message to console",
     "this help page",
     NULL
@@ -37,6 +38,7 @@ static struct option options[] =
     { "check",    required_argument,  NULL, 'c' },
     { "revision", required_argument,  NULL, 'r' },
     { "force",    no_argument,        NULL, 'f' },
+    { "nonloop",  no_argument,        NULL, 'k' },
     { "quiet",    no_argument,        NULL, 'q' },
     { "help",     no_argument,        NULL, 'h' },
     { 0, 0, 0, 0 }
@@ -141,7 +143,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     while (1)
     {
         int c;
-        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:t:c:r:fqh", options, &idx)) == -1)
+        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:t:c:r:fkqh", options, &idx)) == -1)
             break;
 
         switch (c)
@@ -340,6 +342,11 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         case 'f':
         {
             dirs->bitopt = __BITSET(dirs->bitopt, OPT_FORCE);
+            break;
+        }
+        case 'k':
+        {
+            dirs->bitopt = __BITSET(dirs->bitopt, OPT_DEMONIZE);
             break;
         }
         case 'q':

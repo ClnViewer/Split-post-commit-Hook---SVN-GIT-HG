@@ -1,4 +1,10 @@
 30 August 2018
+   released version 0.0.8 of Split-post-commit-hook
+
+     Change log:
+        -Updated: Demonize started for Linux, change signal
+
+30 August 2018
    released version 0.0.3 of Split-post-commit-hook
 
      Change log:

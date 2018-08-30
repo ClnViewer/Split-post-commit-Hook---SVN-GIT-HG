@@ -44,7 +44,7 @@
 #   define __PSEPC '\\'
 #   define __PSEPS "\\"
 #   define __BNAME ((strrchr(__func__, __PSEPC)) ? (strrchr(__func__, __PSEPC) + 1) : __func__)
-#   define __PID (int)GetCurrentProcessId()
+#   define __PID (int)GetCurrentProcessId(), 0
 int _mkdir(const char*);
 int _chdir(const char*);
 
@@ -56,7 +56,7 @@ int _chdir(const char*);
 #   define _mkdir(A) mkdir(A, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)
 #   define _chdir chdir
 #   define __BNAME basename((char*) __func__)
-#   define __PID (int)getpid()
+#   define __PID (int)getpid(), (int)getppid()
 
 #   include <libgen.h>
 #   include <unistd.h>
@@ -107,7 +107,8 @@ typedef enum
     OPT_FCHECK_MTIME,
     OPT_FCHECK_SIZE,
     OPT_FCHECK_ALL,
-    OPT_DEPLOY
+    OPT_DEPLOY,
+    OPT_DEMONIZE
 } setup_opt_e;
 
 typedef enum
@@ -137,9 +138,9 @@ typedef struct
 #define pch_check_uid(A) pch_check_(A, TYPE_UID)
 
 #define pch_log_error(A,B,...) \
-    pch_log_(0,A,"[%d][%s:%d] -> " B " -> [%d = %s]\n",__PID,__BNAME,__LINE__,__VA_ARGS__, errno, strerror(errno))
+    pch_log_(0,A,"[%d/%d][%s:%d] -> " B " -> [%d = %s]\n",__PID,__BNAME,__LINE__,__VA_ARGS__, errno, strerror(errno))
 #define pch_log_info(A,B,...)  \
-    pch_log_(1,A,"[%d][%s:%d] -> " B "\n",__PID,__BNAME,__LINE__,__VA_ARGS__)
+    pch_log_(1,A,"[%d/%d][%s:%d] -> " B "\n",__PID,__BNAME,__LINE__,__VA_ARGS__)
 
 void   pch_log_(int, paths_t*, const char*, ...);
 int    pch_option(paths_t*, char* [], int);

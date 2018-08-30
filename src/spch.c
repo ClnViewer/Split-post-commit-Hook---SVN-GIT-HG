@@ -1,6 +1,14 @@
 #include "spch.h"
 #define __ISLOG ((dirs.fp[1]) ? 1 : 0)
 
+#if !defined(OS_WIN)
+#   include <signal.h>
+#   include <sys/types.h>
+#   include <sys/wait.h>
+#   include <unistd.h>
+#   include <fcntl.h>
+#endif
+
 int main(int argc, char *argv[])
 {
     int ret;
@@ -8,21 +16,82 @@ int main(int argc, char *argv[])
     paths_t __AUTO(__autopathst) *ds = &dirs;
     memset(&dirs, 0, sizeof(dirs));
 
+    if ((ret = pch_option(&dirs, argv, argc)) != 0)
+    {
+        return ret;
+    }
+    /* stage #0 */
+    /* set UID/GID for Linux */
+#   if !defined(OS_WIN)
+    /* fork and wait,
+       non-loop SVC call for 'update' command,
+       fixed error: repo is locked
+       (Linux) */
+    if (__BITTST(dirs.bitopt, OPT_DEMONIZE))
+    {
+        if (__ISLOG)
+        {
+            fflush(dirs.fp[1]);
+        }
+        switch(fork())
+        {
+        case 0:
+        {
+            int cfd;
+            (void) signal(SIGHUP, SIG_IGN);
+
+            if ((cfd = open("/dev/null", O_RDWR, 0)) >= 0)
+            {
+                dup2(cfd, STDIN_FILENO);
+                dup2(cfd, STDOUT_FILENO);
+                dup2(cfd, STDERR_FILENO);
+
+                if (cfd > 2)
+                {
+                    close(cfd);
+                }
+            }
+            if ((getppid() != 1) && (setsid() < 0))
+            {
+                if (__ISLOG)
+                {
+                    pch_log_error(&dirs, "stage #%d non-loop set SID error:", 0);
+                    exit(125);
+                }
+            }
+            (void) sleep(12);
+            break;
+        }
+        case -1:
+        {
+            if (__ISLOG)
+            {
+                pch_log_error(&dirs, "stage #%d non-loop fork error:", 0);
+            }
+            exit(127);
+        }
+        default:
+        {
+            (void) signal(SIGCHLD, SIG_IGN);
+            if (__ISLOG)
+            {
+                pch_log_info(&dirs, "stage #0 non-loop mode: Parent %d successful exit", getpid());
+                fflush(dirs.fp[1]);
+            }
+            ds = NULL;
+            exit(0);
+        }
+        }
+    }
+#   endif
+
     do
     {
-        if ((ret = pch_option(&dirs, argv, argc)) != 0)
-        {
-            return ret;
-        }
-        /* stage #0 */
-        /* set UID/GID for Linux */
-#       if !defined(OS_WIN)
         if (!pch_path_setuid(&dirs, __ISLOG))
         {
             ret = 125;
             break;
         }
-#       endif
         if (__ISLOG)
         {
             pch_log_info(&dirs, "stage #0 check files mode: %s", pch_option_chkmode(&dirs));
