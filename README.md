@@ -62,6 +62,10 @@
          -h, --help             показать помощь по командам
 
 
+> Внимание, при использовании в скрипте `hooks/post-commit` использование ключа `-k`, алиас `--nonloop` - **ОБЯЗАТЕЛЬНО**!  
+> 
+> В противном случае, например для `svn` будет происходить ошибка при попытке использовать метод `update`, репозиторий будет находиться в состоянии `.lock` от предыдущей операции `commit` из которой и вызывается данная программа.
+
 ## Сборка и Инсталляция
 
 Сборка производиться системой `Cmake` и не отличается по шагам от типовых случаев. Порядок действий:
@@ -112,7 +116,7 @@
      [30061/1][pch_stage2:154] -> stage #2 update: /repo/master/spch-link-hash.h -> /repo/split/hashmap-link-hash.h
      [30061/1][pch_stage2:154] -> stage #2 update: /repo/master/spch-link-hash.c -> /repo/split/hashmap-link-hash.c
      [30061/1][main:112] -> stage #2 changed repo objects: 2 -> /repo/split
-     [30061/1][pch_stage3:217] -> start deploy test:
+     [30061/1][pch_stage3:217] -> deploy script [buildDeploy.sh] start: 
 
         17) Add: [217374]
         19) Add: [925358]

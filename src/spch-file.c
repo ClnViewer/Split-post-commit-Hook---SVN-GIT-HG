@@ -397,3 +397,44 @@ int pch_path_destination(paths_t *dirs, char *src, size_t sz, string_s *dst)
 
     return 1;
 }
+
+const char * pch_ultostr(char *str, unsigned long val, int base)
+{
+    unsigned long t = 0UL, res = 0UL, b = (unsigned long)base;
+    unsigned long tmp = val;
+    int count = 0;
+
+    if (!str)
+    {
+        return NULL;
+    }
+
+    if (!tmp)
+    {
+        count++;
+    }
+
+    while(tmp > 0)
+    {
+        tmp = (tmp / b);
+        count++;
+    }
+
+    str += count;
+    *str = '\0';
+
+    do
+    {
+        res = val - b * (t = val / b);
+        if (res < 10U)
+        {
+            * --str = (char)('0' + res);
+        }
+        else if ((res >= 10U) && (res < 16U))
+        {
+            * --str = (char)('A' - 10U + res);
+        }
+    }
+    while ((val = t) != 0);
+    return (const char*)str;
+}

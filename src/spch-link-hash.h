@@ -38,6 +38,15 @@ typedef struct __hash_tbl
     struct __hash_tbl *next;
 } hash_tbl;
 
+/*!
+    CallBack used for (hash_t*)->getmap(...)
+    format:
+      unsigned int - counter,
+      unsigned long - hash value,
+      char*  - string,
+      size_t - string size,
+      void*  - user data
+ */
 typedef void (*hash_map_cb)(unsigned int, unsigned long, char*, size_t, void*);
 
 typedef struct __hash_t

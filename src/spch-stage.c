@@ -187,6 +187,15 @@ int pch_stage3(paths_t *dirs, int status)
     }
     if (__BITTST(dirs->bitopt, OPT_DEPLOY))
     {
+        const char *scr = NULL;
+
+        if (__ISLOG)
+        {
+            scr = strrchr(dirs->setup[FILE_DEPLOY].str, __PSEPC);
+            pch_log_info(dirs, "deploy script [%s] - start:\n",
+                         ((scr) ? (scr + 1) : dirs->setup[FILE_DEPLOY].str)
+                        );
+        }
         do
         {
             char brev[20] = {0};
@@ -198,10 +207,8 @@ int pch_stage3(paths_t *dirs, int status)
                 NULL,
                 NULL
             };
-            if (sprintf(brev, "%lu", dirs->rev) <= 0)
-                break;
 
-            args[2] = (const char*)brev;
+            args[2] = pch_ultostr(brev, dirs->rev, 10);
             args[3] = pch_vcs_type(dirs->bitopt);
 
             if ((ret = pch_exec(dirs, args)))
@@ -211,7 +218,6 @@ int pch_stage3(paths_t *dirs, int status)
             }
             else if (__ISLOG)
             {
-                const char *scr = strrchr(dirs->setup[FILE_DEPLOY].str, __PSEPC);
                 pch_log_info(dirs, "deploy script [%s] - OK",
                              ((scr) ? (scr + 1) : dirs->setup[FILE_DEPLOY].str)
                             );
