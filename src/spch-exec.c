@@ -6,8 +6,10 @@
 #   include <signal.h>
 #   include <sys/types.h>
 #   include <sys/wait.h>
-#   define __ISLOG ((dirs->fp[1]) ? 1 : 0)
+#   include <unistd.h>
 #endif
+
+#define __ISLOG ((dirs->fp[1]) ? 1 : 0)
 
 #if defined(OS_WIN)
 static void __get_error(char b[], size_t bsz, unsigned long err)
@@ -67,6 +69,11 @@ int pch_exec(paths_t *dirs, const char *const opt[])
     }
 
     cmd[sz] = 0x0;
+
+    if (__ISLOG)
+    {
+        dirs->fpos = ftell(dirs->fp[1]);
+    }
 
     do
     {
@@ -136,6 +143,8 @@ int pch_exec(paths_t *dirs, const char *const opt[])
     {
         if (__ISLOG)
         {
+            (void) fflush(dirs->fp[1]);
+            dirs->fpos = ftell(dirs->fp[1]);
             (void) dup2(fileno(dirs->fp[1]), 1);
             (void) dup2(fileno(dirs->fp[1]), 2);
         }
