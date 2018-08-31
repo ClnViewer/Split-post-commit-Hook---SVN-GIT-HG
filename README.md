@@ -80,7 +80,7 @@
 - Секция `build` - команды сборки и теста, проверяется код возврата команд, в случае успеха он должен быть `0`.  
 - Секция `post` - команды выполняемые после секции `build`, код возврата команд не проверяется.
 
-Пример файла `deploy.yaml`:
+Пример файла [`deploy.yaml`](https://github.com/ClnViewer/LinkedHashMap/blob/master/deploy.yaml):
 
        pre:
          - cd build/
