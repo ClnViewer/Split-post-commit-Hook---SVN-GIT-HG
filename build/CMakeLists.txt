@@ -13,8 +13,26 @@ set( CMAKE_SKIP_PACKAGE_ALL_DEPENDENCY true )
 set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 set( PREDEFINED_TARGETS_FOLDER "CmakeDepends" )
 
+find_program (
+    YAMLSHELL1 NAMES bash PATHS /bin /usr/bin /usr/local/bin
+)
+find_program (
+    YAMLSHELL2 NAMES ksh PATHS /bin /usr/bin /usr/local/bin
+)
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../src
+)
+
+if(${YAMLSHELL1} STREQUAL "YAMLSHELL1-NOTFOUND")
+    set(YAMLSHELL1 "")
+endif()
+
+if(${YAMLSHELL2} STREQUAL "YAMLSHELL2-NOTFOUND")
+    set(YAMLSHELL2 "")
+endif()
+
+configure_file(
+    spch-shell.h.in "${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-shell.h"
 )
 
 set(app_srcs

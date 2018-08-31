@@ -62,6 +62,7 @@ int _chdir(const char*);
 #   include <unistd.h>
 #endif
 
+#define __CSZ(a)  (int const) (sizeof(a)-1)
 #define __NELE(a) (sizeof(a) / sizeof(a[0]))
 #define __BITBOOL(x) (!(!(x)))
 #define __BITSET(arg,mask) ((arg) | (1UL << (mask)))
@@ -108,6 +109,7 @@ typedef enum
     OPT_FCHECK_SIZE,
     OPT_FCHECK_ALL,
     OPT_DEPLOY,
+    OPT_YAML,
     OPT_DEMONIZE
 } setup_opt_e;
 
@@ -159,7 +161,8 @@ int    pch_fcopy(string_s*, string_s*);
 int    pch_exec(paths_t*, const char *const []);
 int    pch_stage1(paths_t*);
 int    pch_stage2(paths_t*);
-int    pch_stage3(paths_t*, int);
+int    pch_stage3(paths_t*);
+int    pch_stage4(paths_t*);
 
 const char * pch_vcs_type(unsigned long);
 int    pch_vcs_bincheck(paths_t*);

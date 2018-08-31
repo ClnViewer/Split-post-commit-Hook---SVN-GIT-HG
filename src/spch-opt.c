@@ -16,6 +16,7 @@ static char *help[] =
     "VCS type: [svn|git|hq]",
     "file check: [mtime|ctime|size|all]",
     "current VCS revision",
+    "use deploy.yaml deploy/check config before commit",
     "force overwrite all destination files",
     "fork and deionized, no-loop SBC mode (Linux only)",
     "quiet mode, no print message to console",
@@ -37,6 +38,7 @@ static struct option options[] =
     { "vcs",      required_argument,  NULL, 't' },
     { "check",    required_argument,  NULL, 'c' },
     { "revision", required_argument,  NULL, 'r' },
+    { "yaml",     no_argument,        NULL, 'y' },
     { "force",    no_argument,        NULL, 'f' },
     { "nonloop",  no_argument,        NULL, 'k' },
     { "quiet",    no_argument,        NULL, 'q' },
@@ -143,7 +145,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     while (1)
     {
         int c;
-        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:t:c:r:fkqh", options, &idx)) == -1)
+        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:t:c:r:yfkqh", options, &idx)) == -1)
             break;
 
         switch (c)
@@ -337,6 +339,11 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
                 __param_err(options[(FILE_NONE_IDX + 1)].val, options[(FILE_NONE_IDX + 1)].name, help[(FILE_NONE_IDX + 1)]);
                 return (FILE_NONE_IDX + 2);
             }
+            break;
+        }
+        case 'y':
+        {
+            dirs->bitopt = __BITSET(dirs->bitopt, OPT_YAML);
             break;
         }
         case 'f':

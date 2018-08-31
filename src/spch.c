@@ -127,20 +127,30 @@ int main(int argc, char *argv[])
             ret = 0;
             break;
         }
-        /* stage #3 */
-        ret = pch_stage3(&dirs, ret);
-        if (ret > 0)
+        /* stage #3 check/deploy */
+        ret = pch_stage3(&dirs);
+        if (ret != 0)
         {
             if (__ISLOG)
             {
                 pch_log_info(&dirs, "stage #3 changed commit success: %s", dirs.setup[FILE_SPLIT_REPO].str);
+            }
+            break;
+        }
+        /* stage #4 */
+        ret = pch_stage4(&dirs);
+        if (ret > 0)
+        {
+            if (__ISLOG)
+            {
+                pch_log_info(&dirs, "stage #4 changed commit success: %s", dirs.setup[FILE_SPLIT_REPO].str);
             }
             ret = 0;
             break;
         }
         else if (ret < 0)
         {
-            pch_log_error(&dirs, "stage #3 incomplete, return error: %d", ret);
+            pch_log_error(&dirs, "stage #4 incomplete, return error: %d", ret);
             ret = 119;
             break;
         }
@@ -148,7 +158,7 @@ int main(int argc, char *argv[])
         {
             if (__ISLOG)
             {
-                pch_log_info(&dirs, "stage #3 not commit repo: %s", dirs.setup[FILE_SPLIT_REPO].str);
+                pch_log_info(&dirs, "stage #4 not commit repo: %s", dirs.setup[FILE_SPLIT_REPO].str);
             }
             ret = 0;
             break;

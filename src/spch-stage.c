@@ -1,5 +1,11 @@
 #include "spch.h"
 #include "spch-link-hash.h"
+
+#if !defined(OS_WIN)
+#   include "spch-stage-yaml.h"
+#   include "spch-shell.h"
+#endif
+
 #define __ISLOG ((dirs->fp[1]) ? 1 : 0)
 
 static void __stage2_vcs_add(unsigned int cnt, unsigned long hash, char *str, size_t sz, void * data)
@@ -175,17 +181,78 @@ int pch_stage2(paths_t *dirs)
     return ((rcode < 0) ? rcode : stage);
 }
 
-int pch_stage3(paths_t *dirs, int status)
+int pch_stage3(paths_t *dirs)
 {
-    int ret;
-    if (status <= 0)
-        return 0;
+    int ret = 0;
 
-    if ((ret = pch_vcs_add(dirs, &dirs->setup[FILE_SPLIT_REPO])) != 0)
+#   if !defined(OS_WIN)
+    if (__BITTST(dirs->bitopt, OPT_YAML))
     {
-        pch_log_error(dirs, "add VCS root directory error: %d -> %s", ret, dirs->setup[FILE_SPLIT_REPO].str);
+        do
+        {
+            int idx = -1, i;
+            static string_s binsh[] = {
+                { __YAMLSHELL1, __CSZ(__YAMLSHELL1) },
+                { __YAMLSHELL2, __CSZ(__YAMLSHELL2) }
+                };
+            string_s fyaml = { NULL, 0U };
+            string_s __AUTO(__autostring) *fy = &fyaml;
+
+            for (i = 0; i < (int)__NELE(binsh); i++)
+            {
+                if ((binsh[i].sz) && (pch_check_file(&binsh[i])))
+                {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx == -1)
+            {
+                pch_log_info(dirs, "deploy yaml config shell: [%d] - not found", idx);
+                break;
+            }
+            if (
+                (!pch_path_format(&fyaml, "%s" __PSEPS "deploy.yaml", dirs->setup[FILE_SPLIT_REPO].str)) ||
+                (!pch_check_file(&fyaml))
+            )
+            {
+                pch_log_error(dirs, "deploy yaml config: [%s] - not found",
+                              ((fyaml.str) ? fyaml.str : "<repo-split>" __PSEPS "deploy.yaml")
+                             );
+                break;
+            }
+
+            char brev[20] = {0};
+            const char *args[] =
+            {
+                binsh[idx].str,
+                "-c",
+                yamlscr,
+                dirs->setup[FILE_SPLIT_REPO].str,
+                NULL,
+                NULL,
+                NULL
+            };
+
+            args[4] = pch_ultostr(brev, dirs->rev, 10);
+            args[5] = pch_vcs_type(dirs->bitopt);
+
+            if ((ret = pch_exec(dirs, args)))
+            {
+                pch_log_error(dirs, "deploy yaml config return error: %d", ret);
+                break;
+            }
+            else if (__ISLOG)
+            {
+                pch_log_info(dirs, "deploy yaml config [%s" __PSEPS "deploy.yaml] - OK",
+                             dirs->setup[FILE_SPLIT_REPO].str
+                            );
+            }
+        }
+        while (0);
     }
-    if (__BITTST(dirs->bitopt, OPT_DEPLOY))
+#   endif
+    if ((!ret) && (__BITTST(dirs->bitopt, OPT_DEPLOY)))
     {
         const char *scr = NULL;
 
@@ -214,7 +281,7 @@ int pch_stage3(paths_t *dirs, int status)
             if ((ret = pch_exec(dirs, args)))
             {
                 pch_log_error(dirs, "deploy script return error: %d -> %s", ret, dirs->setup[FILE_DEPLOY].str);
-                return -1;
+                break;
             }
             else if (__ISLOG)
             {
@@ -224,6 +291,18 @@ int pch_stage3(paths_t *dirs, int status)
             }
         }
         while (0);
+    }
+
+    return ret;
+}
+
+int pch_stage4(paths_t *dirs)
+{
+    int ret;
+
+    if ((ret = pch_vcs_add(dirs, &dirs->setup[FILE_SPLIT_REPO])) != 0)
+    {
+        pch_log_error(dirs, "add VCS root directory error: %d -> %s", ret, dirs->setup[FILE_SPLIT_REPO].str);
     }
     if ((ret = pch_vcs_commit(dirs)) != 0)
     {

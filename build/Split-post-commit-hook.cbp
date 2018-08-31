@@ -83,6 +83,8 @@
 		<Unit filename="../src/spch-opt.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="../src/spch-shell.h" />
+		<Unit filename="../src/spch-stage-yaml.h" />
 		<Unit filename="../src/spch-stage.c">
 			<Option compilerVar="CC" />
 		</Unit>
