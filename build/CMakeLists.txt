@@ -98,6 +98,11 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic")
      endif()
 
+     CHECK_C_COMPILER_FLAG("-Wno-unused-command-line-argument" COMPILER_SUPPORTS_C_NUCLA)
+     if(COMPILER_SUPPORTS_C_NUCLA)
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-unused-command-line-argument")
+     endif()
+
      CHECK_C_COMPILER_FLAG("-ffunction-sections -fdata-sections -Wl,--gc-sections " COMPILER_SUPPORTS_C_FUNSEC)
      if(COMPILER_SUPPORTS_C_FUNSEC)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections -Wl,--gc-sections")
