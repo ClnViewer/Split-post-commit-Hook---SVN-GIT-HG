@@ -2,6 +2,9 @@
 
 #if defined(OS_WIN)
 #   include <windows.h>
+#   include <stdint.h>
+__declspec(dllimport) intptr_t _get_osfhandle(int);
+__declspec(dllimport) int _fileno(FILE*);
 #else
 #   include <signal.h>
 #   include <sys/types.h>
@@ -79,6 +82,7 @@ int pch_exec(paths_t *dirs, const char *const opt[])
     do
     {
         unsigned long flags = 0;
+        HANDLE h;
         STARTUPINFO si;
         PROCESS_INFORMATION pi;
 
@@ -94,7 +98,25 @@ int pch_exec(paths_t *dirs, const char *const opt[])
             si.dwFlags |= CREATE_NO_WINDOW;
             flags |= CREATE_NO_WINDOW;
         }
-
+        if (__ISLOG)
+        {
+            errno = 0;
+            if (
+                ((h = (HANDLE)_get_osfhandle(_fileno(dirs->fp[1]))) == INVALID_HANDLE_VALUE) ||
+                (errno == EBADF)
+            )
+            {
+                char errstr[256] = {0};
+                unsigned long errco = GetLastError();
+                __get_error(errstr, sizeof(errstr), errco);
+                pch_log_error(dirs, "create output fatal: %s", errstr);
+                return -1;
+            }
+            si.dwFlags |= STARTF_USESTDHANDLES;
+            si.hStdInput = NULL;
+            si.hStdError = h;
+            si.hStdOutput = h;
+        }
         if (!CreateProcess(
                     NULL,
                     cmd,
@@ -112,7 +134,7 @@ int pch_exec(paths_t *dirs, const char *const opt[])
             char errstr[256] = {0};
             unsigned long errco = GetLastError();
             __get_error(errstr, sizeof(errstr), errco);
-            pch_log_error(dirs, "create exec fatal: %s", cmd);
+            pch_log_error(dirs, "create exec fatal: %s -> %s", cmd, errstr);
             return -1;
         }
 
@@ -122,7 +144,7 @@ int pch_exec(paths_t *dirs, const char *const opt[])
             char errstr[256] = {0};
             unsigned long errco = GetLastError();
             __get_error(errstr, sizeof(errstr), errco);
-            pch_log_error(dirs, "create exec fatal: %s", cmd);
+            pch_log_error(dirs, "exit exec fatal: %s -> %s", cmd, errstr);
             return -1;
         }
         CloseHandle(pi.hProcess);
