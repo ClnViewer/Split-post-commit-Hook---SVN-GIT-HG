@@ -38,7 +38,7 @@ static char *help[] =
     "run as 'user' privilege (Linux only)",
     "run deploy script before commit",
     "rename files, prefix example 'new' or 'old=new'",
-    "VCS type: [svn|git|hq]",
+    "VCS type: [svn|git|hg]",
     "file check: [mtime|ctime|size|all]",
     "current VCS revision",
     "use file deploy.yaml run test/check before commit",
@@ -80,7 +80,7 @@ static void __help_prn(const char *exename)
     fprintf(stdout,
             "\n  Split post commit hook to Version Control System SVN/GIT/HG" \
             "\n  Build: %s(%s) %s" \
-            "\n  (c)PS: https://github.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG/\n" \
+            "\n  (c)PS: https://github.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG\n" \
             "\n  %s - Options:\n",
             SPCH_FULLVERSION_STRING,
             SPCH_STATUS_SHORT,
