@@ -1,0 +1,17 @@
+language: c
+sudo: reguired
+os:
+    - linux
+compiler:
+    - gcc
+    - clang
+script:
+  - cd build
+  - mkdir -p test
+  - cd test
+  - cmake -G"Unix Makefiles" .. -DCMAKE_BUILD_TYPE=Debug
+  - cmake --build . --config "Debug"
+  - ../bin/spch -h
+before_script:
+#  - if [ "$(uname)" = "Linux" ]; then sudo apt-get update; sudo apt-get install -y autotools-dev autoconf check; fi
+#  - if [ "$(uname)" = "Darwin" ]; then brew update; brew install check; fi

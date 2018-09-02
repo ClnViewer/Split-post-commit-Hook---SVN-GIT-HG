@@ -76,12 +76,12 @@ int pch_exec(paths_t *dirs, const char *const opt[])
 
     if (__ISLOG)
     {
+        fflush(dirs->fp[1]);
         dirs->fpos = ftell(dirs->fp[1]);
     }
 
     do
     {
-        unsigned long flags = 0;
         HANDLE h;
         STARTUPINFO si;
         PROCESS_INFORMATION pi;
@@ -90,14 +90,8 @@ int pch_exec(paths_t *dirs, const char *const opt[])
         memset(&pi, 0, sizeof(pi));
         si.cb = sizeof(si);
         si.dwFlags |= CREATE_UNICODE_ENVIRONMENT;
-        flags |= CREATE_UNICODE_ENVIRONMENT;
-        flags |= CREATE_NEW_PROCESS_GROUP;
+        si.dwFlags |= CREATE_NO_WINDOW;
 
-        if (__BITTST(dirs->bitopt, OPT_DEMONIZE))
-        {
-            si.dwFlags |= CREATE_NO_WINDOW;
-            flags |= CREATE_NO_WINDOW;
-        }
         if (__ISLOG)
         {
             errno = 0;
@@ -123,7 +117,7 @@ int pch_exec(paths_t *dirs, const char *const opt[])
                     NULL,
                     NULL,
                     FALSE,
-                    flags,
+                    CREATE_NEW_PROCESS_GROUP | CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW,
                     NULL,
                     NULL,
                     &si,
