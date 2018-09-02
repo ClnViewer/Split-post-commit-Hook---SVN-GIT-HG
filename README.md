@@ -1,4 +1,7 @@
 
+[![Build Travis](https://travis-ci.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG.svg)](https://travis-ci.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG)
+
+
 # Split post commit Hook - `SVN`/`GIT`/`HG`
 
 **SPLIT POST COMMIT HOOK** позволяет создавать и поддерживать новый Репозиторий `SVN`/`GIT`/`HG` на основании списка файлов. Может использоваться для различных решений автоматизации.
