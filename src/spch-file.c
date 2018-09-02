@@ -213,11 +213,11 @@ int pch_path_dir(string_s *dst, string_s *src)
     return (int)dst->sz;
 }
 
-size_t pch_path_dump(string_s *dst, const char *src)
+size_t pch_path_dump_sz(string_s *dst, const char *src, size_t sz)
 {
     if (
         (!src) ||
-        (!(dst->sz  = strlen(src))) ||
+        (!(dst->sz  = ((sz) ? sz : strlen(src)))) ||
         (!(dst->str = calloc(1, (size_t)(dst->sz + 1)))) ||
         (!memcpy(dst->str, src, dst->sz))
     )

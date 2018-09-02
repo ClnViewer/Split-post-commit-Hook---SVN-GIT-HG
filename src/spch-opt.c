@@ -256,10 +256,10 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
                 char *ren1 = optarg;
                 int   sz = (ren2 - optarg);
                 ren2++;
-                ren1[sz] = '\0';
 
                 if (
-                    (pch_path_dump(&dirs->setup[FILE_RENAME1], ren1)) &&
+                    (sz > 0) &&
+                    (pch_path_dump_sz(&dirs->setup[FILE_RENAME1], ren1, (size_t)sz)) &&
                     (pch_path_dump(&dirs->setup[FILE_RENAME2], ren2))
                 )
                     dirs->bitopt = __BITSET(dirs->bitopt, OPT_RENAME);

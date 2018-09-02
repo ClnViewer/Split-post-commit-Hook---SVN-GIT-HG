@@ -144,6 +144,8 @@ typedef struct
 #define pch_log_info(A,B,...)  \
     pch_log_(1,A,"[%d/%d][%s:%d] -> " B "\n",__PID,__BNAME,__LINE__,__VA_ARGS__)
 
+#define pch_path_dump(A,B) pch_path_dump_sz(A,B,0U)
+
 void   pch_log_(int, paths_t*, const char*, ...);
 int    pch_option(paths_t*, char* [], int);
 const char * pch_option_chkmode(paths_t*);
@@ -151,7 +153,7 @@ const char * pch_ultostr(char*, unsigned long, int);
 int    pch_compare_file(paths_t*, string_s*, string_s*);
 size_t pch_check_(string_s*, type_io_e);
 size_t pch_path_format(string_s*, const char*, ...);
-size_t pch_path_dump(string_s*, const char*);
+size_t pch_path_dump_sz(string_s*, const char*, size_t);
 int    pch_path_dir(string_s*, string_s*);
 int    pch_path_time(char [], const char*);
 int    pch_path_setuid(paths_t*, int);
