@@ -364,7 +364,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         case 'h':
         {
             __help_prn(argv[0]);
-            return 127;
+            return 0;
         }
         default:
         {
