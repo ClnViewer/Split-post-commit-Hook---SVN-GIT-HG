@@ -51,6 +51,11 @@ int _chdir(const char*);
 #   include "windows.h"
 
 #else
+
+#   if !defined(_GNU_SOURCE)
+#      define _GNU_SOURCE 1
+#   endif
+
 #   define __PSEPC '/'
 #   define __PSEPS "/"
 #   define _mkdir(A) mkdir(A, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)
@@ -73,6 +78,7 @@ int _chdir(const char*);
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <string.h>
 #include <errno.h>
 #include <time.h>

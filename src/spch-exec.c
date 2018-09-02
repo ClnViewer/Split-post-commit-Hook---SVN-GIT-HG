@@ -231,6 +231,7 @@ int pch_exec(paths_t *dirs, const char *const opt[])
             return -3;
         }
 #       endif
+#       if defined(WCOREDUMP)
         else if (WCOREDUMP(cstatus))
         {
             pch_log_error(dirs, "exec '%s -> %s' exit at core dumped",
@@ -238,6 +239,7 @@ int pch_exec(paths_t *dirs, const char *const opt[])
                          );
             return -4;
         }
+#       endif
         break;
     }
     }
