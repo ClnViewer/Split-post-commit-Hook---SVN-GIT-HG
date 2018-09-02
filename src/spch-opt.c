@@ -16,7 +16,7 @@ static char *help[] =
     "VCS type: [svn|git|hq]",
     "file check: [mtime|ctime|size|all]",
     "current VCS revision",
-    "use deploy.yaml deploy/check config before commit",
+    "use file deploy.yaml run test/check before commit",
     "force overwrite all destination files",
     "fork and deionized, no-loop SBC mode (Linux only)",
     "quiet mode, no print message to console",

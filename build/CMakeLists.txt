@@ -48,6 +48,7 @@ set(app_srcs
 set(app_hdrs
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-link-hash.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-stage-yaml.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/version.h
 )
 
@@ -77,42 +78,42 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR
         endif()
      endif()
 
-     CHECK_C_COMPILER_FLAG("-Wstrict-prototypes" COMPILER_SUPPORTS_CWSP)
-     if(COMPILER_SUPPORTS_CWSP)
+     CHECK_C_COMPILER_FLAG("-Wstrict-prototypes" COMPILER_SUPPORTS_C_WSP)
+     if(COMPILER_SUPPORTS_C_WSP)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wstrict-prototypes")
      endif()
 
-     CHECK_C_COMPILER_FLAG("-Wall" COMPILER_SUPPORTS_CWALL)
-     if(COMPILER_SUPPORTS_CWALL)
+     CHECK_C_COMPILER_FLAG("-Wall" COMPILER_SUPPORTS_C_WALL)
+     if(COMPILER_SUPPORTS_C_WALL)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
      endif()
 
-     CHECK_C_COMPILER_FLAG("-Wextra" COMPILER_SUPPORTS_CWEXTRA)
-     if(COMPILER_SUPPORTS_CWEXTRA)
+     CHECK_C_COMPILER_FLAG("-Wextra" COMPILER_SUPPORTS_C_WEXTRA)
+     if(COMPILER_SUPPORTS_C_WEXTRA)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra")
      endif()
 
-     CHECK_C_COMPILER_FLAG("-pedantic" COMPILER_SUPPORTS_CPEDANT)
-     if(COMPILER_SUPPORTS_CPEDANT)
+     CHECK_C_COMPILER_FLAG("-pedantic" COMPILER_SUPPORTS_C_PEDANTIC)
+     if(COMPILER_SUPPORTS_C_PEDANTIC)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic")
      endif()
 
-     CHECK_C_COMPILER_FLAG("-ffunction-sections -fdata-sections -Wl,--gc-sections " COMPILER_SUPPORTS_CFUNSEC)
-     if(COMPILER_SUPPORTS_CFUNSEC)
+     CHECK_C_COMPILER_FLAG("-ffunction-sections -fdata-sections -Wl,--gc-sections " COMPILER_SUPPORTS_C_FUNSEC)
+     if(COMPILER_SUPPORTS_C_FUNSEC)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffunction-sections -fdata-sections -Wl,--gc-sections")
      endif()
 
      if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
-         CHECK_C_COMPILER_FLAG("-Wl,--print-gc-sections" COMPILER_SUPPORTS_CLPCS)
-         if(COMPILER_SUPPORTS_CLPCS)
+         CHECK_C_COMPILER_FLAG("-Wl,--print-gc-sections" COMPILER_SUPPORTS_C_LPGCSEC)
+         if(COMPILER_SUPPORTS_C_LPGCSEC)
             set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wl,--print-gc-sections")
          endif()
 
          message( STATUS "Build CFLAGS: " ${CMAKE_C_FLAGS} )
 
      else()
-         CHECK_C_COMPILER_FLAG("-s" COMPILER_SUPPORTS_CSTRIP)
-         if(COMPILER_SUPPORTS_CSTRIP)
+         CHECK_C_COMPILER_FLAG("-s" COMPILER_SUPPORTS_C_STRIP)
+         if(COMPILER_SUPPORTS_C_STRIP)
             set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s")
          endif()
      endif()

@@ -2,6 +2,7 @@
 #if !defined(SPCH_YAML_H)
 #define SPCH_YAML_H
 
+#define __YAMLNAME "deploy.yaml"
 
 static const char yamlscr[] = {
 "export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin\n"
@@ -44,7 +45,7 @@ static const char yamlscr[] = {
 
 "    if [[ \"${0}\" == \"\" ]] ;\n"
 "    then\n"
-"        echo \"Unknown ROOT\"\n"
+"        echo \"Unknown ROOT repo\"\n"
 "        exit 1;\n"
 "    else\n"
 "        _ROOT=\"${0}\"\n"
@@ -66,17 +67,18 @@ static const char yamlscr[] = {
 "        _VCS_TYPE=\"${2}\"\n"
 "    fi\n"
 
-"    if [[ ! -f \"${_ROOT}/deploy.yaml\" ]] ;\n"
+"    if [[ ! -f \"${_ROOT}/" __YAMLNAME "\" ]] ;\n"
 "    then\n"
-"        echo \"ROOT not found yaml config: ${_ROOT}/deploy.yaml\"\n"
+"        echo \"ROOT not found yaml config: ${_ROOT}/" __YAMLNAME "\"\n"
 "        exit 1;\n"
 "    fi\n"
 
-"echo -e \"\tSetup -> Root directory: ${_ROOT}\"\n"
-"echo -e \"\tSetup -> VCS revision: ${_VCS_REVISION}\"\n"
-"echo -e \"\tSetup -> VCS type: ${_VCS_TYPE}\\n\"\n"
+"    echo -e \"\tSetup -> Root directory: ${_ROOT}\"\n"
+"    echo -e \"\tSetup -> VCS revision: ${_VCS_REVISION}\"\n"
+"    echo -e \"\tSetup -> VCS type: ${_VCS_TYPE}\\n\"\n"
+"    cd \"${_ROOT}/\"\n"
 
-"    eval $(parse_yaml \"${_ROOT}/deploy.yaml\")\n"
+"    eval $(parse_yaml \"${_ROOT}/" __YAMLNAME "\")\n"
 "    VAL=\"\"\n"
 "    RC=\"0\"\n"
 

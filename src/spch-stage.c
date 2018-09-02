@@ -186,11 +186,12 @@ int pch_stage3(paths_t *dirs)
     int ret = 0;
 
 #   if !defined(OS_WIN)
+
     if (__BITTST(dirs->bitopt, OPT_YAML))
     {
         do
         {
-            int idx = -1, i;
+            int i, idx = -1;
             static string_s binsh[] = {
                 { __YAMLSHELL1, __CSZ(__YAMLSHELL1) },
                 { __YAMLSHELL2, __CSZ(__YAMLSHELL2) }
@@ -208,16 +209,16 @@ int pch_stage3(paths_t *dirs)
             }
             if (idx == -1)
             {
-                pch_log_info(dirs, "deploy yaml config shell: [%d] - not found", idx);
+                pch_log_info(dirs, "examine yaml config shell: [%d] - not found", idx);
                 break;
             }
             if (
-                (!pch_path_format(&fyaml, "%s" __PSEPS "deploy.yaml", dirs->setup[FILE_SPLIT_REPO].str)) ||
+                (!pch_path_format(&fyaml, "%s" __PSEPS __YAMLNAME, dirs->setup[FILE_SPLIT_REPO].str)) ||
                 (!pch_check_file(&fyaml))
             )
             {
-                pch_log_error(dirs, "deploy yaml config: [%s] - not found",
-                              ((fyaml.str) ? fyaml.str : "<repo-split>" __PSEPS "deploy.yaml")
+                pch_log_error(dirs, "examine yaml config: [%s] - not found",
+                              ((fyaml.str) ? fyaml.str : "<repo-split>" __PSEPS __YAMLNAME)
                              );
                 break;
             }
@@ -239,12 +240,12 @@ int pch_stage3(paths_t *dirs)
 
             if ((ret = pch_exec(dirs, args)))
             {
-                pch_log_error(dirs, "deploy yaml config return error: %d", ret);
+                pch_log_error(dirs, "examine yaml config return error: %d", ret);
                 break;
             }
             else if (__ISLOG)
             {
-                pch_log_info(dirs, "deploy yaml config [%s" __PSEPS "deploy.yaml] - OK",
+                pch_log_info(dirs, "examine yaml config [%s" __PSEPS __YAMLNAME "] - OK",
                              dirs->setup[FILE_SPLIT_REPO].str
                             );
             }

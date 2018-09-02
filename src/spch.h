@@ -159,6 +159,7 @@ void   pch_path_free(paths_t*);
 int    pch_path_destination(paths_t*, char*, size_t, string_s*);
 int    pch_fcopy(string_s*, string_s*);
 int    pch_exec(paths_t*, const char *const []);
+int    pch_fork(int, char* []);
 int    pch_stage1(paths_t*);
 int    pch_stage2(paths_t*);
 int    pch_stage3(paths_t*);

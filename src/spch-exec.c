@@ -7,6 +7,7 @@
 #   include <sys/types.h>
 #   include <sys/wait.h>
 #   include <unistd.h>
+#   include <fcntl.h>
 #endif
 
 #define __ISLOG ((dirs->fp[1]) ? 1 : 0)
@@ -77,12 +78,20 @@ int pch_exec(paths_t *dirs, const char *const opt[])
 
     do
     {
+        unsigned long flags = 0;
         STARTUPINFO si;
         PROCESS_INFORMATION pi;
 
         memset(&si, 0, sizeof(si));
         memset(&pi, 0, sizeof(pi));
         si.cb = sizeof(si);
+        flags |= CREATE_NEW_PROCESS_GROUP;
+
+        if (__BITTST(dirs->bitopt, OPT_DEMONIZE))
+        {
+            si.dwFlags |= CREATE_NO_WINDOW;
+            flags |= CREATE_NO_WINDOW;
+        }
 
         if (!CreateProcess(
                     NULL,
@@ -90,7 +99,7 @@ int pch_exec(paths_t *dirs, const char *const opt[])
                     NULL,
                     NULL,
                     FALSE,
-                    CREATE_NEW_PROCESS_GROUP,
+                    flags,
                     NULL,
                     NULL,
                     &si,
@@ -222,3 +231,136 @@ int pch_exec(paths_t *dirs, const char *const opt[])
 #   endif
 
 }
+
+int pch_fork(int argc, char *argv[])
+{
+#   if defined(OS_WIN)
+
+    int i, ret = 0;
+    size_t sz = 0;
+    char __AUTO(__autofree) *cmd = NULL;
+    char *p;
+
+    for (i = 0; i < argc; i++)
+    {
+        size_t ssz;
+
+        if (!argv[i])
+            break;
+
+        ssz = strlen(argv[i]);
+
+        if (
+            (
+                (ssz == 2U) &&
+                (!memcmp(argv[i], (void*)&"-k", 2U))
+            )
+            ||
+            (
+                (ssz == 9U) &&
+                (!memcmp(argv[i], (void*)&"--nonloop", 9U))
+            )
+        )
+            continue;
+
+        if (!(p = realloc(cmd, (size_t)(sz + ssz + 2U))))
+        {
+            if (cmd)
+                free(cmd);
+            return -1;
+        }
+
+        cmd = p;
+        memcpy((void*)(p + sz), argv[i], ssz);
+        sz += ssz;
+        p[sz] = 0x20;
+        p[++sz] = 0x0;
+    }
+
+    sz = ((sz) ? (sz - 1) : 0);
+
+    if ((!cmd) || (!sz))
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    /* remove last blank 0x20 */
+    cmd[sz] = 0x0;
+
+    {
+        STARTUPINFO si;
+        PROCESS_INFORMATION pi;
+
+        memset(&si, 0, sizeof(si));
+        memset(&pi, 0, sizeof(pi));
+        si.cb = sizeof(si);
+        si.dwFlags |= DETACHED_PROCESS;
+
+        if (!CreateProcess(
+                    NULL,
+                    cmd,
+                    NULL,
+                    NULL,
+                    FALSE,
+                    CREATE_DEFAULT_ERROR_MODE | CREATE_UNICODE_ENVIRONMENT | DETACHED_PROCESS,
+                    NULL,
+                    NULL,
+                    &si,
+                    &pi
+                )
+           )
+        {
+            ret = -1;
+        }
+    }
+
+    return ret;
+
+#   elif defined(__GNUC__)
+
+    (void) argc;
+    (void) argv;
+
+    switch(fork())
+    {
+    case 0:
+    {
+        int cfd;
+        (void) signal(SIGHUP, SIG_IGN);
+
+        if ((cfd = open("/dev/null", O_RDWR, 0)) >= 0)
+        {
+            dup2(cfd, STDIN_FILENO);
+            dup2(cfd, STDOUT_FILENO);
+            dup2(cfd, STDERR_FILENO);
+
+            if (cfd > 2)
+            {
+                close(cfd);
+            }
+        }
+        if ((getppid() != 1) && (setsid() < 0))
+        {
+            return -1;
+        }
+        (void) sleep(12);
+        return (int)getpid();
+    }
+    case -1:
+    {
+        return -1;
+    }
+    default:
+    {
+        (void) signal(SIGCHLD, SIG_IGN);
+        errno = 0;
+        return 0;
+    }
+    }
+#   else
+    /* default value > 0, continue run, no errors */
+    return 100;
+#   endif
+}
+

@@ -21,72 +21,53 @@ int main(int argc, char *argv[])
         return ret;
     }
     /* stage #0 */
-    /* set UID/GID for Linux */
-#   if !defined(OS_WIN)
-    /* fork and wait,
-       non-loop SVC call for 'update' command,
-       fixed error: repo is locked
-       (Linux) */
     if (__BITTST(dirs.bitopt, OPT_DEMONIZE))
     {
         if (__ISLOG)
         {
             fflush(dirs.fp[1]);
         }
-        switch(fork())
+        /* fork and wait,
+           non-loop SVC call for 'update' command,
+           fixed error: repo is locked
+           (Linux/Windows) */
+        switch(pch_fork(argc, argv))
         {
-        case 0:
-        {
-            int cfd;
-            (void) signal(SIGHUP, SIG_IGN);
-
-            if ((cfd = open("/dev/null", O_RDWR, 0)) >= 0)
-            {
-                dup2(cfd, STDIN_FILENO);
-                dup2(cfd, STDOUT_FILENO);
-                dup2(cfd, STDERR_FILENO);
-
-                if (cfd > 2)
-                {
-                    close(cfd);
-                }
-            }
-            if ((getppid() != 1) && (setsid() < 0))
-            {
-                if (__ISLOG)
-                {
-                    pch_log_error(&dirs, "stage #%d non-loop set SID error:", 0);
-                    exit(125);
-                }
-            }
-            (void) sleep(12);
-            break;
-        }
         case -1:
         {
             if (__ISLOG)
             {
-                pch_log_error(&dirs, "stage #%d non-loop fork error:", 0);
+                pch_log_error(&dirs, "stage #%d non-loop fork error!", 0);
+                fflush(dirs.fp[1]);
             }
             exit(127);
         }
-        default:
+        case 0:
         {
-            (void) signal(SIGCHLD, SIG_IGN);
             if (__ISLOG)
             {
-                pch_log_info(&dirs, "stage #0 non-loop mode: Parent %d successful exit", getpid());
+                pch_log_info(&dirs, "stage #0 non-loop mode: Parent %d successful exit", __PID);
                 fflush(dirs.fp[1]);
             }
+#           if !defined(OS_WIN)
             ds = NULL;
+#           endif
             exit(0);
+        }
+        default:
+        {
+            if (__ISLOG)
+            {
+                pch_log_info(&dirs, "stage #0 non-loop mode: Daemon %d run successful", __PID);
+                fflush(dirs.fp[1]);
+            }
+            break;
         }
         }
     }
-#   endif
-
     do
     {
+        /* set UID/GID for Linux */
         if (!pch_path_setuid(&dirs, __ISLOG))
         {
             ret = 125;
