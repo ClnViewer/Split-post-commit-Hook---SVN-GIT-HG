@@ -85,6 +85,8 @@ int pch_exec(paths_t *dirs, const char *const opt[])
         memset(&si, 0, sizeof(si));
         memset(&pi, 0, sizeof(pi));
         si.cb = sizeof(si);
+        si.dwFlags |= CREATE_UNICODE_ENVIRONMENT;
+        flags |= CREATE_UNICODE_ENVIRONMENT;
         flags |= CREATE_NEW_PROCESS_GROUP;
 
         if (__BITTST(dirs->bitopt, OPT_DEMONIZE))
