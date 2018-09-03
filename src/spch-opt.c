@@ -38,8 +38,8 @@ static char *info =
 "  -j, --log 'val'       Path and log file name.\n\n" \
 "  -u, --uid 'val'       Set user for file operations. (*nix only)\n\n" \
 "  -d, --deploy 'val'    Deploy script, execute before the 'commit' operation,\n" \
-"                        returns `0` if the tests / assembly was successful,\n" \
-"                        otherwise, 'commit' is executed will not be.\n\n" \
+"                        returns '0' if the tests/assembly was successful,\n" \
+"                        otherwise, 'commit is executed will not be.\n\n" \
 "  -y, --yaml            Look for configuration file 'deploy.yaml' in the root\n" \
 "                        of the 'split' repository and in the case success,\n" \
 "                        execute the commands described in it.\n" \
