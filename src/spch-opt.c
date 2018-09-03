@@ -374,7 +374,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
                 dirs->bitopt = __BITSET(dirs->bitopt, OPT_VCS_GIT);
                 break;
             case 'h' :
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_VCS_HQ);
+                dirs->bitopt = __BITSET(dirs->bitopt, OPT_VCS_HG);
                 break;
             default:
                 __param_err(options[FILE_NONE_IDX].val, options[FILE_NONE_IDX].name, help[FILE_NONE_IDX]);
@@ -487,10 +487,10 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     if (
         (!__BITTST(dirs->bitopt, OPT_VCS_SVN)) &&
         (!__BITTST(dirs->bitopt, OPT_VCS_GIT)) &&
-        (!__BITTST(dirs->bitopt, OPT_VCS_HQ))
+        (!__BITTST(dirs->bitopt, OPT_VCS_HG))
     )
     {
-        fprintf(stdout, "\n\tRequired options type VCS: '-t svn | git | hq'\n\n");
+        fprintf(stdout, "\n\tRequired options type VCS: '-t svn | git | hg'\n\n");
         return (FILE_NONE_IDX + 6);
     }
     if (

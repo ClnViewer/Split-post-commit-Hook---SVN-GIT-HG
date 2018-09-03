@@ -129,7 +129,7 @@ typedef enum
 {
     OPT_VCS_SVN,
     OPT_VCS_GIT,
-    OPT_VCS_HQ,
+    OPT_VCS_HG,
     OPT_FORCE,
     OPT_QUIET,
     OPT_UUID,

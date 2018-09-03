@@ -124,13 +124,13 @@ static const char *vcs_bin[][2] =
 {
     { "svn" __BINEXT, "svnadmin" __BINEXT },
     { "git" __BINEXT, "git" __BINEXT },
-    { "hq"  __BINEXT, "hq" __BINEXT },
+    { "hg"  __BINEXT, "hg" __BINEXT },
 };
 
 static int __select_vcs_type(unsigned long bitopt)
 {
     return (
-               ((__BITTST(bitopt, OPT_VCS_HQ)) ? OPT_VCS_HQ :
+               ((__BITTST(bitopt, OPT_VCS_HG)) ? OPT_VCS_HG :
                 ((__BITTST(bitopt, OPT_VCS_GIT)) ? OPT_VCS_GIT : OPT_VCS_SVN
                 )));
 }
@@ -155,7 +155,7 @@ static const char * __select_vcs_bin(paths_t *dirs, vcs_bin_e type)
 const char * pch_vcs_type(unsigned long bitopt)
 {
     return (
-               ((__BITTST(bitopt, OPT_VCS_HQ)) ? vcs_bin[2][0] :
+               ((__BITTST(bitopt, OPT_VCS_HG)) ? vcs_bin[2][0] :
                 ((__BITTST(bitopt, OPT_VCS_GIT)) ? vcs_bin[1][0] : vcs_bin[0][0]
                 )));
 }

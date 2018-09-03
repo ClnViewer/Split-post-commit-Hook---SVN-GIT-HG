@@ -1,3 +1,9 @@
+03 September 2018
+   released version 0.0.22 of Split-post-commit-hook
+
+     Change log:
+        -Updated: variable refactored
+
 30 August 2018
    released version 0.0.8 of Split-post-commit-hook
 
