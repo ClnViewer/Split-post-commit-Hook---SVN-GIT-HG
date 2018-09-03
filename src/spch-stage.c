@@ -77,15 +77,14 @@ int pch_stage2(paths_t *dirs)
     while (fgets(b, BUFSIZ, dirs->fp[0]) != NULL)
     {
         int ret;
-        string_s from_s, to_s, to_dir_s;
-        string_s __AUTO(__autostring)
-        *from_free = &from_s,
-         *to_free = &to_s,
-          *to_dir_free = &to_dir_s;
+        string_s from_b = { NULL, 0U },
+            to_b = { NULL, 0U },
+            to_dir_b = { NULL, 0U };
 
-        memset(&from_s,   0, sizeof(string_s));
-        memset(&to_s,     0, sizeof(string_s));
-        memset(&to_dir_s, 0, sizeof(string_s));
+        string_s __AUTO(__autostring)
+        *from_s = &from_b,
+         *to_s = &to_b,
+          *to_dir_s = &to_dir_b;
 
         size_t len = strlen(b);
         len = ((len > 0U) ? (len - 1U) : 0U);
@@ -102,8 +101,8 @@ int pch_stage2(paths_t *dirs)
         (void) hf->adds(hf->hash, b, len);
 
         if (
-            (!pch_path_format(&from_s, "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, b)) ||
-            (!pch_path_destination(dirs, (char*)b, len, &to_s))
+            (!pch_path_format(from_s, "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, b)) ||
+            (!pch_path_destination(dirs, (char*)b, len, to_s))
         )
         {
             rcode = -1;
@@ -111,23 +110,23 @@ int pch_stage2(paths_t *dirs)
         }
 
 #       if defined(__DEBUG__)
-        printf("%d) [%s]: %s -> %s\n", __LINE__, __func__, from_s.str, to_s.str);
+        printf("%d) [%s]: %s -> %s\n", __LINE__, __func__, from_s->str, to_s->str);
 #       endif
 
         if (!__BITTST(dirs->bitopt, OPT_FORCE))
         {
-            if (!pch_compare_file(dirs, &from_s, &to_s))
+            if (!pch_compare_file(dirs, from_s, to_s))
             {
                 if (__ISLOG)
                 {
-                    pch_log_info(dirs, "stage #2 skip: %s -> %s", from_s.str, to_s.str);
+                    pch_log_info(dirs, "stage #2 skip: %s -> %s", from_s->str, to_s->str);
                 }
                 continue;
             }
         }
         if (strchr(b, __PSEPC))
         {
-            switch (pch_path_dir(&to_dir_s, &to_s))
+            switch (pch_path_dir(to_dir_s, to_s))
             {
             case -1:
             {
@@ -141,20 +140,20 @@ int pch_stage2(paths_t *dirs)
             }
             default:
             {
-                if (!hd->searchs(hd->hash, to_dir_s.str, to_dir_s.sz))
+                if (!hd->searchs(hd->hash, to_dir_s->str, to_dir_s->sz))
                 {
-                    (void) hd->addmap(hd->hash, to_dir_s.str, to_dir_s.sz);
+                    (void) hd->addmap(hd->hash, to_dir_s->str, to_dir_s->sz);
                 }
-                if (!pch_check_dir(&to_dir_s))
+                if (!pch_check_dir(to_dir_s))
                 {
                     errno = 0;
 
                     if (
-                        (_mkdir(to_dir_s.str) < 0) &&
+                        (_mkdir(to_dir_s->str) < 0) &&
                         (errno != EEXIST)
                     )
                     {
-                        pch_log_error(dirs, "create directory error: %s", to_dir_s.str);
+                        pch_log_error(dirs, "create directory error: %s", to_dir_s->str);
                         rcode = -3;
                         break;
                     }
@@ -167,21 +166,21 @@ int pch_stage2(paths_t *dirs)
 
 #       if defined(__DEBUG__)
         printf("%d) [%s]: %s -> %s -> %s\n",
-               __LINE__, __func__, from_s.str, to_s.str,
-               ((to_dir_s.str) ? to_dir_s.str : "- none -")
+               __LINE__, __func__, from_s->str, to_s->str,
+               ((to_dir_s->str) ? to_dir_s->str : "- none -")
               );
 #       endif
 
-        if ((ret = pch_fcopy(&from_s, &to_s)))
+        if ((ret = pch_fcopy(from_s, to_s)))
         {
-            pch_log_error(dirs, "copy file error: %s -> %s", from_s.str, to_s.str);
+            pch_log_error(dirs, "copy file error: %s -> %s", from_s->str, to_s->str);
             continue;
         }
         if (__ISLOG)
         {
             pch_log_info(dirs, "stage #2 %s: %s -> %s",
                          ((__BITTST(dirs->bitopt, OPT_FORCE)) ? "replace" : "update"),
-                         from_s.str, to_s.str
+                         from_s->str, to_s->str
                         );
         }
         stage = ((!ret) ? (stage + 1) : stage);
@@ -221,8 +220,8 @@ int pch_stage3(paths_t *dirs)
                 { __YAMLSHELL1, __CSZ(__YAMLSHELL1) },
                 { __YAMLSHELL2, __CSZ(__YAMLSHELL2) }
                 };
-            string_s fyaml = { NULL, 0U };
-            string_s __AUTO(__autostring) *fy = &fyaml;
+            string_s byaml = { NULL, 0U };
+            string_s __AUTO(__autostring) *fyaml = &byaml;
 
             for (i = 0; i < (int)__NELE(binsh); i++)
             {
@@ -238,12 +237,12 @@ int pch_stage3(paths_t *dirs)
                 break;
             }
             if (
-                (!pch_path_format(&fyaml, "%s" __PSEPS __YAMLNAME, dirs->setup[FILE_SPLIT_REPO].str)) ||
-                (!pch_check_file(&fyaml))
+                (!pch_path_format(fyaml, "%s" __PSEPS __YAMLNAME, dirs->setup[FILE_SPLIT_REPO].str)) ||
+                (!pch_check_file(fyaml))
             )
             {
                 pch_log_error(dirs, "examine yaml config: [%s] - not found",
-                              ((fyaml.str) ? fyaml.str : "<repo-split>" __PSEPS __YAMLNAME)
+                              ((fyaml->str) ? fyaml->str : "<repo-split>" __PSEPS __YAMLNAME)
                              );
                 break;
             }

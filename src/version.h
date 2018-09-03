@@ -14,17 +14,17 @@
 	//Standard Version Type
 	#define SPCH_MAJOR  0
 	#define SPCH_MINOR  0
-	#define SPCH_BUILD  13
-	#define SPCH_REVISION  70
+	#define SPCH_BUILD  19
+	#define SPCH_REVISION  93
 	
 	//Miscellaneous Version Types
-	#define SPCH_BUILDS_COUNT  25
-	#define SPCH_RC_FILEVERSION 0,0,13,70
-	#define SPCH_RC_FILEVERSION_STRING "0, 0, 13, 70\0"
-	#define SPCH_FULLVERSION_STRING  "0.0.13.70"
+	#define SPCH_BUILDS_COUNT  32
+	#define SPCH_RC_FILEVERSION 0,0,19,93
+	#define SPCH_RC_FILEVERSION_STRING "0, 0, 19, 93\0"
+	#define SPCH_FULLVERSION_STRING  "0.0.19.93"
 	
 	//These values are to keep track of your versioning state, don't modify them.
-	#define SPCH_BUILD_HISTORY  13
+	#define SPCH_BUILD_HISTORY  19
 	
 
 #endif //VERSION_H

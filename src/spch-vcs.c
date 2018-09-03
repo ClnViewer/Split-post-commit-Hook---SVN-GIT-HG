@@ -194,9 +194,8 @@ int pch_vcs_update(paths_t *dirs, string_s *repo)
 int pch_vcs_commit(paths_t *dirs)
 {
     int ret = -1;
-    string_s arg3;
-    string_s __AUTO(__autostring) *arg_free = &arg3;
-    memset(&arg3, 0, sizeof(string_s));
+    string_s barg3 = { NULL, 0U };
+    string_s __AUTO(__autostring) *arg3 = &barg3;
 
     if (_chdir(dirs->setup[FILE_SPLIT_REPO].str) < 0)
     {
@@ -211,7 +210,7 @@ int pch_vcs_commit(paths_t *dirs)
         if (dirs->rev)
         {
             if (!pch_path_format(
-                        &arg3,
+                        arg3,
                         "-m\"split auto commit rev.%lu (spch v.%s)\"",
                         dirs->rev,
                         SPCH_FULLVERSION_STRING
@@ -224,7 +223,7 @@ int pch_vcs_commit(paths_t *dirs)
         else
         {
             if (!pch_path_format(
-                        &arg3,
+                        arg3,
                         "-m\"split auto commit (spch v.%s)\"",
                         SPCH_FULLVERSION_STRING
                     )
@@ -233,7 +232,7 @@ int pch_vcs_commit(paths_t *dirs)
                 break;
             }
         }
-        args[3] = arg3.str;
+        args[3] = arg3->str;
         ret = pch_exec(dirs, args);
 
         if (ret) break;
@@ -266,9 +265,8 @@ int pch_vcs_add(paths_t *dirs, string_s *dir)
 int pch_vcs_create(paths_t *dirs)
 {
     int ret = -1;
-    string_s arg2;
-    string_s __AUTO(__autostring) *arg_free = &arg2;
-    memset(&arg2, 0, sizeof(string_s));
+    string_s barg2 = { NULL, 0U };
+    string_s __AUTO(__autostring) *arg2 = &barg2;
 
     if (
         (!dirs->setup[FILE_ROOTVCS].str) ||
@@ -288,7 +286,7 @@ int pch_vcs_create(paths_t *dirs)
         mhome = ((!mhome) ? dirs->setup[FILE_MASTER_REPO].str : (mhome + 1));
 
         if (!pch_path_format(
-                    &arg2,
+                    arg2,
                     "%s" __PSEPS "%s",
                     dirs->setup[FILE_ROOTVCS].str,
                     mhome
@@ -297,7 +295,7 @@ int pch_vcs_create(paths_t *dirs)
         {
             break;
         }
-        args[2] = arg2.str;
+        args[2] = arg2->str;
         if ((ret = pch_exec(dirs, args)))
             return ret;
     }
