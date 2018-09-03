@@ -109,8 +109,7 @@ static const char yamlscr[] = {
 "    cd \"${_ROOT}/\"\n"
 
 "    eval $(parse_yaml \"${_ROOT}/" __YAMLNAME "\")\n"
-"    VAL=\"\"\n"
-"    RC=\"0\"\n"
+"    _RC=\"0\"\n"
 
 "    for i in \"${pre[@]}\" ;\n"
 "    do\n"
@@ -122,22 +121,22 @@ static const char yamlscr[] = {
 "    do\n"
 "        echo -e \"\tExamine cmd: ${i}\";\n"
 "        ${i}\n"
-"        RC=$?\n"
-"        if [[ \"${RC}\" != \"0\" ]] ;\n"
+"        _RC=$?\n"
+"        if [[ \"${_RC}\" != \"0\" ]] ;\n"
 "        then\n"
-"            echo -e \"\t${_VCS_TYPE} rev.${_VCS_REVISION} - Examine error: ${RC}\"\n"
+"            echo -e \"\t${_VCS_TYPE} rev.${_VCS_REVISION} - Examine error: ${_RC}\"\n"
 "            break\n"
 "        fi\n"
 "    done\n"
 
-"    echo -e \"\tAll Tests return ${RC}\"\n"
+"    echo -e \"\tAll Tests return ${_RC}\"\n"
 
 "    for i in \"${post[@]}\" ;\n"
 "    do\n"
 "        echo -e \"\tPost-build cmd: ${i}\";\n"
 "        ${i}\n"
 "    done\n"
-"    exit ${RC}\n"
+"    exit ${_RC}\n"
 
 };
 
