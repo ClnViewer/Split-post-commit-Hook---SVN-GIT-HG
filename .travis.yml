@@ -12,6 +12,7 @@ script:
   - cmake -G"Unix Makefiles" .. -DCMAKE_BUILD_TYPE=Debug
   - cmake --build . --config "Debug"
   - ../bin/spch -h
+  - ../bin/spch -i
 before_script:
 #  - if [ "$(uname)" = "Linux" ]; then sudo apt-get update; sudo apt-get install -y autotools-dev autoconf check; fi
 #  - if [ "$(uname)" = "Darwin" ]; then brew update; brew install check; fi
