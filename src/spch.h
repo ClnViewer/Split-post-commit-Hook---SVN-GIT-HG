@@ -26,6 +26,30 @@
 #if !defined(SPCH_H)
 #define SPCH_H
 
+#if ((!defined(__STDC_VERSION__) || (__STDC_VERSION__ < 199901L)) && \
+      !defined(__STDC_C99) && !defined(__C99_RESTRICT))
+#   if !defined(restrict)
+#      if defined(__GNUC__) || defined(__clang__)
+#         define restrict __restrict
+#      elif defined(_MSC_VER)
+#         define restrict
+#      elif defined(__SUNPRO_C)
+#         define restrict _Restrict
+#      else
+#         define restrict
+#      endif
+#   endif
+#   if !defined(inline)
+#      if defined(__GNUC__) || defined(__clang__)
+#         define inline inline __attribute__((always_inline))
+#      elif defined(_MSC_VER)
+#         define inline __forceinline
+#      else
+#         define inline
+#      endif
+#   endif
+#endif
+
 #if ( \
         defined(_WIN32) || defined(__WIN32__) || defined(_Windows) || \
         defined(__WINNT) || defined(__WINNT__) || defined(WINNT) || \
@@ -63,7 +87,14 @@
 
 #endif
 
-#define __AUTO(x) __attribute__((cleanup(x)))
+#if defined(BUILD_MSVC)
+#   define __AUTO(x)
+#   define __attribute__(x)
+#   define __func__ __FUNCTION__
+#   define _CRT_SECURE_NO_WARNINGS 1
+#else
+#   define __AUTO(x) __attribute__((cleanup(x)))
+#endif
 
 #if defined(OS_WIN)
 #   define __PSEPC '\\'

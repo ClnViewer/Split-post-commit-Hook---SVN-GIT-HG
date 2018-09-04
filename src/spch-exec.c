@@ -129,7 +129,8 @@ int pch_exec(paths_t *dirs, const char *const opt[])
                 unsigned long errco = GetLastError();
                 __get_error(errstr, sizeof(errstr), errco);
                 pch_log_error(dirs, "create output fatal: %s", errstr);
-                return -1;
+                ecode = 1;
+                break;
             }
             si.dwFlags |= STARTF_USESTDHANDLES;
             si.hStdInput = NULL;
@@ -154,7 +155,8 @@ int pch_exec(paths_t *dirs, const char *const opt[])
             unsigned long errco = GetLastError();
             __get_error(errstr, sizeof(errstr), errco);
             pch_log_error(dirs, "create exec fatal: %s -> %s", cmd, errstr);
-            return -1;
+            ecode = 1;
+            break;
         }
 
         WaitForSingleObject(pi.hProcess, INFINITE);
@@ -164,12 +166,18 @@ int pch_exec(paths_t *dirs, const char *const opt[])
             unsigned long errco = GetLastError();
             __get_error(errstr, sizeof(errstr), errco);
             pch_log_error(dirs, "exit exec fatal: %s -> %s", cmd, errstr);
-            return -1;
+            ecode = 1;
+            break;
         }
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
     }
     while (0);
+
+#   if defined(BUILD_MSVC)
+    if (cmd)
+        free(cmd);
+#   endif
 
     ret = ((!ecode) ? 0 : -((int)ecode));
     return ret;
@@ -359,6 +367,11 @@ int pch_fork(int argc, char *argv[])
             ret = -1;
         }
     }
+
+#   if defined(BUILD_MSVC)
+    if (cmd)
+        free(cmd);
+#   endif
 
     return ret;
 

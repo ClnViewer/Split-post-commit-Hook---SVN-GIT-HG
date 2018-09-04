@@ -78,8 +78,8 @@ int pch_stage2(paths_t *dirs)
     {
         int ret;
         string_s from_b = { NULL, 0U },
-            to_b = { NULL, 0U },
-            to_dir_b = { NULL, 0U };
+                 to_b = { NULL, 0U },
+                 to_dir_b = { NULL, 0U };
 
         string_s __AUTO(__autostring)
         *from_s = &from_b,
@@ -100,90 +100,114 @@ int pch_stage2(paths_t *dirs)
 
         (void) hf->adds(hf->hash, b, len);
 
-        if (
-            (!pch_path_format(from_s, "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, b)) ||
-            (!pch_path_destination(dirs, (char*)b, len, to_s))
-        )
+#       if defined(BUILD_MSVC)
+        __try
         {
-            rcode = -1;
-            break;
-        }
-
-#       if defined(__DEBUG__)
-        printf("%d) [%s]: %s -> %s\n", __LINE__, __func__, from_s->str, to_s->str);
 #       endif
 
-        if (!__BITTST(dirs->bitopt, OPT_FORCE))
-        {
-            if (!pch_compare_file(dirs, from_s, to_s))
+            if (
+                (!pch_path_format(from_s, "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, b)) ||
+                (!pch_path_destination(dirs, (char*)b, len, to_s))
+            )
             {
-                if (__ISLOG)
-                {
-                    pch_log_info(dirs, "stage #2 skip: %s -> %s", from_s->str, to_s->str);
-                }
-                continue;
-            }
-        }
-        if (strchr(b, __PSEPC))
-        {
-            switch (pch_path_dir(to_dir_s, to_s))
-            {
-            case -1:
-            {
-                rcode = -2;
+                rcode = -1;
                 break;
             }
-            case  0:
-            {
-                rcode = 0;
-                break;
-            }
-            default:
-            {
-                if (!hd->searchs(hd->hash, to_dir_s->str, to_dir_s->sz))
-                {
-                    (void) hd->addmap(hd->hash, to_dir_s->str, to_dir_s->sz);
-                }
-                if (!pch_check_dir(to_dir_s))
-                {
-                    errno = 0;
 
-                    if (
-                        (_mkdir(to_dir_s->str) < 0) &&
-                        (errno != EEXIST)
-                    )
+#       if defined(__DEBUG__)
+            printf("%d) [%s]: %s -> %s\n", __LINE__, __func__, from_s->str, to_s->str);
+#       endif
+
+            if (!__BITTST(dirs->bitopt, OPT_FORCE))
+            {
+                if (!pch_compare_file(dirs, from_s, to_s))
+                {
+                    if (__ISLOG)
                     {
-                        pch_log_error(dirs, "create directory error: %s", to_dir_s->str);
-                        rcode = -3;
-                        break;
+                        pch_log_info(dirs, "stage #2 skip: %s -> %s", from_s->str, to_s->str);
+                    }
+                    continue;
+                }
+            }
+            if (strchr(b, __PSEPC))
+            {
+                switch (pch_path_dir(to_dir_s, to_s))
+                {
+                case -1:
+                {
+                    rcode = -2;
+                    break;
+                }
+                case  0:
+                {
+                    rcode = 0;
+                    break;
+                }
+                default:
+                {
+                    if (!hd->searchs(hd->hash, to_dir_s->str, to_dir_s->sz))
+                    {
+                        (void) hd->addmap(hd->hash, to_dir_s->str, to_dir_s->sz);
+                    }
+                    if (!pch_check_dir(to_dir_s))
+                    {
+                        errno = 0;
+
+                        if (
+                            (_mkdir(to_dir_s->str) < 0) &&
+                            (errno != EEXIST)
+                        )
+                        {
+                            pch_log_error(dirs, "create directory error: %s", to_dir_s->str);
+                            rcode = -3;
+                            break;
+                        }
                     }
                 }
+                }
             }
-            }
-        }
-        if (rcode < 0)
-            break;
+            if (rcode < 0)
+                break;
 
 #       if defined(__DEBUG__)
-        printf("%d) [%s]: %s -> %s -> %s\n",
-               __LINE__, __func__, from_s->str, to_s->str,
-               ((to_dir_s->str) ? to_dir_s->str : "- none -")
-              );
+            printf("%d) [%s]: %s -> %s -> %s\n",
+                   __LINE__, __func__, from_s->str, to_s->str,
+                   ((to_dir_s->str) ? to_dir_s->str : "- none -")
+                  );
 #       endif
 
-        if ((ret = pch_fcopy(from_s, to_s)))
-        {
-            pch_log_error(dirs, "copy file error: %s -> %s", from_s->str, to_s->str);
-            continue;
+            if ((ret = pch_fcopy(from_s, to_s)))
+            {
+                pch_log_error(dirs, "copy file error: %s -> %s", from_s->str, to_s->str);
+                continue;
+            }
+            if (__ISLOG)
+            {
+                pch_log_info(dirs, "stage #2 %s: %s -> %s",
+                             ((__BITTST(dirs->bitopt, OPT_FORCE)) ? "replace" : "update"),
+                             from_s->str, to_s->str
+                            );
+            }
+            stage = ((!ret) ? (stage + 1) : stage);
+
+#       if defined(BUILD_MSVC)
         }
-        if (__ISLOG)
+        __finally
         {
-            pch_log_info(dirs, "stage #2 %s: %s -> %s",
-                         ((__BITTST(dirs->bitopt, OPT_FORCE)) ? "replace" : "update"),
-                         from_s->str, to_s->str
-                        );
+            if (from_s->str)
+            {
+                __autostring(&from_s);
+            }
+            if (to_s->str)
+            {
+                __autostring(&to_s);
+            }
+            if (to_dir_s->str)
+            {
+                __autostring(&to_dir_s);
+            }
         }
-        stage = ((!ret) ? (stage + 1) : stage);
+#        endif
     }
 
     if ((!rcode) && (stage > 0))
@@ -216,63 +240,79 @@ int pch_stage3(paths_t *dirs)
         do
         {
             int i, idx = -1;
-            static string_s binsh[] = {
+            static string_s binsh[] =
+            {
                 { __YAMLSHELL1, __CSZ(__YAMLSHELL1) },
                 { __YAMLSHELL2, __CSZ(__YAMLSHELL2) }
-                };
+            };
             string_s byaml = { NULL, 0U };
             string_s __AUTO(__autostring) *fyaml = &byaml;
 
-            for (i = 0; i < (int)__NELE(binsh); i++)
+#           if defined(BUILD_MSVC)
+            __try
             {
-                if ((binsh[i].sz) && (pch_check_file(&binsh[i])))
+#           endif
+
+                for (i = 0; i < (int)__NELE(binsh); i++)
                 {
-                    idx = i;
+                    if ((binsh[i].sz) && (pch_check_file(&binsh[i])))
+                    {
+                        idx = i;
+                        break;
+                    }
+                }
+                if (idx == -1)
+                {
+                    pch_log_info(dirs, "examine yaml config shell: [%d] - not found", idx);
                     break;
                 }
-            }
-            if (idx == -1)
-            {
-                pch_log_info(dirs, "examine yaml config shell: [%d] - not found", idx);
-                break;
-            }
-            if (
-                (!pch_path_format(fyaml, "%s" __PSEPS __YAMLNAME, dirs->setup[FILE_SPLIT_REPO].str)) ||
-                (!pch_check_file(fyaml))
-            )
-            {
-                pch_log_error(dirs, "examine yaml config: [%s] - not found",
-                              ((fyaml->str) ? fyaml->str : "<repo-split>" __PSEPS __YAMLNAME)
-                             );
-                break;
-            }
+                if (
+                    (!pch_path_format(fyaml, "%s" __PSEPS __YAMLNAME, dirs->setup[FILE_SPLIT_REPO].str)) ||
+                    (!pch_check_file(fyaml))
+                )
+                {
+                    pch_log_error(dirs, "examine yaml config: [%s] - not found",
+                                  ((fyaml->str) ? fyaml->str : "<repo-split>" __PSEPS __YAMLNAME)
+                                 );
+                    break;
+                }
 
-            char brev[20] = {0};
-            const char *args[] =
-            {
-                binsh[idx].str,
-                "-c",
-                yamlscr,
-                dirs->setup[FILE_SPLIT_REPO].str,
-                NULL,
-                NULL,
-                NULL
-            };
+                char brev[20] = {0};
+                const char *args[] =
+                {
+                    binsh[idx].str,
+                    "-c",
+                    yamlscr,
+                    dirs->setup[FILE_SPLIT_REPO].str,
+                    NULL,
+                    NULL,
+                    NULL
+                };
 
-            args[4] = pch_ultostr(brev, dirs->rev, 10);
-            args[5] = pch_vcs_type(dirs->bitopt);
+                args[4] = pch_ultostr(brev, dirs->rev, 10);
+                args[5] = pch_vcs_type(dirs->bitopt);
 
-            if ((ret = pch_exec(dirs, args)))
-            {
-                pch_log_error(dirs, "examine yaml config return error: %d", ret);
-                break;
+                if ((ret = pch_exec(dirs, args)))
+                {
+                    pch_log_error(dirs, "examine yaml config return error: %d", ret);
+                    break;
+                }
+                else if (__ISLOG)
+                {
+                    pch_log_info(dirs, "examine yaml config [%s" __PSEPS __YAMLNAME "] - OK",
+                                 dirs->setup[FILE_SPLIT_REPO].str
+                                );
+                }
+#           if defined(BUILD_MSVC)
             }
-            else if (__ISLOG)
+            __finally
             {
-                pch_log_info(dirs, "examine yaml config [%s" __PSEPS __YAMLNAME "] - OK",
-                             dirs->setup[FILE_SPLIT_REPO].str
-                            );
+                if (fyaml->str)
+                {
+                    __autostring(&fyaml));
+                }
             }
+#           endif
         }
         while (0);
     }

@@ -29,6 +29,13 @@
 #   include <pwd.h>
 #endif
 
+#if defined(BUILD_MSVC)
+#   define  __snprintf _snprintf
+#else
+#   define  __snprintf snprintf
+#endif
+
+
 size_t pch_check_(string_s *fpath, type_io_e type)
 {
     struct stat _dst1;
@@ -91,15 +98,24 @@ int pch_compare_file(paths_t *dirs, string_s *fpath1, string_s *fpath2)
 
     if (
         (stat(fpath1->str, &_dst1) < 0) ||
+#       if defined(BUILD_MSVC)
+        (((_dst1.st_mode) & _S_IFREG) == _S_IFREG)
+#       else
         (!S_ISREG(_dst1.st_mode))
+#       endif
     )
         return -1;
 
     if (stat(fpath2->str, &_dst2) < 0)
         return 1;
 
+#   if defined(BUILD_MSVC)
+    if (((_dst2.st_mode) & _S_IFREG) != _S_IFREG)
+        return -1;
+#   else
     if (!S_ISREG(_dst2.st_mode))
         return -1;
+#   endif
 
     do
     {
@@ -132,48 +148,67 @@ int pch_fcopy(string_s *from_s, string_s *to_s)
     char   b[BUFSIZ];
     size_t n;
     FILE __AUTO(__autofclose) *from_f = NULL, *to_f = NULL;
+
+#   if defined(BUILD_MSVC)
+    char   to_b[1024];
+    __try
+    {
+        if ((to_s->sz + 1 + 4) > sizeof(to_b))
+            return -1;
+
+#   else
     char   to_b[(to_s->sz + 1 + 4)];
+#   endif
 
-    errno = 0;
+        errno = 0;
 
-    if (
-        (snprintf(to_b, (to_s->sz + 1 + 4), "%s.tmp", to_s->str) <= 0) ||
-        (!(from_f = fopen(from_s->str, "rb"))) ||
-        (!(to_f = fopen(to_b, "wb")))
-    )
-        return ((!errno) ? EIO : errno);
-
-    while ((n = fread(b, sizeof(char), sizeof(b), from_f)) > 0)
-    {
-        if (fwrite(b, sizeof(char), n, to_f) != n)
-        {
-            (void) remove(to_b);
+        if (
+            (__snprintf(to_b, (to_s->sz + 1 + 4), "%s.tmp", to_s->str) <= 0) ||
+            (!(from_f = fopen(from_s->str, "rb"))) ||
+            (!(to_f = fopen(to_b, "wb")))
+        )
             return ((!errno) ? EIO : errno);
-        }
-    }
 
-    fclose (to_f);
-    to_f = NULL;
-
-    if (rename(to_b, to_s->str) < 0)
-    {
-        if (errno == EEXIST)
+        while ((n = fread(b, sizeof(char), sizeof(b), from_f)) > 0)
         {
-            errno = 0;
-            if (remove(to_s->str) < 0)
+            if (fwrite(b, sizeof(char), n, to_f) != n)
             {
-                ret = errno;
+                (void) remove(to_b);
+                return ((!errno) ? EIO : errno);
+            }
+        }
+
+        fclose (to_f);
+        to_f = NULL;
+
+        if (rename(to_b, to_s->str) < 0)
+        {
+            if (errno == EEXIST)
+            {
+                errno = 0;
+                if (remove(to_s->str) < 0)
+                {
+                    ret = errno;
+                }
+                else
+                {
+                    ret = ((rename(to_b, to_s->str) < 0) ? errno : 0);
+                }
             }
             else
             {
-                ret = ((rename(to_b, to_s->str) < 0) ? errno : 0);
+                ret = errno;
             }
         }
-        else
-        {
-            ret = errno;
-        }
+
+#   if defined(BUILD_MSVC)
     }
+    __finally
+    {
+        __autofclose(&from_f);
+        __autofclose(&to_f);
+    }
+#   endif
 
     return ret;
 }
@@ -358,11 +393,20 @@ int pch_path_setuid(paths_t *dirs, int islog)
 
 int pch_path_destination(paths_t *dirs, char *src, size_t sz, string_s *dst)
 {
-    char b[(sz + 1U)];
     int mode = ((__BITTST(dirs->bitopt, OPT_RENAME)) ? 2 :
                 ((__BITTST(dirs->bitopt, OPT_PREFIX)) ? 1 :
                  0)
                );
+
+#   if defined(BUILD_MSVC)
+    char b[1024];
+
+    if ((sz + 1U) > sizeof(b))
+        return 0;
+
+#   else
+    char b[(sz + 1U)];
+#   endif
 
     memcpy((void*)b, (void*)src, sz);
     b[sz] = '\0';

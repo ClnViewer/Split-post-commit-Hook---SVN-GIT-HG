@@ -16,7 +16,7 @@
     rm -f bin/spch
     cd ${SYS}
 
-    cmake -G"Unix Makefiles" .. -DCMAKE_BUILD_TYPE=Debug
+    cmake -G"Unix Makefiles" .. -DCMAKE_BUILD_TYPE=Debug -DOLD_CMAKE_MACRO=1
     cmake --build . --config "Debug"
 
     cd ../

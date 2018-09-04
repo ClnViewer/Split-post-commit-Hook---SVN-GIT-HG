@@ -2,8 +2,12 @@ cmake_minimum_required(VERSION 2.6)
 project(spch)
 enable_language(C)
 
-set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/mcmake" CACHE STRING "Modules for CMake" FORCE )
-include(mcmake/CheckCCompilerFlag.cmake)
+if(OLD_CMAKE_MACRO)
+   set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/mcmake" CACHE STRING "Modules for CMake" FORCE )
+   include(mcmake/CheckCCompilerFlag.cmake)
+else()
+   include(CheckCCompilerFlag)
+endif()
 
 set( CMAKE_COLOR_MAKEFILE ON )
 set( CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "Configs" FORCE )
@@ -19,9 +23,17 @@ find_program (
 find_program (
     YAMLSHELL2 NAMES ksh PATHS /bin /usr/bin /usr/local/bin
 )
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src
-)
+
+if(MSVC)
+   include_directories(
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src/msvc
+   )
+else()
+   include_directories(
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src
+   )
+endif()
 
 if(${YAMLSHELL1} STREQUAL "YAMLSHELL1-NOTFOUND")
     set(YAMLSHELL1 "")
@@ -47,6 +59,7 @@ set(app_srcs
 )
 set(app_hdrs
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-opt.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-link-hash.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-stage-yaml.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/version.h

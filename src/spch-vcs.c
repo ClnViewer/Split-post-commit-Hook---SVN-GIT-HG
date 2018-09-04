@@ -34,6 +34,12 @@
 #   define __BINEXT
 #endif
 
+#if defined(BUILD_MSVC)
+#   define __SINIT(x, ...) __VA_ARGS__
+#else
+#   define __SINIT(x, ...) x = __VA_ARGS__
+#endif
+
 typedef enum
 {
     VCS_BIN_ACT,
@@ -58,65 +64,63 @@ typedef struct
 
 static vcs_t __vcs[3] =
 {
-    [0] = {
-        .update = {
+    {
+        __SINIT(.update, {
             NULL, "update", "--ignore-externals", "--quiet", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .commit = {
+        }),
+        __SINIT(.commit, {
             NULL, "commit", "--force-log", NULL, "--quiet", NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .push = {
+        }),
+        __SINIT(.push, {
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .add = {
+        }),
+        __SINIT(.add, {
             NULL, "add", "--force", ".", "--auto-props", "--non-interactive", "--depth", "infinity", "--quiet", NULL, NULL, NULL
-        },
-        .checkout = {
+        }),
+        __SINIT(.checkout, {
             NULL, "checkout", "--ignore-externals", "--quiet", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .admin  = {
+        }),
+        __SINIT(.admin, {
             NULL, "create", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        }
-    },
-    [1] = {
-        .update = {
+        })
+    },{
+        __SINIT(.update, {
             NULL, "checkout", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .commit = {
+        }),
+        __SINIT(.commit, {
             NULL, "commit", "--amend", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .push = {
+        }),
+        __SINIT(.push, {
             NULL, "push", "origin", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .add = {
+        }),
+        __SINIT(.add, {
             NULL, "add", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .checkout = {
+        }),
+        __SINIT(.checkout, {
             NULL, "checkout", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .admin  = {
+        }),
+        __SINIT(.admin, {
             NULL, "init", "--bare", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        }
-    },
-    [2] = {
-        .update = {
+        })
+    },{
+        __SINIT(.update, {
             NULL, "update", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .commit = {
+        }),
+        __SINIT(.commit, {
             NULL, "commit", "--amend", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .push = {
+        }),
+        __SINIT(.push, {
             NULL, "push", " -r", ".", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .add = {
+        }),
+        __SINIT(.add, {
             NULL, "add", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .checkout = {
+        }),
+        __SINIT(.checkout, {
             NULL, "checkout", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        },
-        .admin  = {
+        }),
+        __SINIT(.admin, {
             NULL, "init", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
-        }
+        })
     }
 };
 
@@ -180,11 +184,13 @@ int pch_vcs_bincheck(paths_t *dirs)
 
 int pch_vcs_update(paths_t *dirs, string_s *repo)
 {
+    const char** args;
+
     if (_chdir(repo->str) < 0)
     {
         return -1;
     }
-    const char** args = (const char**)__vcs[__select_vcs_type(dirs->bitopt)].update;
+    args = (const char**)__vcs[__select_vcs_type(dirs->bitopt)].update;
     if (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ACT)))
         return -1;
 
@@ -194,68 +200,89 @@ int pch_vcs_update(paths_t *dirs, string_s *repo)
 int pch_vcs_commit(paths_t *dirs)
 {
     int ret = -1;
+    const char** args;
     string_s barg3 = { NULL, 0U };
     string_s __AUTO(__autostring) *arg3 = &barg3;
 
-    if (_chdir(dirs->setup[FILE_SPLIT_REPO].str) < 0)
+#   if defined(BUILD_MSVC)
+    __try
     {
-        return ret;
+#   endif
+
+        if (_chdir(dirs->setup[FILE_SPLIT_REPO].str) < 0)
+        {
+            return ret;
+        }
+        do
+        {
+            args = (const char**)__vcs[__select_vcs_type(dirs->bitopt)].commit;
+            if (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ACT)))
+                break;
+
+            if (dirs->rev)
+            {
+                if (!pch_path_format(
+                            arg3,
+                            "-m\"split auto commit rev.%lu (spch v.%s)\"",
+                            dirs->rev,
+                            SPCH_FULLVERSION_STRING
+                        )
+                   )
+                {
+                    break;
+                }
+            }
+            else
+            {
+                if (!pch_path_format(
+                            arg3,
+                            "-m\"split auto commit (spch v.%s)\"",
+                            SPCH_FULLVERSION_STRING
+                        )
+                   )
+                {
+                    break;
+                }
+            }
+            args[3] = arg3->str;
+            ret = pch_exec(dirs, args);
+
+            if (ret)
+                break;
+
+            args = (const char**)__vcs[__select_vcs_type(dirs->bitopt)].push;
+
+            if ((!args[1]) || (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ACT))))
+                break;
+
+            ret = pch_exec(dirs, args);
+        }
+        while (0);
+
+#   if defined(BUILD_MSVC)
     }
-    do
+    __finally
     {
-        const char** args = (const char**)__vcs[__select_vcs_type(dirs->bitopt)].commit;
-        if (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ACT)))
-            break;
-
-        if (dirs->rev)
+        if (arg3->str)
         {
-            if (!pch_path_format(
-                        arg3,
-                        "-m\"split auto commit rev.%lu (spch v.%s)\"",
-                        dirs->rev,
-                        SPCH_FULLVERSION_STRING
-                    )
-               )
-            {
-                break;
-            }
+            __autostring(&arg3);
         }
-        else
-        {
-            if (!pch_path_format(
-                        arg3,
-                        "-m\"split auto commit (spch v.%s)\"",
-                        SPCH_FULLVERSION_STRING
-                    )
-               )
-            {
-                break;
-            }
-        }
-        args[3] = arg3->str;
-        ret = pch_exec(dirs, args);
-
-        if (ret) break;
-
-        args = (const char**)__vcs[__select_vcs_type(dirs->bitopt)].push;
-
-        if ((!args[1]) || (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ACT))))
-            break;
-
-        ret = pch_exec(dirs, args);
     }
-    while (0);
+#   endif
+
 
     return ret;
 }
 
 int pch_vcs_add(paths_t *dirs, string_s *dir)
 {
+    const char** args;
+
     if (_chdir(dir->str) < 0)
     {
         return -1;
     }
-    const char** args = (const char**)__vcs[__select_vcs_type(dirs->bitopt)].add;
+    args = (const char**)__vcs[__select_vcs_type(dirs->bitopt)].add;
     if (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ACT)))
         return -1;
 
@@ -268,38 +295,54 @@ int pch_vcs_create(paths_t *dirs)
     string_s barg2 = { NULL, 0U };
     string_s __AUTO(__autostring) *arg2 = &barg2;
 
-    if (
-        (!dirs->setup[FILE_ROOTVCS].str) ||
-        (_chdir(dirs->setup[FILE_ROOTVCS].str) < 0)
-    )
+#   if defined(BUILD_MSVC)
+    __try
     {
-        return -1;
-    }
-    do
-    {
-        const char *mhome;
-        const char** args = (const char**)__vcs[__select_vcs_type(dirs->bitopt)].admin;
-        if (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ADMIN)))
-            break;
+#   endif
 
-        mhome = strrchr(dirs->setup[FILE_MASTER_REPO].str, __PSEPC);
-        mhome = ((!mhome) ? dirs->setup[FILE_MASTER_REPO].str : (mhome + 1));
-
-        if (!pch_path_format(
-                    arg2,
-                    "%s" __PSEPS "%s",
-                    dirs->setup[FILE_ROOTVCS].str,
-                    mhome
-                )
-           )
+        if (
+            (!dirs->setup[FILE_ROOTVCS].str) ||
+            (_chdir(dirs->setup[FILE_ROOTVCS].str) < 0)
+        )
         {
-            break;
+            return -1;
         }
-        args[2] = arg2->str;
-        if ((ret = pch_exec(dirs, args)))
-            return ret;
+        do
+        {
+            const char *mhome;
+            const char** args = (const char**)__vcs[__select_vcs_type(dirs->bitopt)].admin;
+            if (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ADMIN)))
+                break;
+
+            mhome = strrchr(dirs->setup[FILE_MASTER_REPO].str, __PSEPC);
+            mhome = ((!mhome) ? dirs->setup[FILE_MASTER_REPO].str : (mhome + 1));
+
+            if (!pch_path_format(
+                        arg2,
+                        "%s" __PSEPS "%s",
+                        dirs->setup[FILE_ROOTVCS].str,
+                        mhome
+                    )
+               )
+            {
+                break;
+            }
+            args[2] = arg2->str;
+            if ((ret = pch_exec(dirs, args)))
+                return ret;
+        }
+        while (0);
+
+#   if defined(BUILD_MSVC)
     }
-    while (0);
+    __finally
+    {
+        if (arg2->str)
+        {
+            __autostring(&arg2);
+        }
+    }
+#   endif
 
     return ret;
 }
