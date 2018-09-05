@@ -1,5 +1,6 @@
 [![Build Travis](https://travis-ci.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG.svg)](https://travis-ci.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG)
 [![Build Appveyor](https://ci.appveyor.com/api/projects/status/bvq8v28e5lhj0l2i?svg=true)](https://ci.appveyor.com/project/ClnViewer/split-post-commit-hook-svn-git-hg)
+[![License MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat)](https://github.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG/blob/master/LICENSE)
 
 # Split post commit Hook - SVN/GIT/HG
 
