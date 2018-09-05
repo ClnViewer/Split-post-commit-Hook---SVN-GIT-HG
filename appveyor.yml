@@ -5,7 +5,11 @@ build_script:
 
     mkdir msvc
 
+    dir
+
     cd msvc
+
+    dir
 
     cmake -G"Visual Studio 14" -DCMAKE_BUILD_TYPE=Debug ..
 
