@@ -60,6 +60,7 @@ set(app_srcs
 set(app_hdrs
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-opt.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-vcs.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-link-hash.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-stage-yaml.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/version.h

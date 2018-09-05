@@ -92,6 +92,7 @@
 		<Unit filename="../../src/spch-vcs.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="../../src/spch-vcs.h" />
 		<Unit filename="../../src/spch.c">
 			<Option compilerVar="CC" />
 		</Unit>
