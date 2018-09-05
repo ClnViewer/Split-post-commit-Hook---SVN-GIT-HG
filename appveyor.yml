@@ -1,15 +1,11 @@
 version: 1.0.{build}
 build_script:
 - cmd: >-
-    cd C:\projects\split-post-commit-hook-svn-git-hg
+    cd C:\projects\split-post-commit-hook-svn-git-hg\build
 
     mkdir msvc
 
-    dir
-
     cd msvc
-
-    dir
 
     cmake -G"Visual Studio 14" -DCMAKE_BUILD_TYPE=Debug ..
 
