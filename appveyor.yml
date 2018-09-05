@@ -1,7 +1,7 @@
 version: 1.0.{build}
 build_script:
 - cmd: >-
-    cd c:\projects\split-post-commit-hook---svn-git-hg\build
+    cd C:\projects\split-post-commit-hook-svn-git-hg
 
     mkdir /p msvc
 
