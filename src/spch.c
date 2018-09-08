@@ -36,7 +36,7 @@
 
 int main(int argc, char *argv[])
 {
-    int ret;
+    int ret = 0;
     bool_t bret;
     paths_t dirs;
     paths_t __AUTO(__autopathst) *ds = &dirs;

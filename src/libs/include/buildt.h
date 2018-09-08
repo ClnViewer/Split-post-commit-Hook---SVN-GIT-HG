@@ -161,7 +161,6 @@
 #if defined(OS_WIN)
 int _mkdir(const char*);
 int _chdir(const char*);
-char * strdup(const char*);
 const char * _strptime(const char*, const char*, struct tm*);
 #define strptime (char*)_strptime
 #endif

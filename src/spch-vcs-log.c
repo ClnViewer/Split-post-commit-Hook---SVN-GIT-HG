@@ -105,7 +105,7 @@ static int __cb_closetag(void *v, int depth, char* name)
     {
         char *fmt = ((__BITTST(data->dirs->bitopt, OPT_CHLOG_MD)) ?
                      "\n#### %s   \n - [%s]() : %s   \n" : "%s\n\t#%s - %s\n"
-                     );
+                    );
         fprintf(data->fp, fmt,
                 ((data->field[ENUM_date].str) ? data->field[ENUM_date].str : "(no date)"),
                 ((data->field[ENUM_logentry].str) ? data->field[ENUM_logentry].str : "?"),

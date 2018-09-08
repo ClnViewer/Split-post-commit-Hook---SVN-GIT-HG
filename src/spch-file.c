@@ -380,15 +380,15 @@ bool_t pch_path_destination(paths_t *dirs, char *src, size_t sz, string_s *dst)
             fname += dirs->setup[FILE_RENAME1].sz;
         }
         if (!string_format(dst, "%s" __PSEPS "%s%s%s%s%s",
-                             dirs->setup[FILE_SPLIT_REPO].str,
-                             ((fpath) ? fpath : ""),
-                             ((fpath) ? __PSEPS : ""),
-                             (((mode == 2) && (ismod)) ?
-                              dirs->setup[FILE_RENAME2].str : ""),
-                             ((mode == 1) ?
-                              dirs->setup[FILE_RENAME1].str : ""),
-                             ((fname) ? fname : "")
-                            )
+                           dirs->setup[FILE_SPLIT_REPO].str,
+                           ((fpath) ? fpath : ""),
+                           ((fpath) ? __PSEPS : ""),
+                           (((mode == 2) && (ismod)) ?
+                            dirs->setup[FILE_RENAME2].str : ""),
+                           ((mode == 1) ?
+                            dirs->setup[FILE_RENAME1].str : ""),
+                           ((fname) ? fname : "")
+                          )
            )
             return R_FALSE;
 
@@ -397,9 +397,9 @@ bool_t pch_path_destination(paths_t *dirs, char *src, size_t sz, string_s *dst)
     default:
     {
         if (!string_format(dst, "%s" __PSEPS "%s",
-                             dirs->setup[FILE_SPLIT_REPO].str,
-                             b
-                            )
+                           dirs->setup[FILE_SPLIT_REPO].str,
+                           b
+                          )
            )
             return R_FALSE;
 

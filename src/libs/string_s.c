@@ -33,6 +33,10 @@ const char * _strptime(const char*, const char*, struct tm*);
 #      define strptime _strptime
 #   endif
 
+#   if !defined(__ARGMAX)
+#      define __ARGMAX 127
+#   endif
+
 #else
 #   if !defined(_XOPEN_SOURCE)
 #      define _XOPEN_SOURCE
