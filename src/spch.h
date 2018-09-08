@@ -73,6 +73,13 @@ typedef enum
     TYPE_UID
 } type_io_e;
 
+typedef enum
+{
+    PATHS_FILE_LST = 0,
+    PATHS_FILE_OUT,
+    PATHS_FILE_TMP
+} paths_file_e;
+
 typedef struct
 {
     unsigned long bitopt, rev;
@@ -118,7 +125,7 @@ int    pch_vcs_update(paths_t*, string_s*);
 int    pch_vcs_commit(paths_t*);
 int    pch_vcs_add(paths_t*, string_s*);
 int    pch_vcs_create(paths_t*);
-int    pch_vcs_log(paths_t*, string_s*);
+int    pch_vcs_log(paths_t*);
 bool_t pch_vcs_changelog(paths_t*);
 
 void   startedlog(paths_t*, const char*);

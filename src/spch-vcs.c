@@ -243,7 +243,7 @@ int pch_vcs_create(paths_t *dirs)
     return ret;
 }
 
-int pch_vcs_log(paths_t *dirs, string_s *fout)
+int pch_vcs_log(paths_t *dirs)
 {
     int err, ret = -1;
 
@@ -273,25 +273,25 @@ int pch_vcs_log(paths_t *dirs, string_s *fout)
                 args[3] = NULL;
             }
         }
-        if (!(dirs->fp[2] = fopen(fout->str, "w+")))
+        if (!(dirs->fp[PATHS_FILE_TMP] = tmpfile()))
         {
             break;
         }
-        if ((ret = pch_exec(dirs, args, dirs->fp[2])))
+        if ((ret = pch_exec(dirs, args, dirs->fp[PATHS_FILE_TMP])))
         {
             err = errno;
-            if (dirs->fp[2])
-                fclose(dirs->fp[2]);
+            if (dirs->fp[PATHS_FILE_TMP])
+                fclose(dirs->fp[PATHS_FILE_TMP]);
 
-            dirs->fp[2] = NULL;
+            dirs->fp[PATHS_FILE_TMP] = NULL;
             errno = err;
         }
-        else if (dirs->fp[2])
+        else if (dirs->fp[PATHS_FILE_TMP])
         {
             err = errno;
             {
-                (void) fflush(dirs->fp[2]);
-                (void) fseek(dirs->fp[2], 0, SEEK_SET);
+                (void) fflush(dirs->fp[PATHS_FILE_TMP]);
+                (void) fseek(dirs->fp[PATHS_FILE_TMP], 0, SEEK_SET);
             }
             errno = err;
         }
@@ -305,11 +305,10 @@ bool_t pch_vcs_changelog(paths_t *dirs)
 {
     bool_t ret = R_NEGATIVE;
 
-    string_s bf = { NULL, 0U },
-             tf = { NULL, 0U },
-             lf = { NULL, 0U };
-    string_s __AUTO(__autostring) *xout = &bf, *tout = &tf, *lout = &lf;
-    FILE __AUTO(__autofclose) *ftmplog = NULL, *fchglog = NULL;
+    string_s lf = { NULL, 0U };
+    string_s __AUTO(__autostring) *lout = &lf;
+    FILE __AUTO(__autofclose) *fchglog = NULL;
+    FILE *ftmplog = NULL;
 
 #       if defined(BUILD_MSVC)
     __try
@@ -318,103 +317,63 @@ bool_t pch_vcs_changelog(paths_t *dirs)
 
         do
         {
-            if (!string_format(
-                        xout,
-                        "%s" __PSEPS __CHNGLOG "xml",
-                        dirs->setup[FILE_SPLIT_REPO].str
-                    )
-               )
+            if (pch_vcs_log(dirs))
             {
                 break;
             }
-
-            if (pch_vcs_log(dirs, xout))
+            if (!(ftmplog = tmpfile()))
             {
                 break;
             }
-            if (!string_format(
-                        tout,
-                        "%s" __PSEPS __CHNGLOG "tmp",
-                        dirs->setup[FILE_SPLIT_REPO].str
-                    )
-               )
-            {
-                break;
-            }
-            if (!(ftmplog = fopen(tout->str, "w+")))
-            {
-                break;
-            }
-            if (spch_xmllog(dirs, dirs->fp[2], ftmplog) != R_TRUE)
+            if (spch_xmllog(dirs, dirs->fp[PATHS_FILE_TMP], ftmplog) != R_TRUE)
             {
                 (void) fclose(ftmplog);
-                (void) remove(tout->str);
-                ftmplog = NULL;
                 break;
             }
 
-            (void) fclose(dirs->fp[2]);
-            dirs->fp[2] = NULL;
+            (void) fclose(dirs->fp[PATHS_FILE_TMP]);
+            dirs->fp[PATHS_FILE_TMP] = NULL;
 
-            if (!string_format(
-                        lout,
-                        "%s" __PSEPS __CHNGLOG "%s",
-                        dirs->setup[FILE_SPLIT_REPO].str,
-                        ((__BITTST(dirs->bitopt, OPT_CHLOG_MD)) ? "md" : "txt")
-                    )
-               )
-            {
+            if (
+                (!string_format(
+                     lout,
+                     "%s" __PSEPS __CHNGLOG "%s",
+                     dirs->setup[FILE_SPLIT_REPO].str,
+                     ((__BITTST(dirs->bitopt, OPT_CHLOG_MD)) ? "md" : "txt")
+                 )
+                ) ||
+                (!(fchglog = fopen(lout->str, "a+"))) ||
+                (fseek(fchglog, 0, SEEK_SET)) ||
+                (fseek(ftmplog, 0, SEEK_SET))
+            )
                 break;
-            }
-            if ((fchglog = fopen(lout->str, "r")))
+
             {
                 size_t sz;
                 char b[BUFSIZ];
                 (void) fflush(ftmplog);
 
-                while ((sz = fread(b, 1U, (size_t)BUFSIZ, fchglog)) != 0U)
+                while ((sz = fread(b, 1U, (size_t)BUFSIZ, ftmplog)) != 0U)
                 {
-                    (void) fwrite(b, 1U, sz, ftmplog);
+                    (void) fwrite(b, 1U, sz, fchglog);
                 }
+
+                (void) fclose(ftmplog);
                 (void) fclose(fchglog);
                 fchglog = NULL;
-
-
-                if (remove(lout->str))
-                    break;
             }
-            (void) fclose(ftmplog);
-            ftmplog = NULL;
-
-            if (rename(tout->str, lout->str))
-                break;
 
             ret = R_TRUE;
         }
         while (0);
 
-        if (xout->str)
-            (void) remove(xout->str);
-
 #       if defined(BUILD_MSVC)
     }
     __finally
     {
-        if (xout->str)
-        {
-            __autostring(&xout);
-        }
-        if (tout->str)
-        {
-            __autostring(&tout);
-        }
         if (lout->str)
         {
             __autostring(&lout);
-        }
-        if (ftmplog)
-        {
-            (void) fclose(ftmplog);
         }
         if (fchglog)
         {

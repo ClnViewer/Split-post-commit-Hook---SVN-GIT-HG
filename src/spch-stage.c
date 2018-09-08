@@ -31,7 +31,7 @@
 #   include "spch-shell.h"
 #endif
 
-#define __ISLOG ((dirs->fp[1]) ? 1 : 0)
+#define __ISLOG ((dirs->fp[PATHS_FILE_OUT]) ? 1 : 0)
 
 static void __stage2_vcs_add(unsigned int cnt, unsigned long hash, char *str, size_t sz, void * data)
 {
@@ -53,7 +53,7 @@ bool_t pch_stage1(paths_t *dirs)
 
     if ((ret = pch_vcs_update(dirs, &dirs->setup[FILE_MASTER_REPO])) != 0)
     {
-        if ((!dirs->fp[1]) || (dirs->fpos != ftell(dirs->fp[1])))
+        if ((!dirs->fp[PATHS_FILE_OUT]) || (dirs->fpos != ftell(dirs->fp[PATHS_FILE_OUT])))
         {
             pch_log_info(dirs, "update VCS master repo loop?: %d -> %s", ret, dirs->setup[FILE_MASTER_REPO].str);
         }
@@ -74,7 +74,7 @@ bool_t pch_stage2(paths_t *dirs)
     hd = hash_init();
     hf = hash_init();
 
-    while (fgets(b, BUFSIZ, dirs->fp[0]) != NULL)
+    while (fgets(b, BUFSIZ, dirs->fp[PATHS_FILE_LST]) != NULL)
     {
         int ret;
         string_s from_b = { NULL, 0U },

@@ -29,7 +29,7 @@ void pch_log_(int type, paths_t *dirs, const char *fmt, ...)
 {
     FILE *lout;
 
-    lout = ((dirs->fp[1]) ? dirs->fp[1] :
+    lout = ((dirs->fp[PATHS_FILE_OUT]) ? dirs->fp[PATHS_FILE_OUT] :
             ((__BITTST(dirs->bitopt, OPT_QUIET)) ? NULL :
              ((type) ? stdout : stderr)
             )

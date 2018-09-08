@@ -164,7 +164,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
                 (!optarg) ||
                 (!string_format(&dirs->setup[FILE_FILELIST], "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, optarg)) ||
                 (!pch_check_file(&dirs->setup[FILE_FILELIST])) ||
-                (!(dirs->fp[0] = fopen(dirs->setup[FILE_FILELIST].str, "r")))
+                (!(dirs->fp[PATHS_FILE_LST] = fopen(dirs->setup[FILE_FILELIST].str, "r")))
             )
             {
                 __param_err(options[FILE_FILELIST].val, options[FILE_FILELIST].name, help[FILE_FILELIST]);
@@ -203,7 +203,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
             if (
                 (!optarg) ||
                 (!string_append_auto(&dirs->setup[FILE_FLOG], optarg)) ||
-                (!(dirs->fp[1] = fopen(dirs->setup[FILE_FLOG].str, "a+")))
+                (!(dirs->fp[PATHS_FILE_OUT] = fopen(dirs->setup[FILE_FLOG].str, "a+")))
             )
             {
                 __param_err(options[FILE_FLOG].val, options[FILE_FLOG].name, help[FILE_FLOG]);

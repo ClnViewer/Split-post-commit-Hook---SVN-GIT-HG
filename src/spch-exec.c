@@ -62,7 +62,7 @@ int pch_exec(paths_t *dirs, const char *const opt[], FILE *fout)
     size_t sz = 0;
     char __AUTO(__autofree) *cmd = NULL;
     char *p;
-    fout = ((fout) ? fout : dirs->fp[1]);
+    fout = ((fout) ? fout : dirs->fp[PATHS_FILE_OUT]);
 
     for (; *opt; opt++)
     {
@@ -179,7 +179,7 @@ int pch_exec(paths_t *dirs, const char *const opt[], FILE *fout)
 
     int cstatus;
     pid_t pid;
-    fout = ((fout) ? fout : dirs->fp[1]);
+    fout = ((fout) ? fout : dirs->fp[PATHS_FILE_OUT]);
 
     (void) dirs;
     errno = 0;
@@ -224,7 +224,7 @@ int pch_exec(paths_t *dirs, const char *const opt[], FILE *fout)
         }
         if (fout)
         {
-            (void) fflush(dirs->fp[1]);
+            (void) fflush(dirs->fp[PATHS_FILE_OUT]);
         }
         if (WIFEXITED(cstatus))
         {

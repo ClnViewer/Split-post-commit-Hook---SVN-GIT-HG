@@ -99,8 +99,7 @@ static int __cb_closetag(void *v, int depth, char* name)
 
     if (
         (!strncmp(name, __field_vcslog[0].field.str, __field_vcslog[0].field.sz)) &&
-        (1 == 1)
-        //(data->field[ENUM_msg].str)
+        (data->field[ENUM_msg].str)
     )
     {
         char *fmt = ((__BITTST(data->dirs->bitopt, OPT_CHLOG_MD)) ?
@@ -191,7 +190,7 @@ bool_t spch_xmllog(paths_t *dirs, FILE *fpin, FILE *fpout)
     {
 #   endif
 
-        if (!(vlc.fp = ((fpout) ? fpout : dirs->fp[1])))
+        if (!(vlc.fp = ((fpout) ? fpout : dirs->fp[PATHS_FILE_OUT])))
             return R_NEGATIVE;
 
         if (!fpin)
