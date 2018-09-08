@@ -1,3 +1,9 @@
+09 Сентябрь 2018
+   released version 1.0.2 of Split-post-commit-hook
+
+     Change log:
+        -Added: ChangeLog in split repo manage
+
 03 September 2018
    released version 0.0.22 of Split-post-commit-hook
 
