@@ -63,7 +63,7 @@ static char *info =
     "                        based on the commits in the 'master' repository,\n" \
     "                        the possible formats are:\n" \
     "                         'md'  - markdown format,\n" \
-    "                         'gnu' - text '.txt' gnu standart format\n" \
+    "                         'gnu' - text '.txt' gnu standart format\n\n" \
     "  -f, --force           Overwrite all files without checking\n" \
     "                        to change.\n\n" \
     "  -k, --nonloop         Prevent simultaneous 'commit' and\n" \
