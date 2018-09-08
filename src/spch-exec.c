@@ -38,8 +38,6 @@ __declspec(dllimport) int _fileno(FILE*);
 #   include <fcntl.h>
 #endif
 
-#define __ISLOG ((dirs->fp[1]) ? 1 : 0)
-
 #if defined(OS_WIN)
 static void __get_error(char b[], size_t bsz, unsigned long err)
 {
@@ -55,7 +53,7 @@ static void __get_error(char b[], size_t bsz, unsigned long err)
 }
 #endif
 
-int pch_exec(paths_t *dirs, const char *const opt[])
+int pch_exec(paths_t *dirs, const char *const opt[], FILE *fout)
 {
 #   if defined(OS_WIN)
 
@@ -64,6 +62,7 @@ int pch_exec(paths_t *dirs, const char *const opt[])
     size_t sz = 0;
     char __AUTO(__autofree) *cmd = NULL;
     char *p;
+    fout = ((fout) ? fout : dirs->fp[1]);
 
     for (; *opt; opt++)
     {
@@ -99,12 +98,11 @@ int pch_exec(paths_t *dirs, const char *const opt[])
 
     cmd[sz] = 0x0;
 
-    if (__ISLOG)
+    if (fout)
     {
-        fflush(dirs->fp[1]);
-        dirs->fpos = ftell(dirs->fp[1]);
+        fflush(fout);
+        dirs->fpos = ftell(fout);
     }
-
     do
     {
         HANDLE h;
@@ -114,20 +112,17 @@ int pch_exec(paths_t *dirs, const char *const opt[])
         memset(&si, 0, sizeof(si));
         memset(&pi, 0, sizeof(pi));
         si.cb = sizeof(si);
-        si.dwFlags |= CREATE_UNICODE_ENVIRONMENT;
-        si.dwFlags |= CREATE_NO_WINDOW;
 
-        if (__ISLOG)
+        if (fout)
         {
             errno = 0;
             if (
-                ((h = (HANDLE)_get_osfhandle(_fileno(dirs->fp[1]))) == INVALID_HANDLE_VALUE) ||
+                ((h = (HANDLE)_get_osfhandle(_fileno(fout))) == INVALID_HANDLE_VALUE) ||
                 (errno == EBADF)
             )
             {
                 char errstr[256] = {0};
-                unsigned long errco = GetLastError();
-                __get_error(errstr, sizeof(errstr), errco);
+                __get_error(errstr, sizeof(errstr), GetLastError());
                 pch_log_error(dirs, "create output fatal: %s", errstr);
                 ecode = 1;
                 break;
@@ -142,8 +137,8 @@ int pch_exec(paths_t *dirs, const char *const opt[])
                     cmd,
                     NULL,
                     NULL,
-                    FALSE,
-                    CREATE_NEW_PROCESS_GROUP | CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW,
+                    TRUE,
+                    CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW,
                     NULL,
                     NULL,
                     &si,
@@ -152,8 +147,7 @@ int pch_exec(paths_t *dirs, const char *const opt[])
            )
         {
             char errstr[256] = {0};
-            unsigned long errco = GetLastError();
-            __get_error(errstr, sizeof(errstr), errco);
+            __get_error(errstr, sizeof(errstr), GetLastError());
             pch_log_error(dirs, "create exec fatal: %s -> %s", cmd, errstr);
             ecode = 1;
             break;
@@ -163,8 +157,7 @@ int pch_exec(paths_t *dirs, const char *const opt[])
         if (!GetExitCodeProcess(pi.hProcess, &ecode))
         {
             char errstr[256] = {0};
-            unsigned long errco = GetLastError();
-            __get_error(errstr, sizeof(errstr), errco);
+            __get_error(errstr, sizeof(errstr), GetLastError());
             pch_log_error(dirs, "exit exec fatal: %s -> %s", cmd, errstr);
             ecode = 1;
             break;
@@ -186,14 +179,15 @@ int pch_exec(paths_t *dirs, const char *const opt[])
 
     int cstatus;
     pid_t pid;
+    fout = ((fout) ? fout : dirs->fp[1]);
 
     (void) dirs;
     errno = 0;
 
-    if (__ISLOG)
+    if (fout)
     {
-        (void) fflush(dirs->fp[1]);
-        dirs->fpos = ftell(dirs->fp[1]);
+        (void) fflush(fout);
+        dirs->fpos = ftell(fout);
     }
 
     switch((pid = fork()))
@@ -207,10 +201,10 @@ int pch_exec(paths_t *dirs, const char *const opt[])
     }
     case 0:
     {
-        if (__ISLOG)
+        if (fout)
         {
-            (void) dup2(fileno(dirs->fp[1]), 1);
-            (void) dup2(fileno(dirs->fp[1]), 2);
+            (void) dup2(fileno(fout), 1);
+            (void) dup2(fileno(fout), 2);
         }
         (void) alarm(120U);
         (void) execv(opt[0], (char * const*)opt);
@@ -228,7 +222,7 @@ int pch_exec(paths_t *dirs, const char *const opt[])
             if ((WIFSIGNALED(cstatus)) && (WTERMSIG(cstatus) == SIGALRM))
                 break;
         }
-        if (__ISLOG)
+        if (fout)
         {
             (void) fflush(dirs->fp[1]);
         }
@@ -285,11 +279,12 @@ int pch_exec(paths_t *dirs, const char *const opt[])
 
 }
 
-int pch_fork(int argc, char *argv[])
+bool_t pch_fork(int argc, char *argv[])
 {
 #   if defined(OS_WIN)
 
-    int i, ret = 0;
+    int i;
+    bool_t ret = R_TRUE;
     size_t sz = 0;
     char __AUTO(__autofree) *cmd = NULL;
     char *p;
@@ -320,7 +315,7 @@ int pch_fork(int argc, char *argv[])
         {
             if (cmd)
                 free(cmd);
-            return -1;
+            return R_NEGATIVE;
         }
 
         cmd = p;
@@ -335,7 +330,7 @@ int pch_fork(int argc, char *argv[])
     if ((!cmd) || (!sz))
     {
         errno = EINVAL;
-        return -1;
+        return R_NEGATIVE;
     }
 
     /* remove last blank 0x20 */
@@ -364,7 +359,7 @@ int pch_fork(int argc, char *argv[])
                 )
            )
         {
-            ret = -1;
+            ret = R_NEGATIVE;
         }
     }
 
@@ -400,25 +395,25 @@ int pch_fork(int argc, char *argv[])
         }
         if ((getppid() != 1) && (setsid() < 0))
         {
-            return -1;
+            return R_NEGATIVE;
         }
         (void) sleep(12);
-        return (int)getpid();
+        return R_TRUE;
     }
     case -1:
     {
-        return -1;
+        return R_NEGATIVE;
     }
     default:
     {
         (void) signal(SIGCHLD, SIG_IGN);
         errno = 0;
-        return 0;
+        return R_FALSE;
     }
     }
 #   else
     /* default value > 0, continue run, no errors */
-    return 100;
+    return R_TRUE;
 #   endif
 }
 

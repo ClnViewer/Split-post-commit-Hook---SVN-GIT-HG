@@ -24,17 +24,6 @@ find_program (
     YAMLSHELL2 NAMES ksh PATHS /bin /usr/bin /usr/local/bin
 )
 
-if(MSVC)
-   include_directories(
-      ${CMAKE_CURRENT_SOURCE_DIR}/../src
-      ${CMAKE_CURRENT_SOURCE_DIR}/../src/msvc
-   )
-else()
-   include_directories(
-      ${CMAKE_CURRENT_SOURCE_DIR}/../src
-   )
-endif()
-
 if(${YAMLSHELL1} STREQUAL "YAMLSHELL1-NOTFOUND")
     set(YAMLSHELL1 "")
 endif()
@@ -47,6 +36,30 @@ configure_file(
     spch-shell.h.in "${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-shell.h"
 )
 
+if(MSVC)
+   include_directories(
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/include
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/include/win
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/include/msvc
+   )
+   set(app_srcs
+      ${app_srcs}
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/strptime_w32.c
+   )
+elseif (WIN32)
+   include_directories(
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/include
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/include/win
+   )
+else()
+   include_directories(
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src
+      ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/include
+   )
+endif()
+
 set(app_srcs
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-exec.c
@@ -56,6 +69,9 @@ set(app_srcs
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-opt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-stage.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-vcs.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-vcs-log.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/string_s.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/xmlp.c
 )
 set(app_hdrs
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch.h
@@ -64,6 +80,10 @@ set(app_hdrs
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-link-hash.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/spch-stage-yaml.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../src/version.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/include/buildt.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/include/boolt.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/include/string_s.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../src/libs/include/xmlp.h
 )
 
 add_executable( ${PROJECT_NAME} ${app_srcs} ${app_hdrs} )

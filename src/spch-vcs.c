@@ -41,7 +41,7 @@ static const char * __select_vcs_bin(paths_t *dirs, vcs_bin_e type)
     if (dirs->bins[type].str)
         return (const char*)dirs->bins[type].str;
 
-    if (!pch_path_format(
+    if (!string_format(
                 &dirs->bins[type],
                 "%s" __PSEPS "%s",
                 dirs->setup[FILE_BINDIR].str,
@@ -92,7 +92,7 @@ int pch_vcs_update(paths_t *dirs, string_s *repo)
     if (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ACT)))
         return -1;
 
-    return pch_exec(dirs, (const char**)__vcs[__select_vcs_type(dirs->bitopt)].update);
+    return pch_exec(dirs, (const char**)__vcs[__select_vcs_type(dirs->bitopt)].update, NULL);
 }
 
 int pch_vcs_commit(paths_t *dirs)
@@ -119,7 +119,7 @@ int pch_vcs_commit(paths_t *dirs)
 
             if (dirs->rev)
             {
-                if (!pch_path_format(
+                if (!string_format(
                             arg3,
                             "-m\"split auto commit rev.%lu (spch v.%s)\"",
                             dirs->rev,
@@ -132,7 +132,7 @@ int pch_vcs_commit(paths_t *dirs)
             }
             else
             {
-                if (!pch_path_format(
+                if (!string_format(
                             arg3,
                             "-m\"split auto commit (spch v.%s)\"",
                             SPCH_FULLVERSION_STRING
@@ -143,7 +143,7 @@ int pch_vcs_commit(paths_t *dirs)
                 }
             }
             args[3] = arg3->str;
-            ret = pch_exec(dirs, args);
+            ret = pch_exec(dirs, args, NULL);
 
             if (ret)
                 break;
@@ -153,7 +153,7 @@ int pch_vcs_commit(paths_t *dirs)
             if ((!args[1]) || (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ACT))))
                 break;
 
-            ret = pch_exec(dirs, args);
+            ret = pch_exec(dirs, args, NULL);
         }
         while (0);
 
@@ -167,7 +167,6 @@ int pch_vcs_commit(paths_t *dirs)
         }
     }
 #   endif
-
 
     return ret;
 }
@@ -184,7 +183,7 @@ int pch_vcs_add(paths_t *dirs, string_s *dir)
     if (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ACT)))
         return -1;
 
-    return pch_exec(dirs, args);
+    return pch_exec(dirs, args, NULL);
 }
 
 int pch_vcs_create(paths_t *dirs)
@@ -215,7 +214,7 @@ int pch_vcs_create(paths_t *dirs)
             mhome = strrchr(dirs->setup[FILE_MASTER_REPO].str, __PSEPC);
             mhome = ((!mhome) ? dirs->setup[FILE_MASTER_REPO].str : (mhome + 1));
 
-            if (!pch_path_format(
+            if (!string_format(
                         arg2,
                         "%s" __PSEPS "%s",
                         dirs->setup[FILE_ROOTVCS].str,
@@ -226,8 +225,7 @@ int pch_vcs_create(paths_t *dirs)
                 break;
             }
             args[2] = arg2->str;
-            if ((ret = pch_exec(dirs, args)))
-                return ret;
+            ret = pch_exec(dirs, args, NULL);
         }
         while (0);
 
@@ -241,6 +239,189 @@ int pch_vcs_create(paths_t *dirs)
         }
     }
 #   endif
+
+    return ret;
+}
+
+int pch_vcs_log(paths_t *dirs, string_s *fout)
+{
+    int err, ret = -1;
+
+    if (
+        (!dirs->setup[FILE_MASTER_REPO].str) ||
+        (_chdir(dirs->setup[FILE_MASTER_REPO].str) < 0)
+    )
+    {
+        return -1;
+    }
+    do
+    {
+        char brev[20] = {0};
+        const char** args = (const char**)__vcs[__select_vcs_type(dirs->bitopt)].log;
+        if (!(args[0] = __select_vcs_bin(dirs, VCS_BIN_ACT)))
+            break;
+
+        if (__select_vcs_type(dirs->bitopt) == OPT_VCS_SVN)
+        {
+            if (dirs->rev)
+            {
+                args[3] = pch_ultostr(brev, dirs->rev, 10);
+            }
+            else
+            {
+                args[2] = args[4];
+                args[3] = NULL;
+            }
+        }
+        if (!(dirs->fp[2] = fopen(fout->str, "w+")))
+        {
+            break;
+        }
+        if ((ret = pch_exec(dirs, args, dirs->fp[2])))
+        {
+            err = errno;
+            if (dirs->fp[2])
+                fclose(dirs->fp[2]);
+
+            dirs->fp[2] = NULL;
+            errno = err;
+        }
+        else if (dirs->fp[2])
+        {
+            err = errno;
+            {
+                (void) fflush(dirs->fp[2]);
+                (void) fseek(dirs->fp[2], 0, SEEK_SET);
+            }
+            errno = err;
+        }
+    }
+    while (0);
+
+    return ret;
+}
+
+bool_t pch_vcs_changelog(paths_t *dirs)
+{
+    bool_t ret = R_NEGATIVE;
+
+    string_s bf = { NULL, 0U },
+             tf = { NULL, 0U },
+             lf = { NULL, 0U };
+    string_s __AUTO(__autostring) *xout = &bf, *tout = &tf, *lout = &lf;
+    FILE __AUTO(__autofclose) *ftmplog = NULL, *fchglog = NULL;
+
+#       if defined(BUILD_MSVC)
+    __try
+    {
+#       endif
+
+        do
+        {
+            if (!string_format(
+                        xout,
+                        "%s" __PSEPS __CHNGLOG "xml",
+                        dirs->setup[FILE_SPLIT_REPO].str
+                    )
+               )
+            {
+                break;
+            }
+
+            if (pch_vcs_log(dirs, xout))
+            {
+                break;
+            }
+            if (!string_format(
+                        tout,
+                        "%s" __PSEPS __CHNGLOG "tmp",
+                        dirs->setup[FILE_SPLIT_REPO].str
+                    )
+               )
+            {
+                break;
+            }
+            if (!(ftmplog = fopen(tout->str, "w+")))
+            {
+                break;
+            }
+            if (spch_xmllog(dirs, dirs->fp[2], ftmplog) != R_TRUE)
+            {
+                (void) fclose(ftmplog);
+                (void) remove(tout->str);
+                ftmplog = NULL;
+                break;
+            }
+
+            (void) fclose(dirs->fp[2]);
+            dirs->fp[2] = NULL;
+
+            if (!string_format(
+                        lout,
+                        "%s" __PSEPS __CHNGLOG "%s",
+                        dirs->setup[FILE_SPLIT_REPO].str,
+                        ((__BITTST(dirs->bitopt, OPT_CHLOG_MD)) ? "md" : "txt")
+                    )
+               )
+            {
+                break;
+            }
+            if ((fchglog = fopen(lout->str, "r")))
+            {
+                size_t sz;
+                char b[BUFSIZ];
+                (void) fflush(ftmplog);
+
+                while ((sz = fread(b, 1U, (size_t)BUFSIZ, fchglog)) != 0U)
+                {
+                    (void) fwrite(b, 1U, sz, ftmplog);
+                }
+                (void) fclose(fchglog);
+                fchglog = NULL;
+
+
+                if (remove(lout->str))
+                    break;
+            }
+            (void) fclose(ftmplog);
+            ftmplog = NULL;
+
+            if (rename(tout->str, lout->str))
+                break;
+
+            ret = R_TRUE;
+        }
+        while (0);
+
+        if (xout->str)
+            (void) remove(xout->str);
+
+#       if defined(BUILD_MSVC)
+    }
+    __finally
+    {
+        if (xout->str)
+        {
+            __autostring(&xout);
+        }
+        if (tout->str)
+        {
+            __autostring(&tout);
+        }
+        if (lout->str)
+        {
+            __autostring(&lout);
+        }
+        if (ftmplog)
+        {
+            (void) fclose(ftmplog);
+        }
+        if (fchglog)
+        {
+            (void) fclose(fchglog);
+        }
+    }
+#       endif
 
     return ret;
 }

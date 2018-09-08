@@ -127,7 +127,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     while (1)
     {
         int c;
-        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:t:c:r:yfkqih", options, &idx)) == -1)
+        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:t:c:r:g:yfkqih", options, &idx)) == -1)
             break;
 
         switch (c)
@@ -136,7 +136,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         {
             if (
                 (!optarg) ||
-                (!pch_path_dump(&dirs->setup[FILE_MASTER_REPO], optarg)) ||
+                (!string_append_auto(&dirs->setup[FILE_MASTER_REPO], optarg)) ||
                 (!pch_check_dir(&dirs->setup[FILE_MASTER_REPO]))
             )
             {
@@ -149,7 +149,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         {
             if (
                 (!optarg) ||
-                (!pch_path_dump(&dirs->setup[FILE_SPLIT_REPO], optarg)) ||
+                (!string_append_auto(&dirs->setup[FILE_SPLIT_REPO], optarg)) ||
                 (!pch_check_dir(&dirs->setup[FILE_SPLIT_REPO]))
             )
             {
@@ -162,7 +162,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         {
             if (
                 (!optarg) ||
-                (!pch_path_format(&dirs->setup[FILE_FILELIST], "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, optarg)) ||
+                (!string_format(&dirs->setup[FILE_FILELIST], "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, optarg)) ||
                 (!pch_check_file(&dirs->setup[FILE_FILELIST])) ||
                 (!(dirs->fp[0] = fopen(dirs->setup[FILE_FILELIST].str, "r")))
             )
@@ -176,7 +176,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         {
             if (
                 (!optarg) ||
-                (!pch_path_dump(&dirs->setup[FILE_ROOTVCS], optarg)) ||
+                (!string_append_auto(&dirs->setup[FILE_ROOTVCS], optarg)) ||
                 (!pch_check_dir(&dirs->setup[FILE_ROOTVCS]))
             )
             {
@@ -189,7 +189,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         {
             if (
                 (!optarg) ||
-                (!pch_path_dump(&dirs->setup[FILE_BINDIR], optarg)) ||
+                (!string_append_auto(&dirs->setup[FILE_BINDIR], optarg)) ||
                 (!pch_check_dir(&dirs->setup[FILE_BINDIR]))
             )
             {
@@ -202,7 +202,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         {
             if (
                 (!optarg) ||
-                (!pch_path_dump(&dirs->setup[FILE_FLOG], optarg)) ||
+                (!string_append_auto(&dirs->setup[FILE_FLOG], optarg)) ||
                 (!(dirs->fp[1] = fopen(dirs->setup[FILE_FLOG].str, "a+")))
             )
             {
@@ -215,7 +215,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         {
             if (
                 (!optarg) ||
-                (!pch_path_dump(&dirs->setup[FILE_UUID], optarg))
+                (!string_append_auto(&dirs->setup[FILE_UUID], optarg))
             )
             {
                 __param_err(options[FILE_UUID].val, options[FILE_UUID].name, help[FILE_UUID]);
@@ -241,14 +241,14 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
 
                 if (
                     (sz > 0) &&
-                    (pch_path_dump_sz(&dirs->setup[FILE_RENAME1], ren1, (size_t)sz)) &&
-                    (pch_path_dump(&dirs->setup[FILE_RENAME2], ren2))
+                    (string_append(&dirs->setup[FILE_RENAME1], ren1, (size_t)sz)) &&
+                    (string_append_auto(&dirs->setup[FILE_RENAME2], ren2))
                 )
                     dirs->bitopt = __BITSET(dirs->bitopt, OPT_RENAME);
             }
             else
             {
-                if (pch_path_dump(&dirs->setup[FILE_RENAME1], optarg))
+                if (string_append_auto(&dirs->setup[FILE_RENAME1], optarg))
                 {
                     dirs->bitopt = __BITSET(dirs->bitopt, OPT_PREFIX);
                 }
@@ -259,7 +259,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         {
             if (
                 (!optarg) ||
-                (!pch_path_dump(&dirs->setup[FILE_DEPLOY], optarg)) ||
+                (!string_append_auto(&dirs->setup[FILE_DEPLOY], optarg)) ||
                 (!pch_check_file(&dirs->setup[FILE_DEPLOY]))
             )
             {
@@ -323,6 +323,26 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
             }
             break;
         }
+        case 'g':
+        {
+            if (!optarg)
+            {
+                dirs->bitopt = __BITSET(dirs->bitopt, OPT_CHLOG_GNU);
+                break;
+            }
+            switch (optarg[0])
+            {
+            case 'm' :
+                dirs->bitopt = __BITSET(dirs->bitopt, OPT_CHLOG_MD);
+                break;
+            case 'g' :
+                dirs->bitopt = __BITSET(dirs->bitopt, OPT_CHLOG_GNU);
+                break;
+            default:
+                break;
+            }
+            break;
+        }
         case 'y':
         {
             dirs->bitopt = __BITSET(dirs->bitopt, OPT_YAML);
@@ -380,7 +400,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
 #   if !defined(OS_WIN)
     if (!dirs->setup[FILE_BINDIR].str)
     {
-        (void) pch_path_dump(&dirs->setup[FILE_BINDIR], "/usr/bin");
+        (void) string_append_auto(&dirs->setup[FILE_BINDIR], "/usr/bin");
     }
 #   endif
 

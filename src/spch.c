@@ -37,6 +37,7 @@
 int main(int argc, char *argv[])
 {
     int ret;
+    bool_t bret;
     paths_t dirs;
     paths_t __AUTO(__autopathst) *ds = &dirs;
     memset(&dirs, 0, sizeof(dirs));
@@ -63,7 +64,7 @@ int main(int argc, char *argv[])
                (Linux/Windows) */
             switch(pch_fork(argc, argv))
             {
-            case -1:
+            case R_NEGATIVE:
             {
                 if (__ISLOG)
                 {
@@ -72,7 +73,7 @@ int main(int argc, char *argv[])
                 }
                 exit(127);
             }
-            case 0:
+            case R_FALSE:
             {
                 if (__ISLOG)
                 {
@@ -84,7 +85,7 @@ int main(int argc, char *argv[])
 #           endif
                 exit(0);
             }
-            default:
+            case R_TRUE:
             {
                 if (__ISLOG)
                 {
@@ -93,43 +94,58 @@ int main(int argc, char *argv[])
                 }
                 break;
             }
+            default:
+            {
+                if (__ISLOG)
+                {
+                    pch_log_info(&dirs, "stage #%d unknown select error, exit", 0);
+                    endedlog(&dirs);
+                    fflush(dirs.fp[1]);
+                    exit(0);
+                }
+                break;
+            }
             }
         }
         do
         {
+            /* stage #1 */
             /* set UID/GID for Linux */
-            if (!pch_path_setuid(&dirs, __ISLOG))
+            if (pch_path_setuid(&dirs, __ISLOG) != R_TRUE)
             {
+                pch_log_error(&dirs, "stage #%d error set UID/GID, exit", 1);
                 ret = 125;
                 break;
             }
             if (__ISLOG)
             {
-                pch_log_info(&dirs, "stage #0 check files mode: %s", pch_option_chkmode(&dirs));
+                pch_log_info(&dirs, "stage #1 check files mode: %s", pch_option_chkmode(&dirs));
             }
-            /* stage #1 */
-            if (!pch_stage1(&dirs))
+            /* stage #1 VCS update */
+            bret = pch_stage1(&dirs);
+            if (bret != R_TRUE)
             {
-                pch_log_error(&dirs, "stage #1 incomplete, return: %d", 0);
+                pch_log_error(&dirs, "stage #%d VCS update incomplete, return 0", 1);
                 ret = 121;
                 break;
             }
-            /* stage #2 */
-            ret = pch_stage2(&dirs);
-            if (ret > 0)
+            else
             {
                 if (__ISLOG)
                 {
-                    pch_log_info(&dirs, "stage #2 changed repo objects: %d -> %s", ret, dirs.setup[FILE_SPLIT_REPO].str);
+                    pch_log_info(&dirs, "stage #%d VCS update master/slave success", 1);
                 }
             }
-            else if (ret < 0)
+            /* stage #2 */
+            bret = pch_stage2(&dirs);
+            if (bret == R_TRUE)
             {
-                pch_log_error(&dirs, "stage #2 incomplete, return: %d", ret);
-                ret = 120;
-                break;
+                if (__ISLOG)
+                {
+                    pch_log_info(&dirs, "stage #2 changed repo objects: %s", dirs.setup[FILE_SPLIT_REPO].str);
+                }
             }
-            else if (!ret)
+            else if (bret == R_FALSE)
             {
                 if (__ISLOG)
                 {
@@ -138,40 +154,41 @@ int main(int argc, char *argv[])
                 ret = 0;
                 break;
             }
+            else if (bret == R_NEGATIVE)
+            {
+                pch_log_error(&dirs, "stage #%d incomplete, return error", 2);
+                ret = 120;
+                break;
+            }
             /* stage #3 check/deploy */
-            ret = pch_stage3(&dirs);
-            if (ret != 0)
+            bret = pch_stage3(&dirs);
+            if (bret != R_TRUE)
+            {
+                pch_log_error(&dirs, "stage #3 check/deploy error: %s", dirs.setup[FILE_SPLIT_REPO].str);
+                break;
+            }
+            else
             {
                 if (__ISLOG)
                 {
-                    pch_log_info(&dirs, "stage #3 changed commit success: %s", dirs.setup[FILE_SPLIT_REPO].str);
+                    pch_log_info(&dirs, "stage #3 check/deploy success: %s", dirs.setup[FILE_SPLIT_REPO].str);
                 }
-                break;
             }
             /* stage #4 */
-            ret = pch_stage4(&dirs);
-            if (ret > 0)
+            bret = pch_stage4(&dirs);
+            if (bret == R_TRUE)
             {
                 if (__ISLOG)
                 {
-                    pch_log_info(&dirs, "stage #4 changed commit success: %s", dirs.setup[FILE_SPLIT_REPO].str);
+                    pch_log_info(&dirs, "stage #4 send commit success: %s", dirs.setup[FILE_SPLIT_REPO].str);
                 }
                 ret = 0;
                 break;
             }
-            else if (ret < 0)
+            else
             {
-                pch_log_error(&dirs, "stage #4 incomplete, return error: %d", ret);
+                pch_log_error(&dirs, "stage #%d commit incomplete, return error", 4);
                 ret = 119;
-                break;
-            }
-            else if (!ret)
-            {
-                if (__ISLOG)
-                {
-                    pch_log_info(&dirs, "stage #4 not commit repo: %s", dirs.setup[FILE_SPLIT_REPO].str);
-                }
-                ret = 0;
                 break;
             }
         }

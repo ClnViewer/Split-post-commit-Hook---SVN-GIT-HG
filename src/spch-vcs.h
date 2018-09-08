@@ -34,11 +34,7 @@
 #   define __BINEXT
 #endif
 
-#if defined(BUILD_MSVC)
-#   define __SINIT(x, ...) __VA_ARGS__
-#else
-#   define __SINIT(x, ...) x = __VA_ARGS__
-#endif
+#define __CHNGLOG "ChangeLog."
 
 typedef enum
 {
@@ -54,6 +50,7 @@ typedef struct
     char *add[12];
     char *checkout[12];
     char *admin[12];
+    char *log[12];
 } vcs_t;
 
 /*!
@@ -82,6 +79,9 @@ static vcs_t __vcs[3] =
         }),
         __SINIT(.admin, {
             NULL, "create", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+        }),
+        __SINIT(.log, {
+            NULL, "log", "-r", NULL, "--xml", NULL, NULL, NULL, NULL, NULL, NULL, NULL
         })
     },{
         __SINIT(.update, {
@@ -101,6 +101,9 @@ static vcs_t __vcs[3] =
         }),
         __SINIT(.admin, {
             NULL, "init", "--bare", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+        }),
+        __SINIT(.log, {
+            NULL, "log", "-1", "--date=iso", "--pretty=format:\"<logentry revision=\\\"%h\\\">%n<author>%an</author>%n<date>%ad</date>%n<msg>%s</msg>%n\"", NULL, NULL, NULL, NULL, NULL, NULL, NULL
         })
     },{
         __SINIT(.update, {
@@ -120,6 +123,9 @@ static vcs_t __vcs[3] =
         }),
         __SINIT(.admin, {
             NULL, "init", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+        }),
+        __SINIT(.log, {
+            NULL, "log", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
         })
     }
 };

@@ -29,13 +29,6 @@
 #   include <pwd.h>
 #endif
 
-#if defined(BUILD_MSVC)
-#   define  __snprintf _snprintf
-#else
-#   define  __snprintf snprintf
-#endif
-
-
 size_t pch_check_(string_s *fpath, type_io_e type)
 {
     struct stat _dst1;
@@ -91,9 +84,9 @@ size_t pch_check_(string_s *fpath, type_io_e type)
     }
 }
 
-int pch_compare_file(paths_t *dirs, string_s *fpath1, string_s *fpath2)
+bool_t pch_compare_file(paths_t *dirs, string_s *fpath1, string_s *fpath2)
 {
-    int ret = 0;
+    bool_t ret = R_FALSE;
     struct stat _dst1, _dst2;
 
     if (
@@ -104,17 +97,17 @@ int pch_compare_file(paths_t *dirs, string_s *fpath1, string_s *fpath2)
         (!S_ISREG(_dst1.st_mode))
 #       endif
     )
-        return -1;
+        return R_NEGATIVE;
 
     if (stat(fpath2->str, &_dst2) < 0)
-        return 1;
+        return R_TRUE;
 
 #   if defined(BUILD_MSVC)
     if (((_dst2.st_mode) & _S_IFREG) != _S_IFREG)
         return -1;
 #   else
     if (!S_ISREG(_dst2.st_mode))
-        return -1;
+        return R_NEGATIVE;
 #   endif
 
     do
@@ -144,7 +137,7 @@ int pch_compare_file(paths_t *dirs, string_s *fpath1, string_s *fpath2)
 
 int pch_fcopy(string_s *from_s, string_s *to_s)
 {
-    int ret = 0;
+    int    ret = 0;
     char   b[BUFSIZ];
     size_t n;
     FILE __AUTO(__autofclose) *from_f = NULL, *to_f = NULL;
@@ -154,7 +147,7 @@ int pch_fcopy(string_s *from_s, string_s *to_s)
     __try
     {
         if ((to_s->sz + 1 + 4) > sizeof(to_b))
-            return -1;
+            return R_NEGATIVE;
 
 #   else
     char   to_b[(to_s->sz + 1 + 4)];
@@ -213,52 +206,14 @@ int pch_fcopy(string_s *from_s, string_s *to_s)
     return ret;
 }
 
-size_t pch_path_format(string_s *dst, const char *fmt, ...)
-{
-    va_list ap;
-
-    if ((!dst) || (!fmt))
-    {
-        errno = EINVAL;
-        return 0U;
-    }
-
-    dst->sz  = 0U;
-    va_start(ap, fmt);
-
-    do
-    {
-        int sz;
-        if (dst->str)
-        {
-            free(dst->str);
-        }
-        if (
-            // cppcheck-suppress nullPointer
-            ((sz = vsnprintf(NULL, 0U, fmt, ap)) <= 0)     ||
-            ((dst->str = calloc(1, (size_t)(sz + 1))) == NULL)||
-            ((sz = vsnprintf(dst->str, (size_t)(sz + 1), fmt, ap)) <= 0)
-        )
-        {
-            break;
-        }
-
-        dst->sz  = (size_t)sz;
-    }
-    while (0);
-
-    va_end(ap);
-    return dst->sz;
-}
-
-int pch_path_dir(string_s *dst, string_s *src)
+bool_t pch_path_dir(string_s *dst, string_s *src)
 {
     int  sz;
     char *ctmp;
 
     if (!(ctmp = strrchr(src->str, __PSEPC)))
     {
-        return 0;
+        return R_FALSE;
     }
 
     if (
@@ -266,28 +221,14 @@ int pch_path_dir(string_s *dst, string_s *src)
         (!(dst->str = calloc(1, (size_t)(sz + 1)))) ||
         (!memcpy(dst->str, src->str, (size_t)sz))
     )
-        return -1;
+        return R_NEGATIVE;
 
     dst->sz           = (size_t)sz;
     dst->str[dst->sz] = '\0';
-    return (int)dst->sz;
+    return R_TRUE;
 }
 
-size_t pch_path_dump_sz(string_s *dst, const char *src, size_t sz)
-{
-    if (
-        (!src) ||
-        (!(dst->sz  = ((sz) ? sz : strlen(src)))) ||
-        (!(dst->str = calloc(1, (size_t)(dst->sz + 1)))) ||
-        (!memcpy(dst->str, src, dst->sz))
-    )
-        return 0U;
-
-    dst->str[dst->sz] = '\0';
-    return dst->sz;
-}
-
-int pch_path_time(char b[], const char *fmt)
+bool_t pch_path_time(char b[], const char *fmt)
 {
     struct tm *tmi;
     time_t     tmc = time(NULL);
@@ -297,10 +238,10 @@ int pch_path_time(char b[], const char *fmt)
         (strftime(b, 100, fmt, tmi) <=0)
     )
     {
-        return 0;
+        return R_FALSE;
     }
 
-    return 1;
+    return R_TRUE;
 }
 
 void pch_path_free(paths_t *dirs)
@@ -324,7 +265,7 @@ void pch_path_free(paths_t *dirs)
             dirs->bins[i].sz  = 0U;
         }
     }
-    for (i = 0; i < 2; i++)
+    for (i = 0; i < __NELE(dirs->fp); i++)
     {
         if (dirs->fp[i])
         {
@@ -336,7 +277,7 @@ void pch_path_free(paths_t *dirs)
     dirs->bitopt = dirs->rev = 0UL;
 }
 
-int pch_path_setuid(paths_t *dirs, int islog)
+bool_t pch_path_setuid(paths_t *dirs, int islog)
 {
 #   if !defined(OS_WIN)
     do
@@ -378,20 +319,20 @@ int pch_path_setuid(paths_t *dirs, int islog)
                 break;
             }
         }
-        return 1;
+        return R_TRUE;
 
     }
     while (0);
 
-    return 0;
+    return R_FALSE;
 #   else
     (void) dirs;
     (void) islog;
-    return 1;
+    return R_TRUE;
 #   endif
 }
 
-int pch_path_destination(paths_t *dirs, char *src, size_t sz, string_s *dst)
+bool_t pch_path_destination(paths_t *dirs, char *src, size_t sz, string_s *dst)
 {
     int mode = ((__BITTST(dirs->bitopt, OPT_RENAME)) ? 2 :
                 ((__BITTST(dirs->bitopt, OPT_PREFIX)) ? 1 :
@@ -402,7 +343,7 @@ int pch_path_destination(paths_t *dirs, char *src, size_t sz, string_s *dst)
     char b[1024];
 
     if ((sz + 1U) > sizeof(b))
-        return 0;
+        return R_FALSE;
 
 #   else
     char b[(sz + 1U)];
@@ -438,7 +379,7 @@ int pch_path_destination(paths_t *dirs, char *src, size_t sz, string_s *dst)
             ismod = 1;
             fname += dirs->setup[FILE_RENAME1].sz;
         }
-        if (!pch_path_format(dst, "%s" __PSEPS "%s%s%s%s%s",
+        if (!string_format(dst, "%s" __PSEPS "%s%s%s%s%s",
                              dirs->setup[FILE_SPLIT_REPO].str,
                              ((fpath) ? fpath : ""),
                              ((fpath) ? __PSEPS : ""),
@@ -449,22 +390,24 @@ int pch_path_destination(paths_t *dirs, char *src, size_t sz, string_s *dst)
                              ((fname) ? fname : "")
                             )
            )
-            return 0;
+            return R_FALSE;
+
         break;
     }
     default:
     {
-        if (!pch_path_format(dst, "%s" __PSEPS "%s",
+        if (!string_format(dst, "%s" __PSEPS "%s",
                              dirs->setup[FILE_SPLIT_REPO].str,
                              b
                             )
            )
-            return 0;
+            return R_FALSE;
+
         break;
     }
     }
 
-    return 1;
+    return R_TRUE;
 }
 
 const char * pch_ultostr(char *str, unsigned long val, int base)

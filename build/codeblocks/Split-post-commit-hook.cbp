@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-t svn -m c:\1\master -s C:\1\split -l auto\autolist.lst -e C:\TortoiseSVN\bin -j logmy.txt  -k -x file=new --nonloop" />
+				<Option parameters="-t svn -m c:\1\master -s C:\1\split -l auto\autolist.lst -e C:\TortoiseSVN\bin -j logmy.txt  -x file=new -g md" />
 				<Compiler>
 					<Add option="-Wnon-virtual-dtor" />
 					<Add option="-Wshadow" />
@@ -32,6 +32,9 @@
 					<Add option="-std=c11" />
 					<Add option="-m32" />
 					<Add option="-g" />
+					<Add option="-I../../src" />
+					<Add option="-I../../src/libs/include" />
+					<Add option="-I../../src/libs/include/win" />
 					<Add option="-Wformat-extra-args" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-Wsign-conversion" />
@@ -49,6 +52,8 @@
 				</Compiler>
 				<Linker>
 					<Add option="-m32" />
+					<Add option="-Wl,--gc-sections" />
+					<Add option="-Wl,--print-gc-sections" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -67,6 +72,16 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="../../src/libs/include/boolt.h" />
+		<Unit filename="../../src/libs/include/buildt.h" />
+		<Unit filename="../../src/libs/include/string_s.h" />
+		<Unit filename="../../src/libs/include/xmlp.h" />
+		<Unit filename="../../src/libs/string_s.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../src/libs/xmlp.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../../src/spch-exec.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -87,6 +102,10 @@
 		<Unit filename="../../src/spch-shell.h" />
 		<Unit filename="../../src/spch-stage-yaml.h" />
 		<Unit filename="../../src/spch-stage.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../src/spch-vcs-log-field.h" />
+		<Unit filename="../../src/spch-vcs-log.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../../src/spch-vcs.c">

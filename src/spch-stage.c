@@ -47,7 +47,7 @@ static void __stage2_vcs_add(unsigned int cnt, unsigned long hash, char *str, si
     }
 }
 
-int pch_stage1(paths_t *dirs)
+bool_t pch_stage1(paths_t *dirs)
 {
     int ret;
 
@@ -61,12 +61,12 @@ int pch_stage1(paths_t *dirs)
     if ((ret = pch_vcs_update(dirs, &dirs->setup[FILE_SPLIT_REPO])) != 0)
     {
         pch_log_error(dirs, "update VCS split repo error: %d -> %s", ret, dirs->setup[FILE_SPLIT_REPO].str);
-        return 0;
+        return R_FALSE;
     }
-    return 1;
+    return R_TRUE;
 }
 
-int pch_stage2(paths_t *dirs)
+bool_t pch_stage2(paths_t *dirs)
 {
     int rcode = 0, stage = 0;
     char b[BUFSIZ + 1] = {0};
@@ -106,8 +106,8 @@ int pch_stage2(paths_t *dirs)
 #       endif
 
             if (
-                (!pch_path_format(from_s, "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, b)) ||
-                (!pch_path_destination(dirs, (char*)b, len, to_s))
+                (!string_format(from_s, "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, b)) ||
+                (pch_path_destination(dirs, (char*)b, len, to_s) != R_TRUE)
             )
             {
                 rcode = -1;
@@ -120,7 +120,7 @@ int pch_stage2(paths_t *dirs)
 
             if (!__BITTST(dirs->bitopt, OPT_FORCE))
             {
-                if (!pch_compare_file(dirs, from_s, to_s))
+                if (pch_compare_file(dirs, from_s, to_s) != R_TRUE)
                 {
                     if (__ISLOG)
                     {
@@ -133,17 +133,17 @@ int pch_stage2(paths_t *dirs)
             {
                 switch (pch_path_dir(to_dir_s, to_s))
                 {
-                case -1:
+                case R_NEGATIVE:
                 {
                     rcode = -2;
                     break;
                 }
-                case  0:
+                case  R_FALSE:
                 {
                     rcode = 0;
                     break;
                 }
-                default:
+                case R_TRUE:
                 {
                     if (!hd->searchs(hd->hash, to_dir_s->str, to_dir_s->sz))
                     {
@@ -163,6 +163,10 @@ int pch_stage2(paths_t *dirs)
                             break;
                         }
                     }
+                }
+                default:
+                {
+                    break;
                 }
                 }
             }
@@ -226,15 +230,25 @@ int pch_stage2(paths_t *dirs)
     hd->free(hd->hash);
     free(hd);
 
-    return ((rcode < 0) ? rcode : stage);
+    if ((rcode < 0) && (__ISLOG))
+    {
+        pch_log_error(dirs, "stage #2 produced error %d", rcode);
+    }
+    else if ((stage) && (__ISLOG))
+    {
+        pch_log_info(dirs, "split repo modified %d objects", stage);
+    }
+
+    return ((rcode < 0) ? R_NEGATIVE :
+            ((!stage) ? R_FALSE : R_TRUE)
+           );
 }
 
-int pch_stage3(paths_t *dirs)
+bool_t pch_stage3(paths_t *dirs)
 {
     int ret = 0;
 
 #   if !defined(OS_WIN)
-
     if (__BITTST(dirs->bitopt, OPT_YAML))
     {
         do
@@ -267,7 +281,7 @@ int pch_stage3(paths_t *dirs)
                     break;
                 }
                 if (
-                    (!pch_path_format(fyaml, "%s" __PSEPS __YAMLNAME, dirs->setup[FILE_SPLIT_REPO].str)) ||
+                    (!string_format(fyaml, "%s" __PSEPS __YAMLNAME, dirs->setup[FILE_SPLIT_REPO].str)) ||
                     (!pch_check_file(fyaml))
                 )
                 {
@@ -292,7 +306,7 @@ int pch_stage3(paths_t *dirs)
                 args[4] = pch_ultostr(brev, dirs->rev, 10);
                 args[5] = pch_vcs_type(dirs->bitopt);
 
-                if ((ret = pch_exec(dirs, args)))
+                if ((ret = pch_exec(dirs, args, NULL)))
                 {
                     pch_log_error(dirs, "examine yaml config return error: %d", ret);
                     break;
@@ -343,7 +357,7 @@ int pch_stage3(paths_t *dirs)
             args[2] = pch_ultostr(brev, dirs->rev, 10);
             args[3] = pch_vcs_type(dirs->bitopt);
 
-            if ((ret = pch_exec(dirs, args)))
+            if ((ret = pch_exec(dirs, args, NULL)))
             {
                 pch_log_error(dirs, "deploy script return error: %d -> %s", ret, dirs->setup[FILE_DEPLOY].str);
                 break;
@@ -357,11 +371,17 @@ int pch_stage3(paths_t *dirs)
         }
         while (0);
     }
-
-    return ret;
+    if ((!ret) && ((__BITTST(dirs->bitopt, OPT_CHLOG_MD)) || (__BITTST(dirs->bitopt, OPT_CHLOG_GNU))))
+    {
+        if (pch_vcs_changelog(dirs) != R_TRUE)
+        {
+            pch_log_error(dirs, "split repo ChangeLog update error: %s", dirs->setup[FILE_SPLIT_REPO].str);
+        }
+    }
+    return ((!ret) ? R_TRUE : R_FALSE);
 }
 
-int pch_stage4(paths_t *dirs)
+bool_t pch_stage4(paths_t *dirs)
 {
     int ret;
 
@@ -372,7 +392,7 @@ int pch_stage4(paths_t *dirs)
     if ((ret = pch_vcs_commit(dirs)) != 0)
     {
         pch_log_error(dirs, "commit VCS error: %d", ret);
-        return -1;
+        return R_NEGATIVE;
     }
-    return 1;
+    return R_TRUE;
 }

@@ -11,7 +11,9 @@ set_property( GLOBAL PROPERTY USE_FOLDERS ON )
 set( PREDEFINED_TARGETS_FOLDER "CmakeDepends" )
 
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/../src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/include/win
 )
 
 set(app_srcs
@@ -23,11 +25,21 @@ set(app_srcs
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-opt.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-stage.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-vcs.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-vcs-log.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/string_s.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/xmlp.c
 )
 set(app_hdrs
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-opt.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-vcs.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-link-hash.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-stage-yaml.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/version.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/include/buildt.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/include/boolt.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/include/string_s.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/include/xmlp.h
 )
 
 add_executable( ${PROJECT_NAME} ${app_srcs} ${app_hdrs} )
