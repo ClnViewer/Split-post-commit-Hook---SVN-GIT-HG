@@ -88,7 +88,7 @@ static vcs_t __vcs[3] =
             NULL, "checkout", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
         }),
         __SINIT(.commit, {
-            NULL, "commit", "--amend", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+            NULL, "commit", "-m", NULL, "--amend", NULL, NULL, NULL, NULL, NULL, NULL, NULL
         }),
         __SINIT(.push, {
             NULL, "push", "origin", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
@@ -110,7 +110,7 @@ static vcs_t __vcs[3] =
             NULL, "update", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
         }),
         __SINIT(.commit, {
-            NULL, "commit", "--amend", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+            NULL, "commit", "-m", NULL, "--amend", NULL, NULL, NULL, NULL, NULL, NULL, NULL
         }),
         __SINIT(.push, {
             NULL, "push", " -r", ".", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
@@ -125,7 +125,8 @@ static vcs_t __vcs[3] =
             NULL, "init", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
         }),
         __SINIT(.log, {
-            NULL, "log", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
+            /* NULL, "log", "-l", "1", "--style", "xml", "--verbose", "-r", "\"heads(branch(.))\"", NULL, NULL, NULL */
+            NULL, "log", "-l", "1", "--style", "xml", NULL, NULL, NULL, NULL, NULL, NULL
         })
     }
 };
