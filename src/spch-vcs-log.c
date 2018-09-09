@@ -196,8 +196,10 @@ bool_t spch_xmllog(paths_t *dirs, FILE *fpin, FILE *fpout)
         if (!fpin)
             return R_NEGATIVE;
 
-        fseek(fpin, 0, SEEK_END);
-        if (!(ssz = ftell(fpin)))
+        if (
+            (fseek(fpin, 0, SEEK_END)) ||
+            (!(ssz = ftell(fpin)))
+        )
             return R_FALSE;
 
         if (!(s_xml = (char*) calloc(1, (size_t)(ssz + 1L))))

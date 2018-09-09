@@ -335,6 +335,15 @@ bool_t pch_vcs_changelog(paths_t *dirs)
             dirs->fp[PATHS_FILE_TMP] = NULL;
 
             if (
+                (fseek(ftmplog, 0, SEEK_END)) ||
+                (!ftell(ftmplog))
+            )
+            {
+                (void) fclose(ftmplog);
+                ret = R_FALSE;
+                break;
+            }
+            if (
                 (!string_format(
                      lout,
                      "%s" __PSEPS __CHNGLOG "%s",

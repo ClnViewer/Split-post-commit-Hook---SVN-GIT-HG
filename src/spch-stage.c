@@ -373,9 +373,27 @@ bool_t pch_stage3(paths_t *dirs)
     }
     if ((!ret) && ((__BITTST(dirs->bitopt, OPT_CHLOG_MD)) || (__BITTST(dirs->bitopt, OPT_CHLOG_GNU))))
     {
-        if (pch_vcs_changelog(dirs) != R_TRUE)
+        switch (pch_vcs_changelog(dirs))
         {
-            pch_log_error(dirs, "split repo ChangeLog update error: %s", dirs->setup[FILE_SPLIT_REPO].str);
+        case R_NEGATIVE:
+            {
+                pch_log_error(dirs, "split repo ChangeLog update %s", "error");
+                break;
+            }
+        case R_FALSE:
+            {
+                pch_log_info(dirs, "split repo ChangeLog %s update", "not");
+                break;
+            }
+        case R_TRUE:
+            {
+                pch_log_info(dirs, "split repo ChangeLog update %s", "successfully");
+                break;
+            }
+        default:
+            {
+                break;
+            }
         }
     }
     return ((!ret) ? R_TRUE : R_FALSE);
