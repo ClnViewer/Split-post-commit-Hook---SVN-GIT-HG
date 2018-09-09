@@ -1,4 +1,6 @@
 /* Copyright (c) 2010, huxingyi@msn.com
+ * Copyright (c) 2018 PS (rewriting)
+ * GitHub: https://github.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -26,8 +28,17 @@ typedef enum __tag_XMLERR
     XMLERR_UNMATCH,
 } XMLERR;
 
-int xmlp(char* xml,
-         void* param,
+int xmlpb(char*,
+         void*,
+         int (*xml_onopentag_cb)(void*, int, char*),
+         int (*xml_onclosetag_cb)(void*, int, char*),
+         int (*xml_onattribute_cb)(void*, int, char*, char*),
+         int (*xml_onendattribute_cb)(void*, int),
+         int (*xml_ontext_cb)(void*, int, char*)
+        );
+
+int xmlpf(FILE*,
+         void*,
          int (*xml_onopentag_cb)(void*, int, char*),
          int (*xml_onclosetag_cb)(void*, int, char*),
          int (*xml_onattribute_cb)(void*, int, char*, char*),

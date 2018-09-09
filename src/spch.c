@@ -24,7 +24,6 @@
  */
 
 #include "spch.h"
-#define __ISLOG ((dirs.fp[1]) ? 1 : 0)
 
 #if !defined(OS_WIN)
 #   include <signal.h>
@@ -54,7 +53,7 @@ int main(int argc, char *argv[])
         /* stage #0 */
         if (__BITTST(dirs.bitopt, OPT_DEMONIZE))
         {
-            if (__ISLOG)
+            if (__ISLOGS)
             {
                 fflush(dirs.fp[1]);
             }
@@ -66,7 +65,7 @@ int main(int argc, char *argv[])
             {
             case R_NEGATIVE:
             {
-                if (__ISLOG)
+                if (__ISLOGS)
                 {
                     pch_log_error(&dirs, "stage #%d non-loop fork error!", 0);
                     fflush(dirs.fp[1]);
@@ -75,7 +74,7 @@ int main(int argc, char *argv[])
             }
             case R_FALSE:
             {
-                if (__ISLOG)
+                if (__ISLOGS)
                 {
                     pch_log_info(&dirs, "stage #0 non-loop mode: Parent %d successful exit", __PID);
                     fflush(dirs.fp[1]);
@@ -87,7 +86,7 @@ int main(int argc, char *argv[])
             }
             case R_TRUE:
             {
-                if (__ISLOG)
+                if (__ISLOGS)
                 {
                     pch_log_info(&dirs, "stage #0 non-loop mode: Daemon %d run successful", __PID);
                     fflush(dirs.fp[1]);
@@ -96,7 +95,7 @@ int main(int argc, char *argv[])
             }
             default:
             {
-                if (__ISLOG)
+                if (__ISLOGS)
                 {
                     pch_log_info(&dirs, "stage #%d unknown select error, exit", 0);
                     endedlog(&dirs);
@@ -111,13 +110,13 @@ int main(int argc, char *argv[])
         {
             /* stage #1 */
             /* set UID/GID for Linux */
-            if (pch_path_setuid(&dirs, __ISLOG) != R_TRUE)
+            if (pch_path_setuid(&dirs, __ISLOGS) != R_TRUE)
             {
                 pch_log_error(&dirs, "stage #%d error set UID/GID, exit", 1);
                 ret = 125;
                 break;
             }
-            if (__ISLOG)
+            if (__ISLOGS)
             {
                 pch_log_info(&dirs, "stage #1 check files mode: %s", pch_option_chkmode(&dirs));
             }
@@ -131,7 +130,7 @@ int main(int argc, char *argv[])
             }
             else
             {
-                if (__ISLOG)
+                if (__ISLOGS)
                 {
                     pch_log_info(&dirs, "stage #%d VCS update master/slave success", 1);
                 }
@@ -140,14 +139,14 @@ int main(int argc, char *argv[])
             bret = pch_stage2(&dirs);
             if (bret == R_TRUE)
             {
-                if (__ISLOG)
+                if (__ISLOGS)
                 {
                     pch_log_info(&dirs, "stage #2 changed repo objects: %s", dirs.setup[FILE_SPLIT_REPO].str);
                 }
             }
             else if (bret == R_FALSE)
             {
-                if (__ISLOG)
+                if (__ISLOGS)
                 {
                     pch_log_info(&dirs, "stage #2 not change repo: %s", dirs.setup[FILE_SPLIT_REPO].str);
                 }
@@ -169,7 +168,7 @@ int main(int argc, char *argv[])
             }
             else
             {
-                if (__ISLOG)
+                if (__ISLOGS)
                 {
                     pch_log_info(&dirs, "stage #3 check/deploy success: %s", dirs.setup[FILE_SPLIT_REPO].str);
                 }
@@ -178,7 +177,7 @@ int main(int argc, char *argv[])
             bret = pch_stage4(&dirs);
             if (bret == R_TRUE)
             {
-                if (__ISLOG)
+                if (__ISLOGS)
                 {
                     pch_log_info(&dirs, "stage #4 send commit success: %s", dirs.setup[FILE_SPLIT_REPO].str);
                 }

@@ -1,4 +1,6 @@
 /* Copyright (c) 2010, huxingyi@msn.com
+ * Copyright (c) 2018 PS (rewriting)
+ * GitHub: https://github.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -39,14 +41,80 @@
 
 #define __xml_isname(_c) ( (_c) > 32 && (_c) < 122 && isalnum(_c) )
 
-int xmlp(char* xml,
-         void* param,
-         int (*xml_onopentag_cb)(void*, int, char*),
-         int (*xml_onclosetag_cb)(void*, int, char*),
-         int (*xml_onattribute_cb)(void*, int, char*, char*),
-         int (*xml_onendattribute_cb)(void*, int),
-         int (*xml_ontext_cb)(void*, int, char*)
+int xmlpf(FILE *fp,
+          void *param,
+          int (*xml_onopentag_cb)(void*, int, char*),
+          int (*xml_onclosetag_cb)(void*, int, char*),
+          int (*xml_onattribute_cb)(void*, int, char*, char*),
+          int (*xml_onendattribute_cb)(void*, int),
+          int (*xml_ontext_cb)(void*, int, char*)
+         )
+{
+    long ssz;
+    char __AUTO(__autofree) *s_xml = NULL;
+
+    if (!fp)
+    {
+        errno = EINVAL;
+        return R_NEGATIVE;
+    }
+    if (
+        (fseek(fp, 0L, SEEK_END)) ||
+        (!(ssz = ftell(fp)))
+    )
+    {
+        errno = ((errno) ? errno : ENFILE);
+        return R_NEGATIVE;
+    }
+
+#   if defined(BUILD_MSVC)
+    __try
+    {
+#   endif
+
+        if (!(s_xml = (char*) calloc(1, (size_t)(ssz + 1L))))
+            return R_NEGATIVE;
+
+        ;
+        if (
+            (fseek(fp, 0L, SEEK_SET)) ||
+            (fread(s_xml, 1U, (size_t)ssz, fp) == 0U)
         )
+            return R_NEGATIVE;
+
+        (void) fseek(fp, 0L, SEEK_SET);
+
+        return xmlpb(
+                     s_xml,
+                     param,
+                     xml_onopentag_cb,
+                     xml_onclosetag_cb,
+                     xml_onattribute_cb,
+                     xml_onendattribute_cb,
+                     xml_ontext_cb
+                 );
+
+#   if defined(BUILD_MSVC)
+    }
+    __finally
+    {
+        if (s_xml)
+        {
+            __autofree(&s_xml);
+        }
+    }
+#   endif
+
+}
+
+int xmlpb(char *xml,
+          void *param,
+          int (*xml_onopentag_cb)(void*, int, char*),
+          int (*xml_onclosetag_cb)(void*, int, char*),
+          int (*xml_onattribute_cb)(void*, int, char*, char*),
+          int (*xml_onendattribute_cb)(void*, int),
+          int (*xml_ontext_cb)(void*, int, char*)
+         )
 {
     int status = XML_TEXT,
         cb_return = 0,

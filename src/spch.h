@@ -83,11 +83,14 @@ typedef enum
 typedef struct
 {
     unsigned long bitopt, rev;
-    FILE *fp[3];
+    FILE    *fp[3];
     long     fpos;
     string_s setup[FILE_NONE_IDX];
     string_s bins[2];
 } paths_t;
+
+#define __ISLOGS ((dirs.fp[PATHS_FILE_OUT]) ? 1 : 0)
+#define __ISLOGP ((dirs->fp[PATHS_FILE_OUT]) ? 1 : 0)
 
 #define pch_check_dir(A) pch_check_(A, TYPE_DIR)
 #define pch_check_file(A) pch_check_(A, TYPE_FILE)

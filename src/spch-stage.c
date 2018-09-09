@@ -31,8 +31,6 @@
 #   include "spch-shell.h"
 #endif
 
-#define __ISLOG ((dirs->fp[PATHS_FILE_OUT]) ? 1 : 0)
-
 static void __stage2_vcs_add(unsigned int cnt, unsigned long hash, char *str, size_t sz, void * data)
 {
     int ret;
@@ -122,7 +120,7 @@ bool_t pch_stage2(paths_t *dirs)
             {
                 if (pch_compare_file(dirs, from_s, to_s) != R_TRUE)
                 {
-                    if (__ISLOG)
+                    if (__ISLOGP)
                     {
                         pch_log_info(dirs, "stage #2 skip: %s -> %s", from_s->str, to_s->str);
                     }
@@ -158,7 +156,7 @@ bool_t pch_stage2(paths_t *dirs)
                             (errno != EEXIST)
                         )
                         {
-                            pch_log_error(dirs, "create directory error: %s", to_dir_s->str);
+                            pch_log_error(dirs, "stage #2 create directory error: %s", to_dir_s->str);
                             rcode = -3;
                             break;
                         }
@@ -182,10 +180,10 @@ bool_t pch_stage2(paths_t *dirs)
 
             if ((ret = pch_fcopy(from_s, to_s)))
             {
-                pch_log_error(dirs, "copy file error: %s -> %s", from_s->str, to_s->str);
+                pch_log_error(dirs, "stage #2 copy file error: %s -> %s", from_s->str, to_s->str);
                 continue;
             }
-            if (__ISLOG)
+            if (__ISLOGP)
             {
                 pch_log_info(dirs, "stage #2 %s: %s -> %s",
                              ((__BITTST(dirs->bitopt, OPT_FORCE)) ? "replace" : "update"),
@@ -219,7 +217,7 @@ bool_t pch_stage2(paths_t *dirs)
         /* needed to add exist directory before */
         if (pch_vcs_add(dirs, &dirs->setup[FILE_SPLIT_REPO]) != 0)
         {
-            pch_log_error(dirs, "add VCS root directory error: -> %s", dirs->setup[FILE_SPLIT_REPO].str);
+            pch_log_error(dirs, "stage #2 add VCS root directory error: -> %s", dirs->setup[FILE_SPLIT_REPO].str);
         }
         /* add all files from directory */
         hd->getmap(hd->hash, (void*)dirs, &__stage2_vcs_add);
@@ -230,13 +228,13 @@ bool_t pch_stage2(paths_t *dirs)
     hd->free(hd->hash);
     free(hd);
 
-    if ((rcode < 0) && (__ISLOG))
+    if ((rcode < 0) && (__ISLOGP))
     {
         pch_log_error(dirs, "stage #2 produced error %d", rcode);
     }
-    else if ((stage) && (__ISLOG))
+    else if ((stage) && (__ISLOGP))
     {
-        pch_log_info(dirs, "split repo modified %d objects", stage);
+        pch_log_info(dirs, "stage #2 split repo modified %d objects", stage);
     }
 
     return ((rcode < 0) ? R_NEGATIVE :
@@ -311,7 +309,7 @@ bool_t pch_stage3(paths_t *dirs)
                     pch_log_error(dirs, "examine yaml config return error: %d", ret);
                     break;
                 }
-                else if (__ISLOG)
+                else if (__ISLOGP)
                 {
                     pch_log_info(dirs, "examine yaml config [%s" __PSEPS __YAMLNAME "] - OK",
                                  dirs->setup[FILE_SPLIT_REPO].str
@@ -335,7 +333,7 @@ bool_t pch_stage3(paths_t *dirs)
     {
         const char *scr = NULL;
 
-        if (__ISLOG)
+        if (__ISLOGP)
         {
             scr = strrchr(dirs->setup[FILE_DEPLOY].str, __PSEPC);
             pch_log_info(dirs, "deploy script [%s] - start:\n",
@@ -362,7 +360,7 @@ bool_t pch_stage3(paths_t *dirs)
                 pch_log_error(dirs, "deploy script return error: %d -> %s", ret, dirs->setup[FILE_DEPLOY].str);
                 break;
             }
-            else if (__ISLOG)
+            else if (__ISLOGP)
             {
                 pch_log_info(dirs, "deploy script [%s] - OK",
                              ((scr) ? (scr + 1) : dirs->setup[FILE_DEPLOY].str)

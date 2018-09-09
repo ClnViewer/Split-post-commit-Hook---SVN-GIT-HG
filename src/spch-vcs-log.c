@@ -179,59 +179,28 @@ static int __cb_text(void *v, int depth, char *text)
 bool_t spch_xmllog(paths_t *dirs, FILE *fpin, FILE *fpout)
 {
     int ret;
-    long ssz;
-    char __AUTO(__autofree) *s_xml = NULL;
     vcslog_a vlc;
     memset(&vlc, 0, sizeof(vcslog_a));
     vlc.dirs = dirs;
 
-#   if defined(BUILD_MSVC)
-    __try
-    {
-#   endif
+    if (!(vlc.fp = ((fpout) ? fpout : dirs->fp[PATHS_FILE_OUT])))
+        return R_NEGATIVE;
 
-        if (!(vlc.fp = ((fpout) ? fpout : dirs->fp[PATHS_FILE_OUT])))
-            return R_NEGATIVE;
+    if (!fpin)
+        return R_NEGATIVE;
 
-        if (!fpin)
-            return R_NEGATIVE;
-
-        if (
-            (fseek(fpin, 0, SEEK_END)) ||
-            (!(ssz = ftell(fpin)))
-        )
-            return R_FALSE;
-
-        if (!(s_xml = (char*) calloc(1, (size_t)(ssz + 1L))))
-            return R_NEGATIVE;
-
-        fseek(fpin, 0, SEEK_SET);
-        if (fread(s_xml, 1U, (size_t)ssz, fpin) == 0U)
-            return R_NEGATIVE;
-
-        ret = xmlp(s_xml,
-                   &vlc,
-                   __cb_opentag,
-                   __cb_closetag,
-                   __cb_attribute,
-                   NULL,
-                   __cb_text
-                  );
-
-        __vcslog_a_free(&vlc);
-
-        return ((ret == -1) ? R_NEGATIVE :
-                ((!ret) ? R_TRUE : R_FALSE)
+    ret = xmlpf(fpin,
+                &vlc,
+                __cb_opentag,
+                __cb_closetag,
+                __cb_attribute,
+                NULL,
+                __cb_text
                );
 
-#   if defined(BUILD_MSVC)
-    }
-    __finally
-    {
-        if (s_xml)
-        {
-            __autofree(&s_xml);
-        }
-    }
-#   endif
+    __vcslog_a_free(&vlc);
+
+    return ((ret == -1) ? R_NEGATIVE :
+            ((!ret) ? R_TRUE : R_FALSE)
+           );
 }

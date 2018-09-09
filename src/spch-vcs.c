@@ -291,7 +291,7 @@ int pch_vcs_log(paths_t *dirs)
             err = errno;
             {
                 (void) fflush(dirs->fp[PATHS_FILE_TMP]);
-                (void) fseek(dirs->fp[PATHS_FILE_TMP], 0, SEEK_SET);
+                (void) fseek(dirs->fp[PATHS_FILE_TMP], 0L, SEEK_SET);
             }
             errno = err;
         }
@@ -335,39 +335,52 @@ bool_t pch_vcs_changelog(paths_t *dirs)
             dirs->fp[PATHS_FILE_TMP] = NULL;
 
             if (
-                (fseek(ftmplog, 0, SEEK_END)) ||
+                (fseek(ftmplog, 0L, SEEK_END)) ||
                 (!ftell(ftmplog))
             )
             {
-                (void) fclose(ftmplog);
                 ret = R_FALSE;
                 break;
             }
-            if (
-                (!string_format(
-                     lout,
-                     "%s" __PSEPS __CHNGLOG "%s",
-                     dirs->setup[FILE_SPLIT_REPO].str,
-                     ((__BITTST(dirs->bitopt, OPT_CHLOG_MD)) ? "md" : "txt")
-                 )
-                ) ||
-                (!(fchglog = fopen(lout->str, "a+"))) ||
-                (fseek(fchglog, 0, SEEK_SET)) ||
-                (fseek(ftmplog, 0, SEEK_SET))
-            )
+            if (!string_format(
+                        lout,
+                        "%s" __PSEPS __CHNGLOG "%s",
+                        dirs->setup[FILE_SPLIT_REPO].str,
+                        ((__BITTST(dirs->bitopt, OPT_CHLOG_MD)) ? "md" : "txt")
+                    )
+               )
                 break;
 
+            /* rewrite ChangeLog reverse, last data in top */
             {
                 size_t sz;
                 char b[BUFSIZ];
+
                 (void) fflush(ftmplog);
+
+                if ((fchglog = fopen(lout->str, "r+")))
+                {
+                    while ((sz = fread(b, 1U, (size_t)BUFSIZ, fchglog)) != 0U)
+                    {
+                        (void) fwrite(b, 1U, sz, ftmplog);
+                    }
+
+                    if (fseek(fchglog, 0L, SEEK_SET))
+                        break;
+                }
+                else if (!(fchglog = fopen(lout->str, "w+")))
+                {
+                    break;
+                }
+
+                if (fseek(ftmplog, 0L, SEEK_SET))
+                    break;
 
                 while ((sz = fread(b, 1U, (size_t)BUFSIZ, ftmplog)) != 0U)
                 {
                     (void) fwrite(b, 1U, sz, fchglog);
                 }
 
-                (void) fclose(ftmplog);
                 (void) fclose(fchglog);
                 fchglog = NULL;
             }
@@ -375,6 +388,11 @@ bool_t pch_vcs_changelog(paths_t *dirs)
             ret = R_TRUE;
         }
         while (0);
+
+        if (ftmplog)
+        {
+            (void) fclose(ftmplog);
+        }
 
 #       if defined(BUILD_MSVC)
     }
