@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-t svn -m c:\1\master -s C:\1\split -l auto\autolist.lst -e C:\TortoiseSVN\bin -j logmy.txt  -x file=new -g md" />
+				<Option parameters="-t svn -m c:\1\master -s C:\1\split -l auto\autolist.lst -e C:\TortoiseSVN\bin -j logmy.txt  -x file=new -g md -c ms" />
 				<Compiler>
 					<Add option="-Wnon-virtual-dtor" />
 					<Add option="-Wshadow" />

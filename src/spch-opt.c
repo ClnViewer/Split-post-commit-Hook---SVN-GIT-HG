@@ -105,20 +105,30 @@ void endedlog(paths_t *dirs)
 
 const char * pch_option_chkmode(paths_t *dirs)
 {
-    return ((__BITTST(dirs->bitopt, OPT_FCHECK_CTIME)) ?
-            "create time" :
-            ((__BITTST(dirs->bitopt, OPT_FCHECK_MTIME)) ?
-             "modify time" :
-             ((__BITTST(dirs->bitopt, OPT_FCHECK_SIZE)) ?
-              "size" :
-              ((__BITTST(dirs->bitopt, OPT_FCHECK_ALL)) ?
-               "all - create, modify time and size" : "-none-"
-              )
-             )
-            )
-           );
-}
+    int chk = (__BITTST(dirs->bitopt, OPT_FCHECK_CTIME)) * 1  // 1,4.6,9
+            + (__BITTST(dirs->bitopt, OPT_FCHECK_MTIME)) * 3  // 3,4,8,9
+            + (__BITTST(dirs->bitopt, OPT_FCHECK_SIZE))  * 5; // 5,6,8,9
 
+    switch (chk)
+    {
+    case 1:
+        return "create time";
+    case 3:
+        return "modify time";
+    case 4:
+        return "create, modify time";
+    case 5:
+        return "size";
+    case 6:
+        return "create time and size";
+    case 8:
+        return "modify time and size";
+    case 9:
+        return "create, modify time and size";
+    default:
+        return "none";
+    }
+}
 
 int pch_option(paths_t *dirs, char *argv[], int argc)
 {
@@ -292,22 +302,42 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         }
         case 'c':
         {
+            size_t i;
+
             if (!optarg)
-                break;
-            switch (optarg[0])
             {
-            case 'c' :
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_CTIME);
                 break;
-            case 'm' :
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_MTIME);
-                break;
-            case 's' :
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_SIZE);
-                break;
-            default:
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_ALL);
-                break;
+            }
+            for (i = 0; i < strlen(optarg); i++)
+            {
+                switch (optarg[i])
+                {
+                case 'a' :
+                    dirs->bitopt = __BITSET(
+                                       __BITSET(
+                                           __BITSET(dirs->bitopt,
+                                                    OPT_FCHECK_CTIME),
+                                           OPT_FCHECK_SIZE),
+                                       OPT_FCHECK_MTIME);
+                    break;
+                case 'd' :
+                    dirs->bitopt = __BITSET(
+                                       __BITSET(dirs->bitopt,
+                                                OPT_FCHECK_SIZE),
+                                       OPT_FCHECK_MTIME);
+                    break;
+                case 'c' :
+                    dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_CTIME);
+                    break;
+                case 'm' :
+                    dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_MTIME);
+                    break;
+                case 's' :
+                    dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_SIZE);
+                    break;
+                default:
+                    break;
+                }
             }
             break;
         }
@@ -424,11 +454,13 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     if (
         (!__BITTST(dirs->bitopt, OPT_FCHECK_CTIME)) &&
         (!__BITTST(dirs->bitopt, OPT_FCHECK_MTIME)) &&
-        (!__BITTST(dirs->bitopt, OPT_FCHECK_SIZE)) &&
-        (!__BITTST(dirs->bitopt, OPT_FCHECK_ALL))
+        (!__BITTST(dirs->bitopt, OPT_FCHECK_SIZE))
     )
     {
-        dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_ALL);
+        dirs->bitopt = __BITSET(
+                           __BITSET(dirs->bitopt,
+                                    OPT_FCHECK_SIZE),
+                           OPT_FCHECK_MTIME);
     }
 
     startedlog(dirs, argv[0]);

@@ -115,17 +115,17 @@ bool_t pch_compare_file(paths_t *dirs, string_s *fpath1, string_s *fpath2)
         if (!_dst1.st_size)
             break;
 
-        if ((__BITTST(dirs->bitopt, OPT_FCHECK_CTIME)) || (__BITTST(dirs->bitopt, OPT_FCHECK_ALL)))
+        if (__BITTST(dirs->bitopt, OPT_FCHECK_CTIME))
         {
             if ((ret = ((unsigned long) _dst1.st_ctime > (unsigned long) _dst2.st_ctime)))
                 break;
         }
-        if ((__BITTST(dirs->bitopt, OPT_FCHECK_MTIME)) || (__BITTST(dirs->bitopt, OPT_FCHECK_ALL)))
+        if (__BITTST(dirs->bitopt, OPT_FCHECK_MTIME))
         {
             if ((ret = ((unsigned long) _dst1.st_mtime > (unsigned long) _dst2.st_mtime)))
                 break;
         }
-        if ((__BITTST(dirs->bitopt, OPT_FCHECK_SIZE)) || (__BITTST(dirs->bitopt, OPT_FCHECK_ALL)))
+        if (__BITTST(dirs->bitopt, OPT_FCHECK_SIZE))
         {
             ret = (_dst1.st_size != _dst2.st_size);
         }

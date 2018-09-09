@@ -52,11 +52,12 @@ static char *info =
     "                         'git' - Git SCM,\n" \
     "                         'hg'  - Mercurial SCM.\n\n" \
     "  -c, --check 'val'     Check the updated files:\n" \
-    "                         'ctime' - the date of creation,\n" \
-    "                         'mtime' - the modification date,\n" \
-    "                         'size'  - in size,\n" \
-    "                         'all'   - for all of the above\n" \
-    "                        parameters, the default value: 'all'\n\n" \
+    "                         'c' - the date of creation,\n" \
+    "                         'm' - the modification date,\n" \
+    "                         's' - in size,\n" \
+    "                         'd' - default value: 'm' and 's',\n" \
+    "                         'a' - for all of the above\n" \
+    "                        syntax example: '--check mc' or '--check cs'\n\n" \
     "  -r, --revision 'val'  Set the current revision of copies of files\n" \
     "                        relative to master repository.\n\n" \
     "  -g, --chnglog 'val'   Keep 'ChangeLog' in the 'split' repository,\n" \
