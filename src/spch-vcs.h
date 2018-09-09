@@ -66,7 +66,7 @@ static vcs_t __vcs[3] =
             NULL, "update", "--ignore-externals", "--quiet", NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
         }),
         __SINIT(.commit, {
-            NULL, "commit", "--force-log", NULL, "--quiet", NULL, NULL, NULL, NULL, NULL, NULL, NULL
+            NULL, "commit", "-m", NULL, "--force-log", "--quiet", NULL, NULL, NULL, NULL, NULL, NULL
         }),
         __SINIT(.push, {
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL
