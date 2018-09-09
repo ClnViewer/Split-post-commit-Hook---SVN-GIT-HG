@@ -121,7 +121,7 @@ int pch_vcs_commit(paths_t *dirs)
             {
                 if (!string_format(
                             arg3,
-                            "-m\"split auto commit rev.%lu (spch v.%s)\"",
+                            "split auto commit rev.%lu (spch v.%s)",
                             dirs->rev,
                             SPCH_FULLVERSION_STRING
                         )
@@ -134,7 +134,7 @@ int pch_vcs_commit(paths_t *dirs)
             {
                 if (!string_format(
                             arg3,
-                            "-m\"split auto commit (spch v.%s)\"",
+                            "split auto commit (spch v.%s)",
                             SPCH_FULLVERSION_STRING
                         )
                    )
