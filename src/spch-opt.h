@@ -91,7 +91,7 @@ static char *help[] =
     "run deploy script before commit",
     "rename files, prefix example 'new' or 'old=new'",
     "VCS type: [svn|git|hg]",
-    "file compare: [mtime|ctime|size|all]",
+    "file compare: [m|c|s|a|d], see --info",
     "current VCS revision",
     "create ChangeLog, format: [md|gnu]",
     "use file 'deploy.yaml', run test/check before commit",
