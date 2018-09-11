@@ -118,8 +118,7 @@ int xmlpb(char *xml,
 {
     int status = XML_TEXT,
         cb_return = 0,
-        cb_depth = 0,
-        cb_moved = 0;
+        cb_depth = 0;
     char tmp = 0,
          tmp2 = 0,
          *attr_name_start = 0,
@@ -142,9 +141,7 @@ int xmlpb(char *xml,
     while (0 != p &&
             '\0' != (*p))
     {
-        //printf("%c ", *p);
-
-        cb_moved = 0;
+        int cb_moved = 0;
 
         switch (*p)
         {

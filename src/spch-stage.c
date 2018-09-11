@@ -321,7 +321,7 @@ bool_t pch_stage3(paths_t *dirs)
             {
                 if (fyaml->str)
                 {
-                    __autostring(&fyaml));
+                    string_free(fyaml);
                 }
             }
 #           endif

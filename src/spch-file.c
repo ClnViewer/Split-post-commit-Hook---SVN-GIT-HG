@@ -138,8 +138,8 @@ bool_t pch_compare_file(paths_t *dirs, string_s *fpath1, string_s *fpath2)
 int pch_fcopy(string_s *from_s, string_s *to_s)
 {
     int    ret = 0;
-    char   b[BUFSIZ];
     size_t n;
+    char   b[BUFSIZ];
     FILE __AUTO(__autofclose) *from_f = NULL, *to_f = NULL;
 
 #   if defined(BUILD_MSVC)
@@ -412,7 +412,7 @@ bool_t pch_path_destination(paths_t *dirs, char *src, size_t sz, string_s *dst)
 
 const char * pch_ultostr(char *str, unsigned long val, int base)
 {
-    unsigned long t = 0UL, res = 0UL, b = (unsigned long)base;
+    unsigned long t = 0UL, b = (unsigned long)base;
     unsigned long tmp = val;
     int count = 0;
 
@@ -437,7 +437,7 @@ const char * pch_ultostr(char *str, unsigned long val, int base)
 
     do
     {
-        res = val - b * (t = val / b);
+        unsigned long res = val - b * (t = val / b);
         if (res < 10U)
         {
             * --str = (char)('0' + res);
