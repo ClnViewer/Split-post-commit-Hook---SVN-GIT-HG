@@ -28,7 +28,7 @@ build_script:
 
     cmake -G"Visual Studio 14" -DCMAKE_BUILD_TYPE=Release ..
 
-    cmake --build . --config %CMAKE_BUILD_TYPE%
+    cmake --build . --config Release
 
     dir /p ..\bin
 
