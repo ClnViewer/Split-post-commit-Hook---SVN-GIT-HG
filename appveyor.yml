@@ -1,4 +1,21 @@
 version: 1.0.{build}
+
+platform: Any CPU
+
+nuget:
+
+  account_feed: true
+
+build:
+
+  publish_nuget: true
+
+  publish_nuget_symbols: true
+
+  include_nuget_references: true
+
+  verbosity: minimal
+
 build_script:
 - cmd: >-
     cd C:\projects\split-post-commit-hook-svn-git-hg\build
