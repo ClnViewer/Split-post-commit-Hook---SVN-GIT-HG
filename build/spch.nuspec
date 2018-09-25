@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Package</id>
+    <version>1.0.0</version>
+    <authors>PS</authors>
+    <owners>PS</owners>
+    <licenseUrl>https://github.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>SPLIT POST COMMIT HOOK allows you to create and maintain a new SVN / GIT / HG Repository based on the file list. Can be used for various automation solutions.</description>
+    <releaseNotes>updates..</releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags>VCS SVN GIT HG HOOK POST</tags>
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\bin\Release\spch.build.list" target="content/spch.build.list"/>
+    <file src="..\bin\Release\spch.exe" target="lib/native/bin/spch.exe"/>
+  </files>
+</package>

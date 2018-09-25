@@ -22,13 +22,17 @@ build_script:
 
     mkdir msvc
 
+    copy spch.nuspec msvc
+
     cd msvc
 
-    cmake -G"Visual Studio 14" -DCMAKE_BUILD_TYPE=Debug ..
+    cmake -G"Visual Studio 14" -DCMAKE_BUILD_TYPE=Release ..
 
     cmake --build . --config %CMAKE_BUILD_TYPE%
 
-    cd ../bin/Debug
+    cd ../bin/Release
+
+    dir /p >spch.build.list
 
     spch.exe -h
 
