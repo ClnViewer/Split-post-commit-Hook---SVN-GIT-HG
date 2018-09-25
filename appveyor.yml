@@ -30,7 +30,9 @@ build_script:
 
     cmake --build . --config %CMAKE_BUILD_TYPE%
 
-    cd ../bin/Release
+    dir /p ..\bin
+
+    cd ..\bin\Release
 
     dir /p >spch.build.list
 
