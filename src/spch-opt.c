@@ -106,8 +106,8 @@ void endedlog(paths_t *dirs)
 const char * pch_option_chkmode(paths_t *dirs)
 {
     int chk = (__BITTST(dirs->bitopt, OPT_FCHECK_CTIME)) * 1  // 1,4.6,9
-            + (__BITTST(dirs->bitopt, OPT_FCHECK_MTIME)) * 3  // 3,4,8,9
-            + (__BITTST(dirs->bitopt, OPT_FCHECK_SIZE))  * 5; // 5,6,8,9
+              + (__BITTST(dirs->bitopt, OPT_FCHECK_MTIME)) * 3  // 3,4,8,9
+              + (__BITTST(dirs->bitopt, OPT_FCHECK_SIZE))  * 5; // 5,6,8,9
 
     switch (chk)
     {
@@ -137,7 +137,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     while (1)
     {
         int c;
-        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:t:c:r:g:yfkqih", options, &idx)) == -1)
+        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:b:t:c:r:g:yfkqih", options, &idx)) == -1)
             break;
 
         switch (c)
@@ -180,6 +180,32 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
                 __param_err(options[FILE_FILELIST].val, options[FILE_FILELIST].name, help[FILE_FILELIST]);
                 return (FILE_FILELIST + 1);
             }
+            do
+            {
+                char cbuf[25] = {0}, *b = (char*)&cbuf;
+
+                if (fread((void*)b, 1U, xmltag.sz, dirs->fp[PATHS_FILE_LST]) > 0)
+                {
+                    (void) fseek(dirs->fp[PATHS_FILE_LST], 0L, SEEK_SET);
+
+                    /**< UTF8 BOM skipped: EF BB BF */
+                    if (
+                        ((unsigned char)b[0] == 0xef) &&
+                        ((unsigned char)b[1] == 0xbb) &&
+                        ((unsigned char)b[2] == 0xbf)
+                        )
+                    {
+                        b += 3;
+                    }
+                    if (memcmp((void*)b, (void*)xmltag.str, xmltag.sz) == 0)
+                    {
+                        dirs->bitopt = __BITSET(dirs->bitopt, OPT_INPUT_XML);
+                        break;
+                    }
+                }
+                dirs->bitopt = __BITSET(dirs->bitopt, OPT_INPUT_TXT);
+            }
+            while(0);
             break;
         }
         case 'o':
@@ -277,6 +303,20 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
                 return (FILE_DEPLOY + 1);
             }
             dirs->bitopt = __BITSET(dirs->bitopt, OPT_DEPLOY);
+            break;
+        }
+        case 'b':
+        {
+            if (
+                (!optarg) ||
+                (!string_append_auto(&dirs->setup[FILE_BACKUP], optarg)) ||
+                (!pch_check_dir(&dirs->setup[FILE_BACKUP]))
+            )
+            {
+                __param_err(options[FILE_BACKUP].val, options[FILE_BACKUP].name, help[FILE_BACKUP]);
+                return (FILE_BACKUP + 1);
+            }
+            dirs->bitopt = __BITSET(dirs->bitopt, OPT_BACKUP);
             break;
         }
         case 't':
@@ -462,6 +502,18 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
                                     OPT_FCHECK_SIZE),
                            OPT_FCHECK_MTIME);
     }
+
+    do
+    {
+        char *c = strrchr(dirs->setup[FILE_MASTER_REPO].str, __PSEPC);
+        c = ((c == NULL) ? dirs->setup[FILE_MASTER_REPO].str : (c + 1));
+
+        if (!string_append_auto(&dirs->setup[FILE_MASTER_NAME], c))
+        {
+            __param_err(options[FILE_MASTER_REPO].val, options[FILE_MASTER_REPO].name, help[FILE_MASTER_REPO]);
+        }
+
+    } while (0);
 
     startedlog(dirs, argv[0]);
     return 0;

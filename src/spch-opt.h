@@ -65,6 +65,7 @@ static char *info =
     "                        the possible formats are:\n" \
     "                         'md'  - markdown format,\n" \
     "                         'gnu' - text '.txt' gnu standart format\n\n" \
+    "  -b, --backup 'val'    Create Backup, value as directory path\n\n" \
     "  -f, --force           Overwrite all files without checking\n" \
     "                        to change.\n\n" \
     "  -k, --nonloop         Prevent simultaneous 'commit' and\n" \
@@ -89,6 +90,7 @@ static char *help[] =
     "journal log path include file name",
     "run as 'user' privilege (Linux only)",
     "run deploy script before commit",
+    "create Backup, directory path required",
     "rename files, prefix example 'new' or 'old=new'",
     "VCS type: [svn|git|hg]",
     "file compare: [m|c|s|a|d], see --info",
@@ -113,6 +115,7 @@ static struct option options[] =
     { "log",      required_argument,  NULL, 'j' },
     { "uid",      required_argument,  NULL, 'u' },
     { "deploy",   required_argument,  NULL, 'd' },
+    { "backup",   required_argument,  NULL, 'b' },
     { "rename",   required_argument,  NULL, 'x' },
     { "vcs",      required_argument,  NULL, 't' },
     { "check",    required_argument,  NULL, 'c' },
@@ -127,5 +130,8 @@ static struct option options[] =
     { 0, 0, 0, 0 }
 };
 
+#define __XMLTAG "<?xml version=\"1.0\""
+
+static string_s xmltag = { __XMLTAG, __CSZ(__XMLTAG) };
 
 #endif

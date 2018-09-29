@@ -301,7 +301,7 @@ int pch_vcs_log(paths_t *dirs)
     return ret;
 }
 
-bool_t pch_vcs_changelog(paths_t *dirs)
+bool_t pch_vcs_xmllog(paths_t *dirs)
 {
     bool_t ret = R_NEGATIVE;
 
@@ -325,7 +325,7 @@ bool_t pch_vcs_changelog(paths_t *dirs)
             {
                 break;
             }
-            if (spch_xmllog(dirs, dirs->fp[PATHS_FILE_TMP], ftmplog) != R_TRUE)
+            if (pch_vcs_xmllog_p(dirs, dirs->fp[PATHS_FILE_TMP], ftmplog) != R_TRUE)
             {
                 (void) fclose(ftmplog);
                 break;

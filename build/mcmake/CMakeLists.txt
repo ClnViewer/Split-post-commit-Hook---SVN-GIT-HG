@@ -28,18 +28,21 @@ set(app_srcs
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-vcs-log.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/string_s.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/xmlp.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/kzip.c
 )
 set(app_hdrs
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-opt.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-vcs.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-link-hash.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-stage-yaml.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-stage3-yaml.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/spch-stage2-field.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/version.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/include/buildt.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/include/boolt.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/include/string_s.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/include/xmlp.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/libs/include/kzip.h
 )
 
 add_executable( ${PROJECT_NAME} ${app_srcs} ${app_hdrs} )

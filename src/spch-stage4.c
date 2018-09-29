@@ -23,17 +23,18 @@
     SOFTWARE.
  */
 
-#include "spch.h"
-#include "libs/include/xmlp.h"
-#include "libs/include/kzip.h"
-#include "spch-link-hash.h"
+bool_t pch_stage4(paths_t *dirs)
+{
+    int ret;
 
-#if !defined(OS_WIN)
-#   include "spch-stage3-yaml.h"
-#   include "spch-shell.h"
-#endif
-
-#include "spch-stage1.c"
-#include "spch-stage2.c"
-#include "spch-stage3.c"
-#include "spch-stage4.c"
+    if ((ret = pch_vcs_add(dirs, &dirs->setup[FILE_SPLIT_REPO])) != 0)
+    {
+        pch_log_error(dirs, "add VCS root directory error: %d -> %s", ret, dirs->setup[FILE_SPLIT_REPO].str);
+    }
+    if ((ret = pch_vcs_commit(dirs)) != 0)
+    {
+        pch_log_error(dirs, "commit VCS error: %d", ret);
+        return R_NEGATIVE;
+    }
+    return R_TRUE;
+}

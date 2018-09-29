@@ -23,17 +23,21 @@
     SOFTWARE.
  */
 
-#include "spch.h"
-#include "libs/include/xmlp.h"
-#include "libs/include/kzip.h"
-#include "spch-link-hash.h"
+bool_t pch_stage1(paths_t *dirs)
+{
+    int ret;
 
-#if !defined(OS_WIN)
-#   include "spch-stage3-yaml.h"
-#   include "spch-shell.h"
-#endif
-
-#include "spch-stage1.c"
-#include "spch-stage2.c"
-#include "spch-stage3.c"
-#include "spch-stage4.c"
+    if ((ret = pch_vcs_update(dirs, &dirs->setup[FILE_MASTER_REPO])) != 0)
+    {
+        if ((!dirs->fp[PATHS_FILE_OUT]) || (dirs->fpos != ftell(dirs->fp[PATHS_FILE_OUT])))
+        {
+            pch_log_info(dirs, "update VCS master repo loop?: %d -> %s", ret, dirs->setup[FILE_MASTER_REPO].str);
+        }
+    }
+    if ((ret = pch_vcs_update(dirs, &dirs->setup[FILE_SPLIT_REPO])) != 0)
+    {
+        pch_log_error(dirs, "update VCS split repo error: %d -> %s", ret, dirs->setup[FILE_SPLIT_REPO].str);
+        return R_FALSE;
+    }
+    return R_TRUE;
+}

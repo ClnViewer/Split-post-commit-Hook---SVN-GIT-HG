@@ -50,6 +50,10 @@ int main(int argc, char *argv[])
         {
             return ret;
         }
+
+        pch_stage2(&dirs);
+        return 0;
+
         /* stage #0 */
         if (__BITTST(dirs.bitopt, OPT_DEMONIZE))
         {

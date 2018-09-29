@@ -40,8 +40,10 @@ typedef enum
     FILE_FLOG,
     FILE_UUID,
     FILE_DEPLOY,
+    FILE_BACKUP,
     FILE_RENAME1,
     FILE_RENAME2,
+    FILE_MASTER_NAME,
     FILE_NONE_IDX
 } setup_files_e;
 
@@ -59,10 +61,13 @@ typedef enum
     OPT_FCHECK_MTIME,
     OPT_FCHECK_SIZE,
     OPT_DEPLOY,
+    OPT_BACKUP,
     OPT_YAML,
     OPT_DEMONIZE,
     OPT_CHLOG_MD,
-    OPT_CHLOG_GNU
+    OPT_CHLOG_GNU,
+    OPT_INPUT_XML,
+    OPT_INPUT_TXT
 } setup_opt_e;
 
 typedef enum
@@ -90,6 +95,7 @@ typedef struct
 
 #define __ISLOGS ((dirs.fp[PATHS_FILE_OUT]) ? 1 : 0)
 #define __ISLOGP ((dirs->fp[PATHS_FILE_OUT]) ? 1 : 0)
+#define __ISLOGPV(A) (((A)->fp[PATHS_FILE_OUT]) ? 1 : 0)
 
 #define pch_check_dir(A) pch_check_(A, TYPE_DIR)
 #define pch_check_file(A) pch_check_(A, TYPE_FILE)
@@ -119,8 +125,6 @@ bool_t pch_stage2(paths_t*);
 bool_t pch_stage3(paths_t*);
 bool_t pch_stage4(paths_t*);
 
-bool_t spch_xmllog(paths_t*, FILE*, FILE*);
-
 const char * pch_vcs_type(unsigned long);
 int    pch_vcs_bincheck(paths_t*);
 int    pch_vcs_update(paths_t*, string_s*);
@@ -128,7 +132,9 @@ int    pch_vcs_commit(paths_t*);
 int    pch_vcs_add(paths_t*, string_s*);
 int    pch_vcs_create(paths_t*);
 int    pch_vcs_log(paths_t*);
-bool_t pch_vcs_changelog(paths_t*);
+bool_t pch_vcs_xmllog(paths_t*);
+bool_t pch_vcs_xmllog_p(paths_t*, FILE*, FILE*);
+
 
 void   startedlog(paths_t*, const char*);
 void   endedlog(paths_t*);

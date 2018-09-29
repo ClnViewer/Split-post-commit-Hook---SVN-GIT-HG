@@ -28,11 +28,11 @@
 
 typedef enum
 {
-    ENUM_EMPTY = -1,
+    ENUM_XML_LOG_EMPTY = -1,
 #define __ATTR(...)
-#define __FIELD(A) ENUM_##A,
+#define __FIELD(A) ENUM_XML_LOG_##A,
 #include "spch-vcs-log-field.h"
-    ENUM_END_INDEX
+    ENUM_XML_LOG_END_INDEX
 } vcslog_e;
 
 typedef struct
@@ -46,13 +46,13 @@ typedef struct
     FILE    *fp;
     paths_t *dirs;
     int      id;
-    string_s field[ENUM_END_INDEX];
+    string_s field[ENUM_XML_LOG_END_INDEX];
 } vcslog_a;
 
 static vcslog_b __field_vcslog[] =
 {
 #define __ATTR(...)
-#define __FIELD(A) { __SINIT(.id, ENUM_##A), { __SINIT(.str, #A), __SINIT(.sz, __CSZ(#A)) }},
+#define __FIELD(A) { __SINIT(.id, ENUM_XML_LOG_##A), { __SINIT(.str, #A), __SINIT(.sz, __CSZ(#A)) }},
 #include "spch-vcs-log-field.h"
 };
 
@@ -67,7 +67,7 @@ static void __vcslog_a_free(vcslog_a *data)
 {
     unsigned i;
 
-    for (i = 0U; i < ENUM_END_INDEX; i++)
+    for (i = 0U; i < ENUM_XML_LOG_END_INDEX; i++)
     {
         string_free(&data->field[i]);
     }
@@ -77,7 +77,7 @@ static int __cb_opentag(void *v, int depth, char *name)
 {
     unsigned i;
     vcslog_a *data = (vcslog_a*)v;
-    data->id = ENUM_EMPTY;
+    data->id = ENUM_XML_LOG_EMPTY;
 
     (void) depth;
 
@@ -99,21 +99,21 @@ static int __cb_closetag(void *v, int depth, char* name)
 
     if (
         (!strncmp(name, __field_vcslog[0].field.str, __field_vcslog[0].field.sz)) &&
-        (data->field[ENUM_msg].str)
+        (data->field[ENUM_XML_LOG_msg].str)
     )
     {
         char *fmt = ((__BITTST(data->dirs->bitopt, OPT_CHLOG_MD)) ?
                      "\n#### %s   \n - [%s]() : %s   \n" : "%s\n\t#%s - %s\n"
                     );
         fprintf(data->fp, fmt,
-                ((data->field[ENUM_date].str) ? data->field[ENUM_date].str : "(no date)"),
-                ((data->field[ENUM_logentry].str) ? data->field[ENUM_logentry].str : "?"),
-                ((data->field[ENUM_msg].str) ? data->field[ENUM_msg].str : "- empty -")
+                ((data->field[ENUM_XML_LOG_date].str) ? data->field[ENUM_XML_LOG_date].str : "(no date)"),
+                ((data->field[ENUM_XML_LOG_logentry].str) ? data->field[ENUM_XML_LOG_logentry].str : "?"),
+                ((data->field[ENUM_XML_LOG_msg].str) ? data->field[ENUM_XML_LOG_msg].str : "- empty -")
                );
 
         __vcslog_a_free(data);
     }
-    data->id = ENUM_EMPTY;
+    data->id = ENUM_XML_LOG_EMPTY;
     return 0;
 }
 
@@ -123,7 +123,7 @@ static int __cb_attribute(void *v, int depth, char* name, char* value)
     (void) depth;
 
     if (
-        (data->id == ENUM_logentry) &&
+        (data->id == ENUM_XML_LOG_logentry) &&
         (!strncmp(name, __attr_vcslog[0].str, __attr_vcslog[0].sz)) &&
         ((data->field[data->id].sz  = strlen(value)))
     )
@@ -142,13 +142,13 @@ static int __cb_text(void *v, int depth, char *text)
     (void) depth;
 
     if (
-        (data->id != ENUM_EMPTY) &&
+        (data->id != ENUM_XML_LOG_EMPTY) &&
         ((sz  = strlen(text)))
     )
     {
         switch(data->id)
         {
-        case ENUM_date:
+        case ENUM_XML_LOG_date:
         {
             string_s src = { text, sz };
             string_free(&data->field[data->id]);
@@ -176,7 +176,7 @@ static int __cb_text(void *v, int depth, char *text)
     return 0;
 }
 
-bool_t spch_xmllog(paths_t *dirs, FILE *fpin, FILE *fpout)
+bool_t pch_vcs_xmllog_p(paths_t *dirs, FILE *fpin, FILE *fpout)
 {
     int ret;
     vcslog_a vlc;

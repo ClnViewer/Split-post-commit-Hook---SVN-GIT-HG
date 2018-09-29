@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-t svn -m c:\1\master -s C:\1\split -l auto\autolist.lst -e C:\TortoiseSVN\bin -j logmy.txt  -x file=new -g md -c ms" />
+				<Option parameters="-t svn -m c:\1\master -s C:\1\split -l auto\autolist.xslist -e C:\TortoiseSVN\bin -j logmy.txt  -x file=new -g md -c ms -b C:\1" />
 				<Compiler>
 					<Add option="-Wnon-virtual-dtor" />
 					<Add option="-Wshadow" />
@@ -74,14 +74,43 @@
 		</Compiler>
 		<Unit filename="../../src/libs/include/boolt.h" />
 		<Unit filename="../../src/libs/include/buildt.h" />
+		<Unit filename="../../src/libs/include/kzip.h" />
 		<Unit filename="../../src/libs/include/string_s.h" />
 		<Unit filename="../../src/libs/include/xmlp.h" />
+		<Unit filename="../../src/libs/kzip.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="../../src/libs/string_s.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../../src/libs/xmlp.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="../../src/libs/zip/miniz.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../../src/libs/zip/miniz.h" />
+		<Unit filename="../../src/libs/zip/miniz_common.h" />
+		<Unit filename="../../src/libs/zip/miniz_tdef.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../../src/libs/zip/miniz_tdef.h" />
+		<Unit filename="../../src/libs/zip/miniz_tinfl.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../../src/libs/zip/miniz_tinfl.h" />
+		<Unit filename="../../src/libs/zip/miniz_zip.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../../src/libs/zip/miniz_zip.h" />
 		<Unit filename="../../src/spch-exec.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -100,9 +129,30 @@
 		</Unit>
 		<Unit filename="../../src/spch-opt.h" />
 		<Unit filename="../../src/spch-shell.h" />
-		<Unit filename="../../src/spch-stage-yaml.h" />
 		<Unit filename="../../src/spch-stage.c">
 			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../../src/spch-stage1.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../../src/spch-stage2-field.h" />
+		<Unit filename="../../src/spch-stage2.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../../src/spch-stage3-yaml.h" />
+		<Unit filename="../../src/spch-stage3.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../../src/spch-stage4.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
 		</Unit>
 		<Unit filename="../../src/spch-vcs-log-field.h" />
 		<Unit filename="../../src/spch-vcs-log.c">
