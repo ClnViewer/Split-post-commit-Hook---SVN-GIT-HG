@@ -42,6 +42,9 @@ extern "C" {
 #include <sys/stat.h>
 
 #if defined(_MSC_VER) || defined(__MINGW64__)
+#   if defined(__MINGW64__)
+errno_t freopen_s(FILE**, const char*, const char*, FILE*);
+#   endif
 static FILE *mz_fopen(const char *pFilename, const char *pMode)
 {
     FILE *pFile = NULL;
