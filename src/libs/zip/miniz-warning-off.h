@@ -6,7 +6,7 @@
 
 #else
 
-//#  pragma GCC diagnostic ignored "-Wconversion"
+/* Fixed: #  pragma GCC diagnostic ignored "-Wconversion" */
 /* Fixed: #  pragma GCC diagnostic ignored "-Wstrict-prototypes" */
 #  pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #  pragma GCC diagnostic ignored "-Wsign-conversion"
