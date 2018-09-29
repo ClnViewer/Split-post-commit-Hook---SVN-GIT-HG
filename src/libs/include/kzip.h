@@ -30,6 +30,7 @@ extern "C" {
   - forward declaration.
 */
 struct zip_t;
+typedef size_t (*zip_on_extract)(void*, uint64_t, const void*, size_t);
 
 /*
   Opens zip archive with compression level using the given mode.
@@ -242,12 +243,7 @@ extern int zip_entry_fread(struct zip_t *zip, const char *filename);
    Returns:
     The return code - 0 on success, negative number (< 0) on error.
  */
-extern int zip_entry_extract(struct zip_t *zip,
-                             size_t (*on_extract)(void *arg,
-                                                  unsigned long long offset,
-                                                  const void *data,
-                                                  size_t size),
-                             void *arg);
+extern int zip_entry_extract(struct zip_t*, zip_on_extract, void*);
 
 /*
   Returns the number of all entries (files and directories) in the zip archive.
@@ -292,7 +288,6 @@ extern int zip_create(const char *zipname, const char *filenames[], size_t len);
   Returns:
     The return code - 0 on success, negative number (< 0) on error.
 */
-typedef size_t (*zip_on_extract)(const char*, uint64_t, const void*, size_t);
 extern int zip_extract(const char*, const char*, zip_on_extract, void*);
 
 #ifdef __cplusplus
