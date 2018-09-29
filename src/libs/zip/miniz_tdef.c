@@ -146,7 +146,7 @@ static void tdefl_calculate_minimum_redundancy(tdefl_sym_freq *A, int n)
         A[0].m_key = 1;
         return;
     }
-    A[0].m_key += A[1].m_key;
+    A[0].m_key = (mz_uint16)(A[0].m_key + A[1].m_key);
     root = 0;
     leaf = 2;
     for (next = 1; next < n - 1; next++)
@@ -168,7 +168,7 @@ static void tdefl_calculate_minimum_redundancy(tdefl_sym_freq *A, int n)
     }
     A[n - 2].m_key = 0;
     for (next = n - 3; next >= 0; next--)
-        A[next].m_key = A[A[next].m_key].m_key + 1;
+        A[next].m_key = (mz_uint16)(A[A[next].m_key].m_key + 1U);
     avbl = 1;
     used = dpth = 0;
     root = n - 2;
@@ -777,6 +777,7 @@ static MZ_FORCEINLINE void tdefl_find_match(tdefl_compressor *d, mz_uint lookahe
     probe_pos = next_probe_pos & TDEFL_LZ_DICT_SIZE_MASK;                                       \
     if (TDEFL_READ_UNALIGNED_WORD(&d->m_dict[probe_pos + match_len - 1]) == c01)                \
         break;
+
             TDEFL_PROBE;
             TDEFL_PROBE;
             TDEFL_PROBE;
@@ -1545,7 +1546,7 @@ void *tdefl_write_image_to_png_file_in_memory(const void *pImage, int w, int h, 
 /* Allocate the tdefl_compressor and tinfl_decompressor structures in C so that */
 /* non-C language bindings to tdefL_ and tinfl_ API don't need to worry about */
 /* structure size and allocation mechanism. */
-tdefl_compressor *tdefl_compressor_alloc()
+tdefl_compressor *tdefl_compressor_alloc(void)
 {
     return (tdefl_compressor *)MZ_MALLOC(sizeof(tdefl_compressor));
 }

@@ -69,6 +69,7 @@ typedef struct mz_dummy_time_t_tag
 
 #ifdef _MSC_VER
 #define MZ_FORCEINLINE __forceinline
+#define __attribute__(x)
 #elif defined(__GNUC__)
 #define MZ_FORCEINLINE __inline__ __attribute__((__always_inline__))
 #else

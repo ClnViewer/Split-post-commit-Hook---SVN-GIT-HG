@@ -39,6 +39,7 @@ extern "C" {
 #define TINFL_CR_BEGIN  \
     switch (r->m_state) \
     {                   \
+        default: break;                      \
         case 0:
 #define TINFL_CR_RETURN(state_index, result) \
     do                                       \
@@ -97,7 +98,7 @@ extern "C" {
         {                                    \
             TINFL_NEED_BITS(state_index, n); \
         }                                    \
-        b = bit_buf & ((1 << (n)) - 1);      \
+        b = (mz_uint32)(bit_buf & ((1 << (n)) - 1));      \
         bit_buf >>= (n);                     \
         num_bits -= (n);                     \
     }                                        \
@@ -717,7 +718,7 @@ int tinfl_decompress_mem_to_callback(const void *pIn_buf, size_t *pIn_buf_size, 
     return result;
 }
 
-tinfl_decompressor *tinfl_decompressor_alloc()
+tinfl_decompressor *tinfl_decompressor_alloc(void)
 {
     tinfl_decompressor *pDecomp = (tinfl_decompressor *)MZ_MALLOC(sizeof(tinfl_decompressor));
     if (pDecomp)
