@@ -86,6 +86,7 @@
 		<Unit filename="../../src/libs/xmlp.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="../../src/libs/zip/miniz-warning-off.h" />
 		<Unit filename="../../src/libs/zip/miniz.c">
 			<Option compilerVar="CC" />
 			<Option compile="0" />

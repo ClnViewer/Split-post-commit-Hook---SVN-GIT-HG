@@ -868,8 +868,7 @@ int zip_create(const char *zipname, const char *filenames[], size_t len)
     return status;
 }
 
-int zip_extract(const char *zipname, const char *dir,
-                int (*on_extract)(const char *filename, void *arg), void *arg)
+int zip_extract(const char *zipname, const char *dir, zip_on_extract on_extract, void *arg)
 {
     int status = -1;
     mz_uint i, n;
@@ -950,7 +949,7 @@ int zip_extract(const char *zipname, const char *dir,
 
         if (on_extract)
         {
-            if (on_extract(path, arg) < 0)
+            if (!on_extract(path, 0ULL, arg, 0U))
             {
                 goto out;
             }

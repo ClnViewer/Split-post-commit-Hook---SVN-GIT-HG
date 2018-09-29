@@ -138,7 +138,11 @@ int fseeko64(FILE*, off64_t, int);
 #define MZ_DELETE_FILE remove
 
 #else
-#pragma message("Using fopen, ftello, fseeko, stat() etc. path for file I/O - this path may not support large files.")
+
+#if !defined(__NO_WARN_PRAGMA)
+#  pragma message("Using fopen, ftello, fseeko, stat() etc. path for file I/O - this path may not support large files.")
+#endif
+
 #ifndef MINIZ_NO_TIME
 #include <utime.h>
 #endif
@@ -1980,7 +1984,7 @@ size_t mz_zip_reader_extract_iter_read(mz_zip_reader_extract_iter_state* pState,
     if ((pState->flags & MZ_ZIP_FLAG_COMPRESSED_DATA) || (!pState->file_stat.m_method))
     {
         /* The file is stored or the caller has requested the compressed data, calc amount to return. */
-        copied_to_caller = MZ_MIN( buf_size, pState->comp_remaining );
+        copied_to_caller = MZ_MIN( buf_size, (size_t)pState->comp_remaining );
 
         /* Zip is in memory....or requires reading from a file? */
         if (pState->pZip->m_pState->m_pMem)

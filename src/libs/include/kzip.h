@@ -12,6 +12,7 @@
 #ifndef ZIP_H
 #define ZIP_H
 
+#include <stdint.h>
 #include <string.h>
 
 #ifdef __cplusplus
@@ -291,9 +292,8 @@ extern int zip_create(const char *zipname, const char *filenames[], size_t len);
   Returns:
     The return code - 0 on success, negative number (< 0) on error.
 */
-extern int zip_extract(const char *zipname, const char *dir,
-                       int (*on_extract_entry)(const char *filename, void *arg),
-                       void *arg);
+typedef size_t (*zip_on_extract)(const char*, uint64_t, const void*, size_t);
+extern int zip_extract(const char*, const char*, zip_on_extract, void*);
 
 #ifdef __cplusplus
 }
