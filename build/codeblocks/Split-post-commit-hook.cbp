@@ -119,6 +119,7 @@
 			<Option link="0" />
 		</Unit>
 		<Unit filename="../../src/spch-stage2-field.h" />
+		<Unit filename="../../src/spch-stage2-xml.h" />
 		<Unit filename="../../src/spch-stage2.c">
 			<Option compilerVar="CC" />
 			<Option compile="0" />

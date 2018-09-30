@@ -23,9 +23,12 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#if defined(OS_WIN)
+#if defined(_MSC_VER)
 #   pragma warning( push )
 #   pragma warning( disable : 4068)
+#endif
+
+#if defined(OS_WIN)
 #   include <windows.h>
 #   include <direct.h>
 

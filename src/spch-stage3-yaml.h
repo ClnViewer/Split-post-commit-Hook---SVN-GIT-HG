@@ -98,6 +98,20 @@ static const char yamlscr[] =
     "        _VCS_TYPE=\"${2}\"\n"
     "    fi\n"
 
+    "    if [[ \"${3}\" == \"\" ]] ;\n"
+    "    then\n"
+    "        echo \"Unknown REPO name\"\n"
+    "    else\n"
+    "        _REPO_NAME=\"${3}\"\n"
+    "    fi\n"
+
+    "    if [[ \"${4}\" == \"\" ]] ;\n"
+    "    then\n"
+    "        echo \"Backup file not present\"\n"
+    "    else\n"
+    "        _BACKUP_ZIP=\"${4}\"\n"
+    "    fi\n"
+
     "    if [[ ! -f \"${_ROOT}/" __YAMLNAME "\" ]] ;\n"
     "    then\n"
     "        echo \"ROOT not found yaml config: ${_ROOT}/" __YAMLNAME "\"\n"

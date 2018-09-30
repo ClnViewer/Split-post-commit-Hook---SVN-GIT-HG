@@ -23,6 +23,8 @@
     SOFTWARE.
  */
 
+#include "spch-stage2-xml.h"
+
 typedef enum
 {
     ENUM_XML_LIST_EMPTY = -1,
@@ -38,6 +40,7 @@ typedef struct
     string_s *s;
     paths_t  *dirs;
     struct zip_t *zip;
+    string_s zlist;
 } vcsfiles_c;
 
 typedef struct
@@ -206,6 +209,12 @@ static bool_t __stage2_vcsfile(vcsfiles_c *vcfc)
             {
                 (void) zip_entry_fwrite(vcfc->zip, from_s->str);
                 (void) zip_entry_close(vcfc->zip);
+                (void) string_appends(
+                    &vcfc->zlist,
+                    __STG2_XML_FILE_S,
+                    b,
+                    __STG2_XML_FILE_E
+                );
             }
         }
         if (__ISLOGPV(vcfc->dirs))
@@ -442,7 +451,6 @@ static bool_t __stage2_create_zip_name(paths_t *dirs, string_s *str, unsigned lo
 bool_t pch_stage2(paths_t *dirs)
 {
     bool_t ret = R_FALSE;
-    string_s zname = { NULL, 0U };
     vcsfiles_c vfc;
     memset(&vfc, 0, sizeof(vcsfiles_c));
     vfc.dirs = dirs;
@@ -453,9 +461,11 @@ bool_t pch_stage2(paths_t *dirs)
     if (__BITTST(dirs->bitopt, OPT_BACKUP))
     {
         unsigned long count = 0UL;
+        string_s zname = { NULL, 0U };
 
         do
         {
+            char bdate[20] = {0};
             bool_t rzip = R_NEGATIVE;
 
             do
@@ -472,16 +482,40 @@ bool_t pch_stage2(paths_t *dirs)
             while (count < 300);
 
             if (rzip == R_NEGATIVE)
+            {
+                string_free(&zname);
+                string_free(&dirs->setup[FILE_BACKUP]);
+                break;
+            }
+
+            string_free(&dirs->setup[FILE_BACKUP]);
+            dirs->setup[FILE_BACKUP].str = zname.str;
+            dirs->setup[FILE_BACKUP].sz = zname.sz;
+
+            if (!string_appends(
+                        &vfc.zlist,
+                        __STG2_XML_START,
+                        __STG2_XML_HEAD_S,
+                        __STG2_XML_REPO_S,
+                        dirs->setup[FILE_MASTER_NAME].str,
+                        __STG2_XML_REPO_E,
+                        __STG2_XML_DATE_S,
+                        pch_ultostr(bdate, (unsigned long)time(NULL), 10),
+                        __STG2_XML_DATE_E,
+                        __STG2_XML_HEAD_E
+                    ))
                 break;
 
             if (pch_check_file(&zname))
             {
                 pch_log_error(dirs, "stage #2 zip archive limit name error: %s", zname.str);
+                string_free(&dirs->setup[FILE_BACKUP]);
                 break;
             }
             if (!(vfc.zip = zip_open(zname.str, ZIP_DEFAULT_COMPRESSION_LEVEL, 'w')))
             {
                 pch_log_error(dirs, "stage #2 zip archive create error: %s", zname.str);
+                string_free(&dirs->setup[FILE_BACKUP]);
                 break;
             }
             if (__ISLOGP)
@@ -505,11 +539,27 @@ bool_t pch_stage2(paths_t *dirs)
     /*! Close BackUp zip archive */
     if (vfc.zip)
     {
+        if ((vfc.stage) && (vfc.zlist.str))
+        {
+            do
+            {
+                if (!string_append(&vfc.zlist, __STG2_XML_END, __CSZ(__STG2_XML_END)))
+                    break;
+                if (zip_entry_open(vfc.zip, __STG2_XML_ENTRY_NAME))
+                    break;
+                (void) zip_entry_write(vfc.zip, vfc.zlist.str, vfc.zlist.sz);
+                (void) zip_entry_close(vfc.zip);
+            }
+            while (0);
+        }
         zip_close(vfc.zip);
         vfc.zip = NULL;
 
         if (!vfc.stage)
-            (void) remove(zname.str);
+        {
+            (void) remove(dirs->setup[FILE_BACKUP].str);
+            string_free(&dirs->setup[FILE_BACKUP]);
+        }
     }
 
     /*! Check all return value */
@@ -544,7 +594,7 @@ bool_t pch_stage2(paths_t *dirs)
     free(vfc.hf);
     vfc.hd->free(vfc.hd->hash);
     free(vfc.hd);
-    string_free(&zname);
+    string_free(&vfc.zlist);
 
     return ((ret != R_TRUE) ? ret :
             ((vfc.rcode < 0) ? R_NEGATIVE :

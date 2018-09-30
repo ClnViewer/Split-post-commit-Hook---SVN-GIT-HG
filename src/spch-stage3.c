@@ -80,6 +80,8 @@ bool_t pch_stage3(paths_t *dirs)
                     dirs->setup[FILE_SPLIT_REPO].str,
                     NULL,
                     NULL,
+                    dirs->setup[FILE_MASTER_NAME].str,
+                    dirs->setup[FILE_BACKUP].str,
                     NULL
                 };
 
