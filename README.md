@@ -68,6 +68,12 @@
          -g, --chnglog 'val'    вести 'ChangeLog' в 'split' репозитории,
                                 на основании коммитов в 'master' репозитории,
                                 возможные форматы: md|gnu
+         -b, --backup 'val'     создавать архив в формате 'zip' с
+                                уникальным именем, в случае обновления
+                                файлов в 'split' репозитории.
+                                В качестве параметра передается полный
+                                путь к директории где будут создаваться
+                                архивы.
          -f, --force            перезаписывать все файлы, не проверяя
                                 на изменения 
          -k, --nonloop          предотвратить одновременный 'commit' и
@@ -88,6 +94,19 @@
 > В противном случае, например для `svn` будет происходить ошибка при попытке использовать метод `update`, репозиторий будет находиться в состоянии `.lock` от предыдущей операции `commit` из которой и вызывается данная программа.
 
 Файл справки в [фрмате `man`](https://raw.githubusercontent.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG/master/docs/spch.1)  
+
+## Формат входных файлов `.slist | .xslist`
+
+Файлы списка могут иметь два формата:
+
+- `XML` формат [пример](docs/autolist.xslist)
+- `Plain TEXT` формат [пример](docs/autolist.slist)
+
+Для создания рабочего списка на базе репозитория, возможно использовать [SPCH List Builder](https://github.com/ClnViewer/SpchListBuilder), собранную версию можно загрузить:
+
+- [последние сборки архивов в формате ZIP/Nuget](https://ci.appveyor.com/project/ClnViewer/spchlistbuilder/build/artifacts)
+- [инсталляционный пакет в формате msi](https://github.com/ClnViewer/SpchListBuilder/raw/master/docs/SpchListBuilderSetup.msi)
+
 
 ## Формат файла `deploy.yaml`
 
