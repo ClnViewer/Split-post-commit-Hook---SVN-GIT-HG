@@ -99,8 +99,8 @@
 
 Файлы списка могут иметь два формата:
 
-- `XML` формат [пример](docs/autolist.xslist)
-- `Plain TEXT` формат [пример](docs/autolist.slist)
+- `XML` формат - [пример](docs/autolist.xslist)
+- `Plain TEXT` формат - [пример](docs/autolist.slist)
 
 Для создания рабочего списка на базе репозитория, возможно использовать [SPCH List Builder](https://github.com/ClnViewer/SpchListBuilder), собранную версию можно загрузить:
 
