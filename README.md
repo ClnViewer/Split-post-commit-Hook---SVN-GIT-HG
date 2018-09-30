@@ -102,7 +102,7 @@
 - `XML` формат - [пример](docs/autolist.xslist)
 - `Plain TEXT` формат - [пример](docs/autolist.slist)
 
-#
+# 
 
 <img align="left" width="150" height="150" src="https://github.com/ClnViewer/SpchListBuilder/raw/master/docs/SpchListBuilder-Main.png">
 
@@ -110,9 +110,9 @@
 
 - [последние сборки архивов в формате ZIP/Nuget](https://ci.appveyor.com/project/ClnViewer/spchlistbuilder/build/artifacts)
 - [инсталляционный пакет в формате msi](https://github.com/ClnViewer/SpchListBuilder/raw/master/docs/SpchListBuilderSetup.msi)
-- [исходный код `C#` в ZIP формате](https://github.com/ClnViewer/SpchListBuilder/archive/master.zip)
+- [исходный код `C#` в ZIP формате, необходим >= .NET 4.0](https://github.com/ClnViewer/SpchListBuilder/archive/master.zip)
 
-#
+# 
 
 ## Формат файла `deploy.yaml`
 
