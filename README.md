@@ -105,7 +105,7 @@
 
 # 
 
-.left[![Right-aligned image](https://github.com/ClnViewer/SpchListBuilder/raw/master/docs/SpchListBuilder-Main.png =150x150)]
+.left[![Right-aligned image](https://github.com/ClnViewer/SpchListBuilder/raw/master/docs/SpchListBuilder-Main.png | width=100)]
 
 Для создания рабочего списка на базе репозитория, возможно использовать [SPCH List Builder](https://github.com/ClnViewer/SpchListBuilder), собранную версию можно загрузить:
 
