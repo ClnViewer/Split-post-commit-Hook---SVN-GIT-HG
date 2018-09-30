@@ -109,6 +109,7 @@
 - [последние сборки архивов в формате ZIP/Nuget](https://ci.appveyor.com/project/ClnViewer/spchlistbuilder/build/artifacts)
 - [инсталляционный пакет в формате msi](https://github.com/ClnViewer/SpchListBuilder/raw/master/docs/SpchListBuilderSetup.msi)
 
+#
 
 ## Формат файла `deploy.yaml`
 
