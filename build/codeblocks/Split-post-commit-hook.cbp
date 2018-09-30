@@ -80,38 +80,18 @@
 		<Unit filename="../../src/libs/kzip.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="../../src/libs/mzip/miniz.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="../../src/libs/mzip/miniz.h" />
 		<Unit filename="../../src/libs/string_s.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="../../src/libs/xmlp.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="../../src/libs/zip/miniz-warning-off.h" />
-		<Unit filename="../../src/libs/zip/miniz.c">
-			<Option compilerVar="CC" />
-			<Option compile="0" />
-			<Option link="0" />
-		</Unit>
-		<Unit filename="../../src/libs/zip/miniz.h" />
-		<Unit filename="../../src/libs/zip/miniz_common.h" />
-		<Unit filename="../../src/libs/zip/miniz_tdef.c">
-			<Option compilerVar="CC" />
-			<Option compile="0" />
-			<Option link="0" />
-		</Unit>
-		<Unit filename="../../src/libs/zip/miniz_tdef.h" />
-		<Unit filename="../../src/libs/zip/miniz_tinfl.c">
-			<Option compilerVar="CC" />
-			<Option compile="0" />
-			<Option link="0" />
-		</Unit>
-		<Unit filename="../../src/libs/zip/miniz_tinfl.h" />
-		<Unit filename="../../src/libs/zip/miniz_zip.c">
-			<Option compilerVar="CC" />
-			<Option compile="0" />
-			<Option link="0" />
-		</Unit>
-		<Unit filename="../../src/libs/zip/miniz_zip.h" />
 		<Unit filename="../../src/spch-exec.c">
 			<Option compilerVar="CC" />
 		</Unit>

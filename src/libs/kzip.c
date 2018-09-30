@@ -44,10 +44,8 @@
 #endif
 
 #include "include/kzip.h"
-#include "zip/miniz.c"
-#include "zip/miniz_tdef.c"
-#include "zip/miniz_tinfl.c"
-#include "zip/miniz_zip.c"
+#define __NO_WARN_PRAGMA 1
+#include "mzip/miniz.c"
 
 #ifndef FILESYSTEM_PREFIX_LEN
 #  define FILESYSTEM_PREFIX_LEN(P) 0
@@ -173,7 +171,7 @@ struct zip_t *zip_open(const char *zipname, int level, char mode)
     if (!zip)
         goto cleanup;
 
-    zip->level = level;
+    zip->level = (mz_uint)level;
     switch (mode)
     {
     case 'w':
@@ -189,7 +187,7 @@ struct zip_t *zip_open(const char *zipname, int level, char mode)
     case 'a':
         if (!mz_zip_reader_init_file(
                     &(zip->archive), zipname,
-                    level | MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
+                    (mz_uint32)level | MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
         {
             // An archive file does not exist or cannot initialize
             // zip_archive reader
@@ -274,7 +272,7 @@ int zip_entry_open(struct zip_t *zip, const char *entryname)
             goto cleanup;
         }
 
-        if (!mz_zip_reader_file_stat(pzip, zip->entry.index, &stats))
+        if (!mz_zip_reader_file_stat(pzip, (mz_uint)zip->entry.index, &stats))
         {
             goto cleanup;
         }
@@ -289,7 +287,7 @@ int zip_entry_open(struct zip_t *zip, const char *entryname)
         return 0;
     }
 
-    zip->entry.index = zip->archive.m_total_files;
+    zip->entry.index = (int)zip->archive.m_total_files;
     zip->entry.comp_size = 0;
     zip->entry.uncomp_size = 0;
     zip->entry.uncomp_crc32 = MZ_CRC32_INIT;
@@ -355,8 +353,8 @@ int zip_entry_open(struct zip_t *zip, const char *entryname)
 
         if (tdefl_init(&(zip->entry.comp), mz_zip_writer_add_put_buf_callback,
                        &(zip->entry.state),
-                       tdefl_create_comp_flags_from_zip_params(
-                           level, -15, MZ_DEFAULT_STRATEGY)) !=
+                       (int)tdefl_create_comp_flags_from_zip_params(
+                           (int)level, -15, MZ_DEFAULT_STRATEGY)) !=
                 TDEFL_STATUS_OKAY)
         {
             // Cannot initialize the zip compressor
@@ -425,7 +423,7 @@ int zip_entry_openbyindex(struct zip_t *zip, int index)
         return -1;
     }
 
-    if (!mz_zip_reader_file_stat(pZip, index, &stats))
+    if (!mz_zip_reader_file_stat(pZip, (mz_uint)index, &stats))
     {
         return -1;
     }
@@ -814,7 +812,7 @@ int zip_total_entries(struct zip_t *zip)
         return -1;
     }
 
-    return zip->archive.m_total_files;
+    return (int)zip->archive.m_total_files;
 }
 
 int zip_create(const char *zipname, const char *filenames[], size_t len)
