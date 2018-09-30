@@ -15,6 +15,7 @@
      defined(__CYGWIN__) || defined(__MINGW32__) || defined(__MINGW64__))
 #   define OS_WIN
 #   define __STDC_WANT_LIB_EXT1__ 1
+
 #endif
 
 #include <stdio.h>
@@ -23,6 +24,8 @@
 #include <time.h>
 
 #if defined(OS_WIN)
+#   pragma warning( push )
+#   pragma warning( disable : 4068)
 #   include <windows.h>
 #   include <direct.h>
 
