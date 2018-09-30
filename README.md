@@ -102,6 +102,8 @@
 - `XML` формат - [пример](docs/autolist.xslist)
 - `Plain TEXT` формат - [пример](docs/autolist.slist)
 
+<img align="left" width="150" height="150" src="https://github.com/ClnViewer/SpchListBuilder/raw/master/docs/SpchListBuilder-Main.png">
+
 Для создания рабочего списка на базе репозитория, возможно использовать [SPCH List Builder](https://github.com/ClnViewer/SpchListBuilder), собранную версию можно загрузить:
 
 - [последние сборки архивов в формате ZIP/Nuget](https://ci.appveyor.com/project/ClnViewer/spchlistbuilder/build/artifacts)
