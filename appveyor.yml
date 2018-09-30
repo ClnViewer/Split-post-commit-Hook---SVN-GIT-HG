@@ -6,7 +6,7 @@ nuget:
 
     account_feed: true
 
-    project_feed: false
+    project_feed: true
 
     disable_publish_on_pr: true
 
@@ -57,8 +57,9 @@ artifacts:
 
     - path: spch.zip
 
-    - path: build\bin\$(configuration)
+    - path: build\bin\Release
 
       name: spch
 
     - path: '**\*.nupkg'
+
