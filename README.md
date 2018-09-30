@@ -108,6 +108,7 @@
 
 - [последние сборки архивов в формате ZIP/Nuget](https://ci.appveyor.com/project/ClnViewer/spchlistbuilder/build/artifacts)
 - [инсталляционный пакет в формате msi](https://github.com/ClnViewer/SpchListBuilder/raw/master/docs/SpchListBuilderSetup.msi)
+- [исходный код `C#` в ZIP формате](https://github.com/ClnViewer/SpchListBuilder/archive/master.zip)
 
 #
 
