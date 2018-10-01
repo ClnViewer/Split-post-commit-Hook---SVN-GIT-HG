@@ -508,7 +508,7 @@ bool_t pch_stage2(paths_t *dirs)
 
             if (pch_check_file(&zname))
             {
-                pch_log_error(dirs, "stage #2 zip archive limit name error: %s", zname.str);
+                pch_log_error(dirs, "stage #2 zip archive name limit error: %s", zname.str);
                 string_free(&dirs->setup[FILE_BACKUP]);
                 break;
             }
