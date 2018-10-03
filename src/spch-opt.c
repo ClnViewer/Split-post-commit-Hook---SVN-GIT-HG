@@ -130,6 +130,294 @@ const char * pch_option_chkmode(paths_t *dirs)
     }
 }
 
+static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
+{
+    switch (c)
+    {
+    case 'm':
+    {
+        if (
+            (!optarg) ||
+            (!string_append_auto(&dirs->setup[FILE_MASTER_REPO], optarg)) ||
+            (!pch_check_dir(&dirs->setup[FILE_MASTER_REPO]))
+        )
+            return ENUM_SETUP_master;
+        break;
+    }
+    case 's':
+    {
+        if (
+            (!optarg) ||
+            (!string_append_auto(&dirs->setup[FILE_SPLIT_REPO], optarg)) ||
+            (!pch_check_dir(&dirs->setup[FILE_SPLIT_REPO]))
+        )
+            return ENUM_SETUP_split;
+        break;
+    }
+    case 'l':
+    {
+        if ((optarg) && (dirs->fp[PATHS_FILE_LST]))
+        {
+            dirs->bitopt = ((__BITTST(dirs->bitopt, OPT_INPUT_TXT)) ?
+                                __BITCLR(dirs->bitopt, OPT_INPUT_TXT) :
+                                __BITCLR(dirs->bitopt, OPT_INPUT_XML)
+                            );
+            fclose(dirs->fp[PATHS_FILE_LST]);
+            dirs->fp[PATHS_FILE_LST] = NULL;
+        }
+        if (
+            (!optarg) ||
+            (!string_format(&dirs->setup[FILE_FILELIST], "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, optarg)) ||
+            (!pch_check_file(&dirs->setup[FILE_FILELIST])) ||
+            (!(dirs->fp[PATHS_FILE_LST] = fopen(dirs->setup[FILE_FILELIST].str, "r")))
+        )
+            return ENUM_SETUP_list;
+        do
+        {
+            char cbuf[25] = {0}, *b = (char*)&cbuf;
+
+            if (fread((void*)b, 1U, xmltag.sz, dirs->fp[PATHS_FILE_LST]) > 0)
+            {
+                (void) fseek(dirs->fp[PATHS_FILE_LST], 0L, SEEK_SET);
+
+                /**< UTF8 BOM skipped: EF BB BF */
+                if (
+                    ((unsigned char)b[0] == 0xef) &&
+                    ((unsigned char)b[1] == 0xbb) &&
+                    ((unsigned char)b[2] == 0xbf)
+                )
+                {
+                    b += 3;
+                }
+                if (memcmp((void*)b, (void*)xmltag.str, xmltag.sz) == 0)
+                {
+                    dirs->bitopt = __BITSET(dirs->bitopt, OPT_INPUT_XML);
+                    break;
+                }
+            }
+            dirs->bitopt = __BITSET(dirs->bitopt, OPT_INPUT_TXT);
+        }
+        while(0);
+        break;
+    }
+    case 'o':
+    {
+        if (
+            (!optarg) ||
+            (!string_append_auto(&dirs->setup[FILE_ROOTVCS], optarg)) ||
+            (!pch_check_dir(&dirs->setup[FILE_ROOTVCS]))
+        )
+            return ENUM_SETUP_rootsvn;
+        break;
+    }
+    case 'e':
+    {
+        if (
+            (!optarg) ||
+            (!string_append_auto(&dirs->setup[FILE_BINDIR], optarg)) ||
+            (!pch_check_dir(&dirs->setup[FILE_BINDIR]))
+        )
+            return ENUM_SETUP_execdir;
+        break;
+    }
+    case 'j':
+    {
+        if (
+            (!optarg) ||
+            (!string_append_auto(&dirs->setup[FILE_FLOG], optarg)) ||
+            (!(dirs->fp[PATHS_FILE_OUT] = fopen(dirs->setup[FILE_FLOG].str, "a+")))
+        )
+            return ENUM_SETUP_log;
+        break;
+    }
+    case 'u':
+    {
+        if (
+            (!optarg) ||
+            (!string_append_auto(&dirs->setup[FILE_UUID], optarg))
+        )
+            return ENUM_SETUP_uid;
+        dirs->bitopt = __BITSET(dirs->bitopt, OPT_UUID);
+        break;
+    }
+    case 'd':
+    {
+        if (
+            (!optarg) ||
+            (!string_append_auto(&dirs->setup[FILE_DEPLOY], optarg)) ||
+            (!pch_check_file(&dirs->setup[FILE_DEPLOY]))
+        )
+            return ENUM_SETUP_deploy;
+        dirs->bitopt = __BITSET(dirs->bitopt, OPT_DEPLOY);
+        break;
+    }
+    case 'b':
+    {
+        if (
+            (!optarg) ||
+            (!string_append_auto(&dirs->setup[FILE_BACKUP], optarg)) ||
+            (!pch_check_dir(&dirs->setup[FILE_BACKUP]))
+        )
+            return ENUM_SETUP_backup;
+        dirs->bitopt = __BITSET(dirs->bitopt, OPT_BACKUP);
+        break;
+    }
+    case 'x':
+    {
+        char *ren2;
+
+        if (!optarg)
+            return ENUM_SETUP_rename;
+
+        if ((ren2 = strchr(optarg, '=')))
+        {
+            char *ren1 = optarg;
+            int   sz = (ren2 - optarg);
+            ren2++;
+
+            if (
+                (sz > 0) &&
+                (string_append(&dirs->setup[FILE_RENAME1], ren1, (size_t)sz)) &&
+                (string_append_auto(&dirs->setup[FILE_RENAME2], ren2))
+            )
+                dirs->bitopt = __BITSET(dirs->bitopt, OPT_RENAME);
+        }
+        else
+        {
+            if (string_append_auto(&dirs->setup[FILE_RENAME1], optarg))
+            {
+                dirs->bitopt = __BITSET(dirs->bitopt, OPT_PREFIX);
+            }
+        }
+        break;
+    }
+    case 't':
+    {
+        if (!optarg)
+            break;
+        switch (optarg[0])
+        {
+        case 's' :
+            dirs->bitopt = __BITSET(dirs->bitopt, OPT_VCS_SVN);
+            break;
+        case 'g' :
+            dirs->bitopt = __BITSET(dirs->bitopt, OPT_VCS_GIT);
+            break;
+        case 'h' :
+            dirs->bitopt = __BITSET(dirs->bitopt, OPT_VCS_HG);
+            break;
+        default:
+            return ENUM_SETUP_vcs;
+        }
+        break;
+    }
+    case 'c':
+    {
+        size_t i;
+
+        if (!optarg)
+        {
+            break;
+        }
+        for (i = 0; i < strlen(optarg); i++)
+        {
+            switch (optarg[i])
+            {
+            case 'a' :
+                dirs->bitopt = __BITSET(
+                                   __BITSET(
+                                       __BITSET(dirs->bitopt,
+                                                OPT_FCHECK_CTIME),
+                                       OPT_FCHECK_SIZE),
+                                   OPT_FCHECK_MTIME);
+                break;
+            case 'd' :
+                dirs->bitopt = __BITSET(
+                                   __BITSET(dirs->bitopt,
+                                            OPT_FCHECK_SIZE),
+                                   OPT_FCHECK_MTIME);
+                break;
+            case 'c' :
+                dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_CTIME);
+                break;
+            case 'm' :
+                dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_MTIME);
+                break;
+            case 's' :
+                dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_SIZE);
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    }
+    case 'r':
+    {
+        if (
+            (!optarg) ||
+            (!(dirs->rev = strtoul(optarg, NULL, 10)))
+        )
+            return ENUM_SETUP_revision;
+        break;
+    }
+    case 'g':
+    {
+        if (!optarg)
+        {
+            dirs->bitopt = __BITSET(dirs->bitopt, OPT_CHLOG_GNU);
+            break;
+        }
+        switch (optarg[0])
+        {
+        case 'm' :
+            dirs->bitopt = __BITSET(dirs->bitopt, OPT_CHLOG_MD);
+            break;
+        case 'g' :
+            dirs->bitopt = __BITSET(dirs->bitopt, OPT_CHLOG_GNU);
+            break;
+        default:
+            break;
+        }
+        break;
+    }
+    case 'y':
+    {
+        dirs->bitopt = __BITSET(dirs->bitopt, OPT_YAML);
+        break;
+    }
+    case 'f':
+    {
+        dirs->bitopt = __BITSET(dirs->bitopt, OPT_FORCE);
+        break;
+    }
+    case 'k':
+    {
+        dirs->bitopt = __BITSET(dirs->bitopt, OPT_DEMONIZE);
+        break;
+    }
+    case 'q':
+    {
+        dirs->bitopt = __BITSET(dirs->bitopt, OPT_QUIET);
+        break;
+    }
+    case 'i':
+    {
+        return ENUM_SETUP_info;
+    }
+    case 'h':
+    {
+        return ENUM_SETUP_help;
+    }
+    default:
+    {
+        fprintf(stdout, "\n\tUnknown option: '%c'\n\n", c);
+        return (ENUM_SETUP_RETURN_OK + 3);
+    }
+    }
+    return ENUM_SETUP_RETURN_OK;
+}
+
 int pch_option(paths_t *dirs, char *argv[], int argc)
 {
     int idx = 0;
@@ -137,319 +425,37 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     while (1)
     {
         int c;
+        setup_options_e ret;
         if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:b:t:c:r:g:yfkqih", options, &idx)) == -1)
             break;
 
-        switch (c)
+        switch ((ret = __pch_option_parse(dirs, c, optarg)))
         {
-        case 'm':
+        case ENUM_SETUP_RETURN_OK:
         {
-            if (
-                (!optarg) ||
-                (!string_append_auto(&dirs->setup[FILE_MASTER_REPO], optarg)) ||
-                (!pch_check_dir(&dirs->setup[FILE_MASTER_REPO]))
-            )
-            {
-                __param_err(options[FILE_MASTER_REPO].val, options[FILE_MASTER_REPO].name, help[FILE_MASTER_REPO]);
-                return (FILE_MASTER_REPO + 1);
-            }
             break;
         }
-        case 's':
-        {
-            if (
-                (!optarg) ||
-                (!string_append_auto(&dirs->setup[FILE_SPLIT_REPO], optarg)) ||
-                (!pch_check_dir(&dirs->setup[FILE_SPLIT_REPO]))
-            )
-            {
-                __param_err(options[FILE_SPLIT_REPO].val, options[FILE_SPLIT_REPO].name, help[FILE_SPLIT_REPO]);
-                return (FILE_SPLIT_REPO + 1);
-            }
-            break;
-        }
-        case 'l':
-        {
-            if (
-                (!optarg) ||
-                (!string_format(&dirs->setup[FILE_FILELIST], "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, optarg)) ||
-                (!pch_check_file(&dirs->setup[FILE_FILELIST])) ||
-                (!(dirs->fp[PATHS_FILE_LST] = fopen(dirs->setup[FILE_FILELIST].str, "r")))
-            )
-            {
-                __param_err(options[FILE_FILELIST].val, options[FILE_FILELIST].name, help[FILE_FILELIST]);
-                return (FILE_FILELIST + 1);
-            }
-            do
-            {
-                char cbuf[25] = {0}, *b = (char*)&cbuf;
-
-                if (fread((void*)b, 1U, xmltag.sz, dirs->fp[PATHS_FILE_LST]) > 0)
-                {
-                    (void) fseek(dirs->fp[PATHS_FILE_LST], 0L, SEEK_SET);
-
-                    /**< UTF8 BOM skipped: EF BB BF */
-                    if (
-                        ((unsigned char)b[0] == 0xef) &&
-                        ((unsigned char)b[1] == 0xbb) &&
-                        ((unsigned char)b[2] == 0xbf)
-                        )
-                    {
-                        b += 3;
-                    }
-                    if (memcmp((void*)b, (void*)xmltag.str, xmltag.sz) == 0)
-                    {
-                        dirs->bitopt = __BITSET(dirs->bitopt, OPT_INPUT_XML);
-                        break;
-                    }
-                }
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_INPUT_TXT);
-            }
-            while(0);
-            break;
-        }
-        case 'o':
-        {
-            if (
-                (!optarg) ||
-                (!string_append_auto(&dirs->setup[FILE_ROOTVCS], optarg)) ||
-                (!pch_check_dir(&dirs->setup[FILE_ROOTVCS]))
-            )
-            {
-                __param_err(options[FILE_ROOTVCS].val, options[FILE_ROOTVCS].name, help[FILE_ROOTVCS]);
-                return (FILE_ROOTVCS + 1);
-            }
-            break;
-        }
-        case 'e':
-        {
-            if (
-                (!optarg) ||
-                (!string_append_auto(&dirs->setup[FILE_BINDIR], optarg)) ||
-                (!pch_check_dir(&dirs->setup[FILE_BINDIR]))
-            )
-            {
-                __param_err(options[FILE_BINDIR].val, options[FILE_BINDIR].name, help[FILE_BINDIR]);
-                return (FILE_BINDIR + 1);
-            }
-            break;
-        }
-        case 'j':
-        {
-            if (
-                (!optarg) ||
-                (!string_append_auto(&dirs->setup[FILE_FLOG], optarg)) ||
-                (!(dirs->fp[PATHS_FILE_OUT] = fopen(dirs->setup[FILE_FLOG].str, "a+")))
-            )
-            {
-                __param_err(options[FILE_FLOG].val, options[FILE_FLOG].name, help[FILE_FLOG]);
-                return (FILE_FLOG + 1);
-            }
-            break;
-        }
-        case 'u':
-        {
-            if (
-                (!optarg) ||
-                (!string_append_auto(&dirs->setup[FILE_UUID], optarg))
-            )
-            {
-                __param_err(options[FILE_UUID].val, options[FILE_UUID].name, help[FILE_UUID]);
-                return (FILE_UUID + 1);
-            }
-            dirs->bitopt = __BITSET(dirs->bitopt, OPT_UUID);
-            break;
-        }
-        case 'x':
-        {
-            char *ren2;
-
-            if (!optarg)
-            {
-                __param_err(options[FILE_RENAME1].val, options[FILE_RENAME1].name, help[FILE_RENAME1]);
-                return (FILE_RENAME1 + 1);
-            }
-            if ((ren2 = strchr(optarg, '=')))
-            {
-                char *ren1 = optarg;
-                int   sz = (ren2 - optarg);
-                ren2++;
-
-                if (
-                    (sz > 0) &&
-                    (string_append(&dirs->setup[FILE_RENAME1], ren1, (size_t)sz)) &&
-                    (string_append_auto(&dirs->setup[FILE_RENAME2], ren2))
-                )
-                    dirs->bitopt = __BITSET(dirs->bitopt, OPT_RENAME);
-            }
-            else
-            {
-                if (string_append_auto(&dirs->setup[FILE_RENAME1], optarg))
-                {
-                    dirs->bitopt = __BITSET(dirs->bitopt, OPT_PREFIX);
-                }
-            }
-            break;
-        }
-        case 'd':
-        {
-            if (
-                (!optarg) ||
-                (!string_append_auto(&dirs->setup[FILE_DEPLOY], optarg)) ||
-                (!pch_check_file(&dirs->setup[FILE_DEPLOY]))
-            )
-            {
-                __param_err(options[FILE_DEPLOY].val, options[FILE_DEPLOY].name, help[FILE_DEPLOY]);
-                return (FILE_DEPLOY + 1);
-            }
-            dirs->bitopt = __BITSET(dirs->bitopt, OPT_DEPLOY);
-            break;
-        }
-        case 'b':
-        {
-            if (
-                (!optarg) ||
-                (!string_append_auto(&dirs->setup[FILE_BACKUP], optarg)) ||
-                (!pch_check_dir(&dirs->setup[FILE_BACKUP]))
-            )
-            {
-                __param_err(options[FILE_BACKUP].val, options[FILE_BACKUP].name, help[FILE_BACKUP]);
-                return (FILE_BACKUP + 1);
-            }
-            dirs->bitopt = __BITSET(dirs->bitopt, OPT_BACKUP);
-            break;
-        }
-        case 't':
-        {
-            if (!optarg)
-                break;
-            switch (optarg[0])
-            {
-            case 's' :
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_VCS_SVN);
-                break;
-            case 'g' :
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_VCS_GIT);
-                break;
-            case 'h' :
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_VCS_HG);
-                break;
-            default:
-                __param_err(options[FILE_NONE_IDX].val, options[FILE_NONE_IDX].name, help[FILE_NONE_IDX]);
-                return (FILE_NONE_IDX + 1);
-            }
-            break;
-        }
-        case 'c':
-        {
-            size_t i;
-
-            if (!optarg)
-            {
-                break;
-            }
-            for (i = 0; i < strlen(optarg); i++)
-            {
-                switch (optarg[i])
-                {
-                case 'a' :
-                    dirs->bitopt = __BITSET(
-                                       __BITSET(
-                                           __BITSET(dirs->bitopt,
-                                                    OPT_FCHECK_CTIME),
-                                           OPT_FCHECK_SIZE),
-                                       OPT_FCHECK_MTIME);
-                    break;
-                case 'd' :
-                    dirs->bitopt = __BITSET(
-                                       __BITSET(dirs->bitopt,
-                                                OPT_FCHECK_SIZE),
-                                       OPT_FCHECK_MTIME);
-                    break;
-                case 'c' :
-                    dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_CTIME);
-                    break;
-                case 'm' :
-                    dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_MTIME);
-                    break;
-                case 's' :
-                    dirs->bitopt = __BITSET(dirs->bitopt, OPT_FCHECK_SIZE);
-                    break;
-                default:
-                    break;
-                }
-            }
-            break;
-        }
-        case 'r':
-        {
-            if (
-                (!optarg) ||
-                (!(dirs->rev = strtoul(optarg, NULL, 10)))
-            )
-            {
-                __param_err(options[(FILE_NONE_IDX + 1)].val, options[(FILE_NONE_IDX + 1)].name, help[(FILE_NONE_IDX + 1)]);
-                return (FILE_NONE_IDX + 2);
-            }
-            break;
-        }
-        case 'g':
-        {
-            if (!optarg)
-            {
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_CHLOG_GNU);
-                break;
-            }
-            switch (optarg[0])
-            {
-            case 'm' :
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_CHLOG_MD);
-                break;
-            case 'g' :
-                dirs->bitopt = __BITSET(dirs->bitopt, OPT_CHLOG_GNU);
-                break;
-            default:
-                break;
-            }
-            break;
-        }
-        case 'y':
-        {
-            dirs->bitopt = __BITSET(dirs->bitopt, OPT_YAML);
-            break;
-        }
-        case 'f':
-        {
-            dirs->bitopt = __BITSET(dirs->bitopt, OPT_FORCE);
-            break;
-        }
-        case 'k':
-        {
-            dirs->bitopt = __BITSET(dirs->bitopt, OPT_DEMONIZE);
-            break;
-        }
-        case 'q':
-        {
-            dirs->bitopt = __BITSET(dirs->bitopt, OPT_QUIET);
-            break;
-        }
-        case 'i':
+        case ENUM_SETUP_info:
         {
             fprintf(stdout, "\n%s\n", info);
-            exit(0);
+            exit (0);
         }
-        case 'h':
+        case ENUM_SETUP_help:
         {
             __help_prn(argv[0]);
-            exit(0);
+            exit (0);
         }
         default:
         {
-            fprintf(stdout, "\n\tUnknown option: '%c'\n\n", c);
-            return (FILE_NONE_IDX + 3);
+            if (ret < ENUM_SETUP_RETURN_OK)
+            {
+                __param_err(options[(unsigned)ret].val, options[(unsigned)ret].name, help[(unsigned)ret]);
+            }
+            return (int) ret;
         }
         }
     }
+
     if (optind < argc)
     {
         printf("\n\tBad command line parameters:\n");
@@ -513,7 +519,8 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
             __param_err(options[FILE_MASTER_REPO].val, options[FILE_MASTER_REPO].name, help[FILE_MASTER_REPO]);
         }
 
-    } while (0);
+    }
+    while (0);
 
     startedlog(dirs, argv[0]);
     return 0;

@@ -80,53 +80,24 @@ static char *info =
     "  -h, --help            Show help on commands.\n\n"
     ;
 
+typedef enum
+{
+#define __OPT(A,B,C,D,E) ENUM_SETUP_##A,
+#include "spch-opt-data.h"
+    ENUM_SETUP_RETURN_OK
+} setup_options_e;
+
 static char *help[] =
 {
-    "master repository, from copy",
-    "split repository, to copy",
-    "file list name, search in master repository",
-    "root directory to SVN/GIT/HG repository",
-    "binary execute VCS directory",
-    "journal log path include file name",
-    "run as 'user' privilege (Linux only)",
-    "run deploy script before commit",
-    "create Backup, directory path required",
-    "rename files, prefix example 'new' or 'old=new'",
-    "VCS type: [svn|git|hg]",
-    "file compare: [m|c|s|a|d], see --info",
-    "current VCS revision",
-    "create ChangeLog, format: [md|gnu]",
-    "use file 'deploy.yaml', run test/check before commit",
-    "force overwrite all destination files",
-    "fork and daemonize, no-loop VCS mode",
-    "quiet mode, no print message to console",
-    "full command information help page",
-    "this help page",
+#define __OPT(A,B,C,D,E) E,
+#include "spch-opt-data.h"
     NULL
 };
 
 static struct option options[] =
 {
-    { "master",   required_argument,  NULL, 'm' },
-    { "split",    required_argument,  NULL, 's' },
-    { "list",     required_argument,  NULL, 'l' },
-    { "rootsvn",  required_argument,  NULL, 'o' },
-    { "execdir",  required_argument,  NULL, 'e' },
-    { "log",      required_argument,  NULL, 'j' },
-    { "uid",      required_argument,  NULL, 'u' },
-    { "deploy",   required_argument,  NULL, 'd' },
-    { "backup",   required_argument,  NULL, 'b' },
-    { "rename",   required_argument,  NULL, 'x' },
-    { "vcs",      required_argument,  NULL, 't' },
-    { "check",    required_argument,  NULL, 'c' },
-    { "revision", required_argument,  NULL, 'r' },
-    { "chnglog",  required_argument,  NULL, 'g' },
-    { "yaml",     no_argument,        NULL, 'y' },
-    { "force",    no_argument,        NULL, 'f' },
-    { "nonloop",  no_argument,        NULL, 'k' },
-    { "quiet",    no_argument,        NULL, 'q' },
-    { "info",     no_argument,        NULL, 'i' },
-    { "help",     no_argument,        NULL, 'h' },
+#define __OPT(A,B,C,D,E) { __SINIT(.name, #A), __SINIT(.has_arg, B), __SINIT(.flag, C), __SINIT(.val, D) },
+#include "spch-opt-data.h"
     { 0, 0, 0, 0 }
 };
 

@@ -23,7 +23,6 @@
 					<Add option="-Wunreachable-code" />
 					<Add option="-Wmissing-declarations" />
 					<Add option="-Wmissing-include-dirs" />
-					<Add option="-Wswitch-enum" />
 					<Add option="-Wswitch-default" />
 					<Add option="-Wmain" />
 					<Add option="-pedantic" />
@@ -105,6 +104,7 @@
 		<Unit filename="../../src/spch-log.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="../../src/spch-opt-data.h" />
 		<Unit filename="../../src/spch-opt.c">
 			<Option compilerVar="CC" />
 		</Unit>
