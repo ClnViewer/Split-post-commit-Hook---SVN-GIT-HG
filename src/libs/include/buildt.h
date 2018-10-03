@@ -162,6 +162,7 @@
 int _mkdir(const char*);
 int _chdir(const char*);
 const char * _strptime(const char*, const char*, struct tm*);
+int strncasecmp(const char*, const char*, size_t);
 #define strptime (char*)_strptime
 #endif
 

@@ -26,7 +26,14 @@
 #include "spch.h"
 #include <getopt.h>
 #include "spch-opt.h"
+#include "libs/include/xmlp.h"
 #include "version.h"
+
+typedef struct
+{
+    setup_options_e id;
+    paths_t *data;
+} optxml_a;
 
 static void __help_prn(const char *exename)
 {
@@ -136,6 +143,9 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     {
     case 'm':
     {
+        if (dirs->setup[FILE_MASTER_REPO].str)
+            break;
+
         if (
             (!optarg) ||
             (!string_append_auto(&dirs->setup[FILE_MASTER_REPO], optarg)) ||
@@ -146,6 +156,9 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     }
     case 's':
     {
+        if (dirs->setup[FILE_SPLIT_REPO].str)
+            break;
+
         if (
             (!optarg) ||
             (!string_append_auto(&dirs->setup[FILE_SPLIT_REPO], optarg)) ||
@@ -159,11 +172,12 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
         if ((optarg) && (dirs->fp[PATHS_FILE_LST]))
         {
             dirs->bitopt = ((__BITTST(dirs->bitopt, OPT_INPUT_TXT)) ?
-                                __BITCLR(dirs->bitopt, OPT_INPUT_TXT) :
-                                __BITCLR(dirs->bitopt, OPT_INPUT_XML)
-                            );
+                            __BITCLR(dirs->bitopt, OPT_INPUT_TXT) :
+                            __BITCLR(dirs->bitopt, OPT_INPUT_XML)
+                           );
             fclose(dirs->fp[PATHS_FILE_LST]);
             dirs->fp[PATHS_FILE_LST] = NULL;
+            string_free(&dirs->setup[FILE_FILELIST]);
         }
         if (
             (!optarg) ||
@@ -202,6 +216,9 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     }
     case 'o':
     {
+        if (dirs->setup[FILE_ROOTVCS].str)
+            break;
+
         if (
             (!optarg) ||
             (!string_append_auto(&dirs->setup[FILE_ROOTVCS], optarg)) ||
@@ -212,6 +229,9 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     }
     case 'e':
     {
+        if (dirs->setup[FILE_BINDIR].str)
+            break;
+
         if (
             (!optarg) ||
             (!string_append_auto(&dirs->setup[FILE_BINDIR], optarg)) ||
@@ -222,6 +242,9 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     }
     case 'j':
     {
+        if (dirs->setup[FILE_FLOG].str)
+            break;
+
         if (
             (!optarg) ||
             (!string_append_auto(&dirs->setup[FILE_FLOG], optarg)) ||
@@ -232,6 +255,9 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     }
     case 'u':
     {
+        if (dirs->setup[FILE_UUID].str)
+            break;
+
         if (
             (!optarg) ||
             (!string_append_auto(&dirs->setup[FILE_UUID], optarg))
@@ -242,6 +268,9 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     }
     case 'd':
     {
+        if (dirs->setup[FILE_DEPLOY].str)
+            break;
+
         if (
             (!optarg) ||
             (!string_append_auto(&dirs->setup[FILE_DEPLOY], optarg)) ||
@@ -253,6 +282,9 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     }
     case 'b':
     {
+        if (dirs->setup[FILE_BACKUP].str)
+            break;
+
         if (
             (!optarg) ||
             (!string_append_auto(&dirs->setup[FILE_BACKUP], optarg)) ||
@@ -265,6 +297,9 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     case 'x':
     {
         char *ren2;
+
+        if (dirs->setup[FILE_RENAME1].str)
+            break;
 
         if (!optarg)
             return ENUM_SETUP_rename;
@@ -295,6 +330,7 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     {
         if (!optarg)
             break;
+
         switch (optarg[0])
         {
         case 's' :
@@ -354,6 +390,9 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     }
     case 'r':
     {
+        if (dirs->rev)
+            break;
+
         if (
             (!optarg) ||
             (!(dirs->rev = strtoul(optarg, NULL, 10)))
@@ -412,10 +451,144 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     default:
     {
         fprintf(stdout, "\n\tUnknown option: '%c'\n\n", c);
-        return (ENUM_SETUP_RETURN_OK + 3);
+        return (ENUM_SETUP_RETURN_OK + 2);
     }
     }
     return ENUM_SETUP_RETURN_OK;
+}
+
+static int __cb_opentag(void *v, int depth, char *name)
+{
+    unsigned i;
+    optxml_a *data = (optxml_a*)v;
+    data->id = ENUM_SETUP_RETURN_OK;
+
+    (void) depth;
+
+    /* skip help and info  non XML configuration*/
+    for (i = 0U; i < __NELE(options); i++)
+    {
+        switch ((setup_options_e)i)
+        {
+        case ENUM_SETUP_help:
+        case ENUM_SETUP_info:
+        case ENUM_SETUP_master:
+            continue;
+        default:
+        {
+            break;
+        }
+        }
+        if (!strncmp(name, options[i].name, strlen(options[i].name)))
+        {
+            data->id = (setup_options_e)i;
+            break;
+        }
+    }
+    if (data->id == ENUM_SETUP_RETURN_OK)
+    {
+        if (!strncmp(name, "name", 4U))
+        {
+            data->id = ENUM_SETUP_EXT_NAME;
+        }
+        else if (!strncmp(name, "date", 4U))
+        {
+            data->id = ENUM_SETUP_EXT_DATE;
+        }
+    }
+    return 0;
+}
+
+static int __cb_text(void *v, int depth, char *text)
+{
+    optxml_a *data = (optxml_a*)v;
+    size_t sz = strlen(text);
+    (void) depth;
+
+    do
+    {
+        if (!sz)
+            break;
+
+        switch (data->id)
+        {
+        case ENUM_SETUP_RETURN_OK:
+            break;
+        case ENUM_SETUP_EXT_NAME:
+        {
+            string_free(&data->data->setup[FILE_MASTER_NAME]);
+            if (!string_append(&data->data->setup[FILE_MASTER_NAME], text, sz))
+                return -1;
+            break;
+        }
+        case ENUM_SETUP_EXT_DATE:
+        {
+            /* TODO (clanc#1#): add to dirs_t structure */
+            char b[100] = {0};
+            struct tm *tms;
+            time_t t = (time_t)strtoul(text, NULL, 10);
+
+            if ((unsigned long)t == 0UL)
+                break;
+
+            tms = localtime(&t);
+            if (!tms)
+                break;
+
+            (void) strftime(b, 100, "%d.%m.%Y %H:%M", tms);
+            pch_log_info(
+                data->data,
+                "found XML configuration date: %s",
+                b
+            );
+            break;
+        }
+        case ENUM_SETUP_yaml:
+        case ENUM_SETUP_force:
+        case ENUM_SETUP_nonloop:
+        case ENUM_SETUP_quiet:
+        {
+            if ((sz == 3U) && (!strncasecmp(text, "yes", 3U)))
+            {
+                (void) __pch_option_parse(data->data, options[(int)data->id].val, NULL);
+            }
+            break;
+        }
+        default:
+        {
+            (void) __pch_option_parse(data->data, options[(int)data->id].val, text);
+            break;
+        }
+        }
+    }
+    while (0);
+
+    data->id = ENUM_SETUP_RETURN_OK;
+    return 0;
+}
+
+static bool_t __opt_xmlsetup(paths_t *dirs)
+{
+    int ret;
+    optxml_a oxml;
+    memset(&oxml, 0, sizeof(optxml_a));
+    oxml.id = ENUM_SETUP_RETURN_OK;
+    oxml.data = dirs;
+
+    ret = xmlpf(dirs->fp[PATHS_FILE_LST],
+                &oxml,
+                __cb_opentag,
+                NULL,
+                NULL,
+                NULL,
+                __cb_text
+               );
+
+    (void) fseek(dirs->fp[PATHS_FILE_LST], 0L, SEEK_SET);
+
+    return ((ret == -1) ? R_NEGATIVE :
+            ((!ret) ? R_TRUE : R_FALSE)
+           );
 }
 
 int pch_option(paths_t *dirs, char *argv[], int argc)
@@ -458,10 +631,18 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
 
     if (optind < argc)
     {
-        printf("\n\tBad command line parameters:\n");
+        fprintf(stdout, "\n\tBad command line parameters:\n");
         while (optind < argc)
-            printf("\t\t%s\n", argv[optind++]);
-        printf("\n");
+            fprintf(stdout, "\t\t%s\n", argv[optind++]);
+        fprintf(stdout, "\n");
+    }
+    if ((__BITTST(dirs->bitopt, OPT_INPUT_XML)) && (dirs->fp[PATHS_FILE_LST]))
+    {
+        if (__opt_xmlsetup(dirs) != R_TRUE)
+        {
+            fprintf(stdout, "\n\tXML configuration list parse error: %s\n", dirs->setup[FILE_FILELIST].str);
+            return (ENUM_SETUP_RETURN_OK + 3);
+        }
     }
     if (
         (!dirs->setup[FILE_MASTER_REPO].str) ||
@@ -470,7 +651,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     )
     {
         fprintf(stdout, "\n\tRequired options: '-m ..', '-s ..', '-l ..'\n\n");
-        return (FILE_NONE_IDX + 4);
+        return (ENUM_SETUP_RETURN_OK + 4);
     }
 
 #   if !defined(OS_WIN)
@@ -486,7 +667,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     )
     {
         fprintf(stdout, "\n\tRequired options exec VCS bin directory: '-e ..'\n\n");
-        return (FILE_NONE_IDX + 5);
+        return (ENUM_SETUP_RETURN_OK + 5);
     }
     if (
         (!__BITTST(dirs->bitopt, OPT_VCS_SVN)) &&
@@ -495,7 +676,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     )
     {
         fprintf(stdout, "\n\tRequired options type VCS: '-t svn | git | hg'\n\n");
-        return (FILE_NONE_IDX + 6);
+        return (ENUM_SETUP_RETURN_OK + 6);
     }
     if (
         (!__BITTST(dirs->bitopt, OPT_FCHECK_CTIME)) &&
@@ -509,18 +690,20 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
                            OPT_FCHECK_MTIME);
     }
 
-    do
+    if (!dirs->setup[FILE_MASTER_NAME].str)
     {
-        char *c = strrchr(dirs->setup[FILE_MASTER_REPO].str, __PSEPC);
-        c = ((c == NULL) ? dirs->setup[FILE_MASTER_REPO].str : (c + 1));
-
-        if (!string_append_auto(&dirs->setup[FILE_MASTER_NAME], c))
+        do
         {
-            __param_err(options[FILE_MASTER_REPO].val, options[FILE_MASTER_REPO].name, help[FILE_MASTER_REPO]);
-        }
+            char *c = strrchr(dirs->setup[FILE_MASTER_REPO].str, __PSEPC);
+            c = ((c == NULL) ? dirs->setup[FILE_MASTER_REPO].str : (c + 1));
 
+            if (!string_append_auto(&dirs->setup[FILE_MASTER_NAME], c))
+            {
+                __param_err(options[FILE_MASTER_REPO].val, options[FILE_MASTER_REPO].name, help[FILE_MASTER_REPO]);
+            }
+        }
+        while (0);
     }
-    while (0);
 
     startedlog(dirs, argv[0]);
     return 0;

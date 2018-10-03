@@ -84,7 +84,9 @@ typedef enum
 {
 #define __OPT(A,B,C,D,E) ENUM_SETUP_##A,
 #include "spch-opt-data.h"
-    ENUM_SETUP_RETURN_OK
+    ENUM_SETUP_RETURN_OK,
+    ENUM_SETUP_EXT_DATE,
+    ENUM_SETUP_EXT_NAME,
 } setup_options_e;
 
 static char *help[] =

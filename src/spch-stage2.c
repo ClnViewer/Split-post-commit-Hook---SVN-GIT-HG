@@ -284,63 +284,21 @@ static int __cb_opentag(void *v, int depth, char *name)
 
 static int __cb_text(void *v, int depth, char *text)
 {
-    size_t sz;
     vcsfiles_a *data = (vcsfiles_a*)v;
+    size_t sz;
     (void) depth;
 
-    if (data->root == ENUM_XML_LIST_spchlist)
+    if (
+        (data->root == ENUM_XML_LIST_spchlist) &&
+        (data->id == ENUM_XML_LIST_file) &&
+        ((sz = strlen(text)))
+    )
     {
-        if (
-            (data->id == ENUM_XML_LIST_file) &&
-            ((sz = strlen(text)))
-        )
-        {
-            string_s str;
-            str.str = text;
-            str.sz = sz;
-            data->data->s = &str;
-            return (__stage2_vcsfile(data->data) != R_TRUE);
-        }
-        else if (
-            (data->id == ENUM_XML_LIST_name) &&
-            ((sz = strlen(text)))
-        )
-        {
-            string_free(&data->data->dirs->setup[FILE_MASTER_NAME]);
-            if (!string_append(&data->data->dirs->setup[FILE_MASTER_NAME], text, sz))
-                return -1;
-
-            if (__ISLOGPV(data->data->dirs))
-                pch_log_info(
-                    data->data->dirs,
-                    "stage #2 repo list name: %s",
-                    data->data->dirs->setup[FILE_MASTER_NAME].str
-                );
-        }
-        else if (
-            (data->id == ENUM_XML_LIST_date) &&
-            (__ISLOGPV(data->data->dirs)) &&
-            ((sz = strlen(text)))
-        )
-        {
-            char b[100] = {0};
-            struct tm *tms;
-            time_t t = (time_t)strtoul(text, NULL, 10);
-
-            if ((unsigned long)t == 0UL)
-                return 0;
-
-            tms = localtime(&t);
-            if (!tms)
-                return 0;
-
-            (void) strftime(b, 100, "%d.%m.%Y %H:%M", tms);
-            pch_log_info(
-                data->data->dirs,
-                "stage #2 repo list date: %s",
-                b
-            );
-        }
+        string_s str;
+        str.str = text;
+        str.sz = sz;
+        data->data->s = &str;
+        return (__stage2_vcsfile(data->data) != R_TRUE);
     }
     return 0;
 }
