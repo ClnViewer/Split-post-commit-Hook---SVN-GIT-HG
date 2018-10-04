@@ -169,16 +169,9 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
     }
     case 'l':
     {
-        if ((optarg) && (dirs->fp[PATHS_FILE_LST]))
-        {
-            dirs->bitopt = ((__BITTST(dirs->bitopt, OPT_INPUT_TXT)) ?
-                            __BITCLR(dirs->bitopt, OPT_INPUT_TXT) :
-                            __BITCLR(dirs->bitopt, OPT_INPUT_XML)
-                           );
-            fclose(dirs->fp[PATHS_FILE_LST]);
-            dirs->fp[PATHS_FILE_LST] = NULL;
-            string_free(&dirs->setup[FILE_FILELIST]);
-        }
+        if (dirs->setup[FILE_FILELIST].str)
+            break;
+
         if (
             (!optarg) ||
             (!string_format(&dirs->setup[FILE_FILELIST], "%s" __PSEPS "%s", dirs->setup[FILE_MASTER_REPO].str, optarg)) ||
@@ -472,6 +465,7 @@ static int __cb_opentag(void *v, int depth, char *name)
         {
         case ENUM_SETUP_help:
         case ENUM_SETUP_info:
+        case ENUM_SETUP_list:
         case ENUM_SETUP_master:
             continue;
         default:
