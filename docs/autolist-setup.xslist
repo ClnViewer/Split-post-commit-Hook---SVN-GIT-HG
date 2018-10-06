@@ -21,18 +21,17 @@
     </options>
   </settings>
   <files>
-    <file>src\libs\include\msvc\getopt.h</file>
-    <file>src\libs\include\win\libgen.h</file>
-    <file>src\libs\include\boolt.h</file>
-    <file>src\libs\include\buildt.h</file>
-    <file>src\libs\include\kzip.h</file>
-    <file>src\libs\include\string_s.h</file>
-    <file>src\libs\include\xmlp.h</file>
-    <file>docs\EXAMPLE-USE1.md</file>
-    <file>docs\EXAMPLE-USE2.md</file>
-    <file>docs\autolist.slist</file>
-    <file>docs\autolist.xslist</file>
-    <file>docs\distro</file>
-    <file>docs\spch.1</file>
+    <file>file1.txt</file>
+    <file>file2.txt</file>
+    <file>file3.txt</file>
+    <file>file4.txt</file>
+    <file>file5.txt</file>
+    <file>dir1\file1.txt</file>
+    <file>dir1\file2.txt</file>
+    <file>dir1\file3.txt</file>
+    <file>dir2\file1.txt</file>
+    <file>dir2\file10.txt</file>
+    <file>dir2\file100.txt</file>
+    <file>dir2\file1000000xxxxxxxxxxxxxxx.txt</file>
   </files>
 </spchlist>
