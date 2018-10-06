@@ -94,13 +94,16 @@
 > 
 > В противном случае, например для `svn` будет происходить ошибка при попытке использовать метод `update`, репозиторий будет находиться в состоянии `.lock` от предыдущей операции `commit` из которой и вызывается данная программа.
 
-Файл справки в [формате `man`](https://raw.githubusercontent.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG/master/docs/spch.1)  
+Вы так-же можете использовать значения ключей в [файле списка](docs/autolist-setup.xslist), секция `settings/options`.  При этом единственные нобходимые ключи командной строки будут `-m, --master` и `-l, --list`.  
+
+Файл справки по командам в [формате `man`](https://raw.githubusercontent.com/ClnViewer/Split-post-commit-Hook---SVN-GIT-HG/master/docs/spch.1)  
 
 ## Формат входных файлов `.slist | .xslist`
 
 Файлы списка могут иметь два формата:
 
 - `XML` формат - [пример](docs/autolist.xslist)
+- `XML` расширенный формат, настройки репозитория - [пример](docs/autolist-setup.xslist)
 - `Plain TEXT` формат - [пример](docs/autolist.slist)
 
 # 
@@ -152,7 +155,7 @@
      Setup -> Root directory: /repo/split
      Setup -> VCS revision: 160
      Setup -> VCS type: svn
-
+    
      Pre-build cmd: cd build/
      Examine cmd: /usr/bin/gcc -std=gnu99 -Wall -pedantic -I../src 
       -Wfatal-errors -pedantic-errors 
@@ -199,7 +202,7 @@
 
     # пример для `svn`, файл `post-commit` находиться в директории
     # текущего svn репозитория в подпапке `hooks`.
-
+    
     # структура `svn` репозитория:
         conf/
         db/
@@ -207,7 +210,7 @@
         locks/
         README.txt
         format
-
+    
     # вносим изменения в hooks/post-commit:
     /usr/bin/spch \
        -u svn \
@@ -226,7 +229,7 @@
 
     # если используем файл 'yaml', не забываем добавить глобальное
     # игнорирование файла deploy.yaml:
-
+    
     svn propset svn:global-ignores deploy.yaml
     # или на уровне выбранного репозитория
     svn propset svn:ignore deploy.yaml
@@ -244,7 +247,7 @@
      [30061/1][pch_stage2:154] -> stage #2 update: /repo/master/spch-link-hash.c -> /repo/split/hashmap-link-hash.c
      [30061/1][main:112] -> stage #2 changed repo objects: 2 -> /repo/split
      [30061/1][pch_stage3:217] -> deploy script [buildDeploy.sh] start: 
-
+    
         17) Add: [217374]
         19) Add: [925358]
         ...
@@ -252,7 +255,7 @@
         1)      [139920]
         2)      [440839]
         3)      [925358]
-
+    
      [30061/1][pch_stage3:217] -> deploy script [buildDeploy.sh] - OK
      [30061/1][main:136] -> stage #3 changed commit success: /repo/split
      [30061/1][endedlog:119] -> ended at 08/30/18-06:16PM
