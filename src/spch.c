@@ -160,21 +160,21 @@ int main(int argc, char *argv[])
             else if (bret == R_NEGATIVE)
             {
                 pch_log_error(&dirs, "stage #%d incomplete, return error", 2);
-                ret = 120;
+                ret = 119;
                 break;
             }
             /* stage #3 check/deploy */
             bret = pch_stage3(&dirs);
             if (bret != R_TRUE)
             {
-                pch_log_error(&dirs, "stage #3 check/deploy error: %s", dirs.setup[FILE_SPLIT_REPO].str);
+                pch_log_error(&dirs, "stage #3 check/deploy/changelog return error: %s", dirs.setup[FILE_SPLIT_REPO].str);
                 break;
             }
             else
             {
                 if (__ISLOGS)
                 {
-                    pch_log_info(&dirs, "stage #3 check/deploy success: %s", dirs.setup[FILE_SPLIT_REPO].str);
+                    pch_log_info(&dirs, "stage #3 check/deploy/changelog success: %s", dirs.setup[FILE_SPLIT_REPO].str);
                 }
             }
             /* stage #4 */
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
             else
             {
                 pch_log_error(&dirs, "stage #%d commit incomplete, return error", 4);
-                ret = 119;
+                ret = 120;
                 break;
             }
         }

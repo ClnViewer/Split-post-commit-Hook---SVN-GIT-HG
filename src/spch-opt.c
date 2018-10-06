@@ -459,7 +459,7 @@ static int __cb_opentag(void *v, int depth, char *name)
     (void) depth;
 
     /* skip help and info  non XML configuration*/
-    for (i = 0U; i < __NELE(options); i++)
+    for (i = 0U; i < (__NELE(options) - 1); i++)
     {
         switch ((setup_options_e)i)
         {

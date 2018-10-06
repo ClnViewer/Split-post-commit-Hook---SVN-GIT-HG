@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-16"?>
+<spchlist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <settings>
+    <repo>TEST-PROJECT</repo>
+    <date>1538756623</date>
+    <options>
+      <split>/new/path/repo</split>
+      <deploy>/test/new/deploy.script</deploy>
+      <backup>/path/to/backup/dir</backup>
+      <log>/path/to/log/dir</log>
+      <execdir>/path/to/exec/dir</execdir>
+      <uid>admin</uid>
+      <rename>old=new</rename>
+      <chnglog>gnu</chnglog>
+      <check>ms</check>
+      <vcs>svn</vcs>
+      <yaml>false</yaml>
+      <force>false</force>
+      <nonloop>true</nonloop>
+      <quiet>true</quiet>
+    </options>
+  </settings>
+  <files>
+    <file>src\libs\include\msvc\getopt.h</file>
+    <file>src\libs\include\win\libgen.h</file>
+    <file>src\libs\include\boolt.h</file>
+    <file>src\libs\include\buildt.h</file>
+    <file>src\libs\include\kzip.h</file>
+    <file>src\libs\include\string_s.h</file>
+    <file>src\libs\include\xmlp.h</file>
+    <file>docs\EXAMPLE-USE1.md</file>
+    <file>docs\EXAMPLE-USE2.md</file>
+    <file>docs\autolist.slist</file>
+    <file>docs\autolist.xslist</file>
+    <file>docs\distro</file>
+    <file>docs\spch.1</file>
+  </files>
+</spchlist>
