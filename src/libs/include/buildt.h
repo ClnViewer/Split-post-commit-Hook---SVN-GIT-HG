@@ -159,11 +159,18 @@
 #include "boolt.h"
 
 #if defined(OS_WIN)
-int _mkdir(const char*);
-int _chdir(const char*);
-const char * _strptime(const char*, const char*, struct tm*);
-int strncasecmp(const char*, const char*, size_t);
-#define strptime (char*)_strptime
+   int _mkdir(const char*);
+   int _chdir(const char*);
+   const char * _strptime(const char*, const char*, struct tm*);
+
+#  if defined(BUILD_MSVC)
+#    define strcasecmp _stricmp
+#    define strncasecmp _strnicmp
+#  elif defined(BUILD_MINGW)
+     int strncasecmp(const char*, const char*, size_t);
+#  endif
+
+#  define strptime (char*)_strptime
 #endif
 
 static inline void __attribute__((always_inline)) __autofree(void *v)
