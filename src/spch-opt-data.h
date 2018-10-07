@@ -41,6 +41,7 @@ __OPT( yaml,     no_argument,        NULL, 'y', "use file 'deploy.yaml', run tes
 __OPT( force,    no_argument,        NULL, 'f', "force overwrite all destination files" )
 __OPT( nonloop,  no_argument,        NULL, 'k', "fork and daemonize, no-loop VCS mode" )
 __OPT( quiet,    no_argument,        NULL, 'q', "quiet mode, no print message to console" )
+__OPT( template, no_argument,        NULL, 'p', "example XML list template" )
 __OPT( info,     no_argument,        NULL, 'i', "full command information help page" )
 __OPT( help,     no_argument,        NULL, 'h', "this help page" )
 

@@ -30,7 +30,8 @@ static char *info =
     "  -m, --master 'val'    Master repository, from where we copy.\n\n" \
     "  -s, --split 'val'     Split repository, where we copy it.\n\n" \
     "  -l, --list 'val'      List of copied files, set by root master\n" \
-    "                        repository.\n\n" \
+    "                        repository.\n" \
+    "                        To create it, use 'SpchListBuilder'.\n\n" \
     "  -o, --rootsvn 'val'   Root directory SVN/GIT/HG repositories.\n\n" \
     "  -e, --execdir 'val'   Path to VCS executables, for 'POSIX' systems\n" \
     "                        by default '/usr/bin'.\n\n" \
@@ -78,6 +79,36 @@ static char *info =
     "                        configuration parameters from command line.\n\n" \
     "  -i, --info            Detailed description of the commands (this).\n\n" \
     "  -h, --help            Show help on commands.\n\n"
+    ;
+
+static char *tmpllist =
+    "  <?xml version=\"1.0\" encoding=\"utf-8\"?>\n" \
+    "  <spchlist xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" \
+    "    <settings>\n" \
+    "      <repo>PROJECT-Name</repo>\n" \
+    "      <date>Unix time stamp in sec</date>\n" \
+    "      <options>\n" \
+    "        <split>/split/repository/path</split>\n" \
+    "        <deploy>/path/test/deploy-script-name</deploy>\n" \
+    "        <backup>/path/to/backup/dir</backup>\n" \
+    "        <log>/path/to/log/dir/log-file-name</log>\n" \
+    "        <execdir>/path/to/exec/dir</execdir>\n" \
+    "        <uid>Unix active user login</uid>\n" \
+    "        <rename>old=new</rename>\n" \
+    "        <chnglog>gnu|md</chnglog>\n" \
+    "        <check>m|c|s|ms|cs|mcs</check>\n" \
+    "        <vcs>svn|git|hg</vcs>\n" \
+    "        <yaml>true|false</yaml>\n" \
+    "        <force>true|false</force>\n" \
+    "        <nonloop>true|false</nonloop>\n" \
+    "        <quiet>true|false</quiet>\n" \
+    "      </options>\n" \
+    "    </settings>\n" \
+    "    <files>\n" \
+    "      <file>file1.ext</file>\n" \
+    "      <file>file2.ext</file>\n" \
+    "    </files>\n" \
+    "  </spchlist>\n\n"
     ;
 
 typedef enum

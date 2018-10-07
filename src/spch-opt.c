@@ -96,6 +96,23 @@ void startedlog(paths_t *dirs, const char *exename)
         "started at %s",
         b
     );
+
+    if (dirs->tlist != 0UL)
+    {
+        char btm[100] = {0};
+        struct tm *tms;
+        time_t t = (time_t)dirs->tlist;
+        tms = localtime(&t);
+        if (!tms)
+            return;
+
+        (void) strftime(btm, 100, "%d.%m.%Y %H:%M", tms);
+        pch_log_info(
+            dirs,
+            "found XML configuration date: %s",
+            btm
+        );
+    }
 }
 
 void endedlog(paths_t *dirs)
@@ -433,6 +450,10 @@ static setup_options_e __pch_option_parse(paths_t *dirs, int c, char *optarg)
         dirs->bitopt = __BITSET(dirs->bitopt, OPT_QUIET);
         break;
     }
+    case 'p':
+    {
+        return ENUM_SETUP_template;
+    }
     case 'i':
     {
         return ENUM_SETUP_info;
@@ -467,6 +488,7 @@ static int __cb_opentag(void *v, int depth, char *name)
         case ENUM_SETUP_info:
         case ENUM_SETUP_list:
         case ENUM_SETUP_master:
+        case ENUM_SETUP_template:
             continue;
         default:
         {
@@ -517,24 +539,7 @@ static int __cb_text(void *v, int depth, char *text)
         }
         case ENUM_SETUP_EXT_DATE:
         {
-            /* TODO (clanc#1#): add to dirs_t structure */
-            char b[100] = {0};
-            struct tm *tms;
-            time_t t = (time_t)strtoul(text, NULL, 10);
-
-            if ((unsigned long)t == 0UL)
-                break;
-
-            tms = localtime(&t);
-            if (!tms)
-                break;
-
-            (void) strftime(b, 100, "%d.%m.%Y %H:%M", tms);
-            pch_log_info(
-                data->data,
-                "found XML configuration date: %s",
-                b
-            );
+            data->data->tlist = strtoul(text, NULL, 10);
             break;
         }
         case ENUM_SETUP_yaml:
@@ -542,7 +547,7 @@ static int __cb_text(void *v, int depth, char *text)
         case ENUM_SETUP_nonloop:
         case ENUM_SETUP_quiet:
         {
-            if ((sz == 3U) && (!strncasecmp(text, "yes", 3U)))
+            if ((sz == 3U) && (!strncasecmp(text, "true", 4U)))
             {
                 (void) __pch_option_parse(data->data, options[(int)data->id].val, NULL);
             }
@@ -593,7 +598,7 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
     {
         int c;
         setup_options_e ret;
-        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:b:t:c:r:g:yfkqih", options, &idx)) == -1)
+        if ((c = getopt_long(argc, argv, "m:s:l:o:e:j:u:x:d:b:t:c:r:g:yfkqpih", options, &idx)) == -1)
             break;
 
         switch ((ret = __pch_option_parse(dirs, c, optarg)))
@@ -601,6 +606,11 @@ int pch_option(paths_t *dirs, char *argv[], int argc)
         case ENUM_SETUP_RETURN_OK:
         {
             break;
+        }
+        case ENUM_SETUP_template:
+        {
+            fprintf(stdout, "\n%s\n", tmpllist);
+            exit (0);
         }
         case ENUM_SETUP_info:
         {

@@ -86,7 +86,7 @@ typedef enum
 
 typedef struct
 {
-    unsigned long bitopt, rev;
+    unsigned long bitopt, rev, tlist;
     FILE    *fp[3];
     long     fpos;
     string_s setup[FILE_NONE_IDX];
