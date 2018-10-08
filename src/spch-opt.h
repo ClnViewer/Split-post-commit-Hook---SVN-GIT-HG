@@ -77,6 +77,7 @@ static char *info =
     "  -q, --quiet           Silent mode, do not output anything on\n" \
     "                        console, only works after processing\n" \
     "                        configuration parameters from command line.\n\n" \
+    "  -t, --template        Show template XML file list.\n\n" \
     "  -i, --info            Detailed description of the commands (this).\n\n" \
     "  -h, --help            Show help on commands.\n\n"
     ;
